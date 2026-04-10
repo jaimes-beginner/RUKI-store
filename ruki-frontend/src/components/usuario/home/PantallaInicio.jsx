@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import './pantallainicio.css';
+import './PantallaInicio.css';
 
 const categories = [
 	{ title: 'Accesorios', image: '/imagenes/wallpaper.jpg' },

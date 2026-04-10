@@ -1,7 +1,8 @@
 // src/components/Header.jsx
 import { useState } from 'react';
 import { Navbar, Nav, Container } from 'react-bootstrap';
-import './header.css';
+import { Link } from 'react-router-dom';
+import './NavbarUsuarios.css';
 
 function Header() {
   const [activeLink, setActiveLink] = useState(null);
@@ -32,7 +33,7 @@ function Header() {
             activeKey={activeLink}
             onSelect={(selectedKey) => selectedKey && setActiveLink(selectedKey)}
           >
-            <Nav.Link eventKey="new" href="#new" className="fw-bold small">NEW ARRIVALS</Nav.Link>
+            <Nav.Link as={Link} to="/new-arrivals" eventKey="new" className="fw-bold small">NEW ARRIVALS</Nav.Link>
             <Nav.Link eventKey="productos" href="#productos" className="fw-bold small">PRODUCTOS</Nav.Link>
             <Nav.Link eventKey="sale" href="#sale" className="fw-bold small">SALE</Nav.Link>
           </Nav>

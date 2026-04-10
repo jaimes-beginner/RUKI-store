@@ -1,0 +1,194 @@
+.new-arrivals-page {
+    background: #ffffff;
+    min-height: 100vh;
+    color: #111;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.na-top-line {
+    height: 22px;
+    border-top: 3px solid #00a7ff;
+    border-bottom: 1px solid #2d2d2d;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+}
+
+
+
+.na-shell {
+    width: min(980px, 100% - 32px);
+    margin: 0 auto;
+    padding: 12px 0 30px;
+}
+
+.na-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    margin: 8px 0 16px;
+}
+
+.na-header h1 {
+    font-size: 38px;
+    letter-spacing: 1px;
+    margin: 0;
+    font-weight: 900;
+}
+
+
+.na-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-bottom: 22px;
+}
+
+.na-tabs button {
+    border: 0;
+    background: transparent;
+    font-size: 36px;
+    font-weight: 700;
+    color: #242121;
+    cursor: pointer;
+    padding: 8px 0;
+}
+
+
+
+.na-content {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 30px;
+}
+
+.na-filter-title {
+    margin: 0 0 18px;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.na-filter-block p {
+    margin: 0 0 10px;
+    font-size: 20px;
+}
+
+.na-size-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.na-size-grid button {
+    border: 1px solid #1b1b1b;
+    background: #000000;
+    min-width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.na-products h2 {
+    margin: 0 0 20px;
+    text-align: center;
+    font-size: 42px;
+}
+
+.na-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(180px, 1fr));
+    gap: 28px;
+}
+
+.na-card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.na-image-wrap {
+    position: relative;
+}
+
+.na-image-wrap img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    display: block;
+}
+
+.na-badge {
+    position: absolute;
+    left: -10px;
+    top: 10px;
+    transform: rotate(-35deg);
+    color: #1f79b6;
+    font-size: 36px;
+    font-weight: 900;
+}
+
+.na-card h3 {
+    margin: 0;
+    font-size: 32px;
+}
+
+.na-price {
+    margin: 0;
+    font-size: 34px;
+    color: #303030;
+}
+
+.na-thumbs {
+    display: flex;
+    gap: 8px;
+}
+
+.na-thumbs img {
+    width: 54px;
+    height: 54px;
+    object-fit: cover;
+}
+
+@media (max-width: 900px) {
+    .na-tabs button {
+        font-size: 26px;
+    }
+
+    .na-filter-title {
+        font-size: 22px;
+    }
+
+    .na-products h2 {
+        font-size: 32px;
+    }
+
+    .na-card h3 {
+        font-size: 26px;
+    }
+
+    .na-price {
+        font-size: 28px;
+    }
+}
+
+@media (max-width: 720px) {
+    .na-header h1 {
+        font-size: 30px;
+    }
+
+    .na-back-home {
+        position: static;
+        transform: none;
+        margin-left: auto;
+    }
+
+    .na-content {
+        grid-template-columns: 1fr;
+    }
+
+    .na-grid {
+        grid-template-columns: 1fr;
+    }
+}

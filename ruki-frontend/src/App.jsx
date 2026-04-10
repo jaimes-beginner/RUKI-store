@@ -1,14 +1,13 @@
-import Header from './components/header.jsx'
-import Footer from './components/footer.jsx'
-import PantallaInicio from './components/pantallaInicio/pantallainicio.jsx'
+import { Routes, Route } from 'react-router-dom'
+import { PaginapalCliente } from './page/Cliente/PaginaPrinicpal.jsx'
+import { PaginaNuevosCliente } from './page/Cliente/PaginaNuevos.jsx'
 
 function App() {
   return (
-    <>
-      <Header />
-      <PantallaInicio />
-      <Footer />
-    </>
+    <Routes>
+      <Route path="/" element={<PaginapalCliente />} />
+      <Route path="/new-arrivals" element={<PaginaNuevosCliente />} />
+    </Routes>
   )
 }
 
