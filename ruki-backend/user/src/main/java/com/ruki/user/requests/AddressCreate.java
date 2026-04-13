@@ -12,6 +12,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AddressCreate {
 
+    /*
+        Aquí van los datos necesarios que hay que 
+        ingresar para poder crear una dirección, con 
+        sus respectivas validaciones
+    */
+
     @NotNull(message = "El ID del usuario es obligatorio para asociar la dirección")
     @Positive(message = "El ID del usuario debe ser mayor que cero")
     private Long userId;

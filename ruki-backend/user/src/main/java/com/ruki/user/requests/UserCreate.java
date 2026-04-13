@@ -1,9 +1,7 @@
 package com.ruki.user.requests;
 
-import com.ruki.user.entities.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,7 +15,8 @@ public class UserCreate {
     /*
         Aquí van los datos necesarios que hay que ingresar 
         para poder crear/registrar a un usuario, con sus 
-        respectivas validaciones
+        respectivas validaciones (el campo Role ha sido 
+        eliminado por seguridad)
     */
 
     @NotBlank(message = "El correo electrónico es obligatorio")
@@ -34,6 +33,4 @@ public class UserCreate {
     @NotBlank(message = "El apellido es obligatorio")
     private String lastName;
 
-    @NotNull(message = "El rol es obligatorio")
-    private Role role;
 }
