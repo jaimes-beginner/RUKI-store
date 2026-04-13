@@ -35,7 +35,7 @@ function Header() {
           >
             <Nav.Link as={Link} to="/new-arrivals" eventKey="new" className="fw-bold small">NEW ARRIVALS</Nav.Link>
             <Nav.Link eventKey="productos" href="#productos" className="fw-bold small">PRODUCTOS</Nav.Link>
-            <Nav.Link eventKey="sale" href="#sale" className="fw-bold small">SALE</Nav.Link>
+            <Nav.Link as={Link} to="/sale" eventKey="sale" className="fw-bold small">SALE</Nav.Link>
           </Nav>
         </Container>
       </Navbar>
