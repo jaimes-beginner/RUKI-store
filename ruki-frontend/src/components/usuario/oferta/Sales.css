@@ -1,0 +1,55 @@
+.sale-page .na-products h2 {
+    color: #111111;
+}
+
+.sale-price-wrap {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+}
+
+.sale-price-old {
+    margin: 0;
+    font-size: 24px;
+    color: #777777;
+    text-decoration: line-through;
+}
+
+.sale-price-new {
+    margin: 0;
+    font-size: 34px;
+    font-weight: 700;
+    color: #c81f1f;
+}
+
+.sale-badge {
+    color: #ff5e57;
+    text-shadow:
+        -1px -1px 0 #5f1010,
+        1px -1px 0 #5f1010,
+        -1px 1px 0 #5f1010,
+        1px 1px 0 #5f1010,
+        0 0 8px rgba(255, 94, 87, 0.35);
+    animation: sale-badge-pulse 1.3s ease-in-out infinite;
+}
+
+@keyframes sale-badge-pulse {
+    0%,
+    100% {
+        transform: rotate(-35deg) scale(1);
+    }
+
+    50% {
+        transform: rotate(-35deg) scale(1.08);
+    }
+}
+
+@media (max-width: 900px) {
+    .sale-price-old {
+        font-size: 20px;
+    }
+
+    .sale-price-new {
+        font-size: 28px;
+    }
+}

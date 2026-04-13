@@ -1,0 +1,63 @@
+.ruki-header {
+  width: 100%;
+}
+
+.ruki-header .ruki-top-navbar,
+.ruki-header .ruki-bottom-navbar {
+  background-color: #000000 !important;
+}
+
+.ruki-header .ruki-topbar {
+  position: relative;
+}
+
+.ruki-header .ruki-topbar-side {
+  flex: 1;
+  min-width: 0;
+}
+
+.ruki-header .ruki-brand-centered {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+}
+
+.ruki-header .navbar-brand,
+.ruki-header .nav-link,
+.ruki-header .cart-icon {
+  color: #a7adb7 !important;
+  transition: color 0.2s ease, text-shadow 0.2s ease;
+}
+
+.ruki-header .nav-link.nav-active {
+  color: #ffffff !important;
+  text-decoration: underline;
+  text-underline-offset: 6px;
+  text-decoration-thickness: 2px;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+}
+
+.ruki-header .navbar-brand:focus,
+.ruki-header .nav-link:hover,
+.ruki-header .nav-link:focus,
+.ruki-header .nav-link.active,
+.ruki-header .nav-link:active,
+.ruki-header .cart-icon:hover,
+.ruki-header .cart-icon:focus {
+  color: #ffffff !important;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.9);
+}
+
+.ruki-header .cart-icon {
+  cursor: pointer;
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.ruki-header .ruki-logo {
+  height: 34px;
+  width: auto;
+  display: block;
+}
