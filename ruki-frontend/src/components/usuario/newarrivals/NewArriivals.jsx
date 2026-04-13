@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import './NewArriivals.css'
 
 const products = [
@@ -15,11 +16,57 @@ const products = [
 		image: '/imagenes/walpaper 2.jpg',
 		thumbs: ['/imagenes/walpaper 2.jpg', '/imagenes/fondo.jpeg'],
 	},
+	{
+		id: 3,
+		name: 'Polera Ruki Core',
+		price: '$ 13.900',
+		image: '/imagenes/fondo.jpeg',
+		thumbs: ['/imagenes/fondo.jpeg', '/imagenes/wallpaper.jpg'],
+	},
+	{
+		id: 4,
+		name: 'Short Motion',
+		price: '$ 16.900',
+		image: '/imagenes/wallpaper.jpg',
+		thumbs: ['/imagenes/wallpaper.jpg', '/imagenes/walpaper 2.jpg'],
+	},
+	{
+		id: 5,
+		name: 'Poleron Street',
+		price: '$ 18.900',
+		image: '/imagenes/walpaper 2.jpg',
+		thumbs: ['/imagenes/walpaper 2.jpg', '/imagenes/fondo.jpeg'],
+	},
+	{
+		id: 6,
+		name: 'Mochila Utility',
+		price: '$ 22.900',
+		image: '/imagenes/fondo.jpeg',
+		thumbs: ['/imagenes/fondo.jpeg', '/imagenes/wallpaper.jpg'],
+	},
 ]
 
 export default function NewArriivals() {
+	const [selectedImages, setSelectedImages] = useState({})
+
+	const getGallery = (product) => [product.image, ...product.thumbs]
+
+	const getSelectedIndex = (productId) => selectedImages[productId] ?? 0
+
+	const handleSelectImage = (productId, imageIndex) => {
+		setSelectedImages((current) => ({ ...current, [productId]: imageIndex }))
+	}
+
+	const getDisplayImage = (product) => {
+		const gallery = getGallery(product)
+		const selectedIndex = getSelectedIndex(product.id)
+		return gallery[selectedIndex] ?? gallery[0]
+	}
+
 	return (
 		<main className="new-arrivals-page">
+			<header className="na-page-header">
+			</header>
 		
 				<section className="na-content">
 					<aside className="na-filter">
@@ -43,7 +90,7 @@ export default function NewArriivals() {
 							{products.map((product) => (
 								<article key={product.id} className="na-card">
 									<div className="na-image-wrap">
-										<img src={product.image} alt={product.name} />
+										<img src={getDisplayImage(product)} alt={product.name} />
 										<span className="na-badge">NEW!</span>
 									</div>
 
@@ -51,12 +98,19 @@ export default function NewArriivals() {
 									<p className="na-price">{product.price}</p>
 
 									<div className="na-thumbs">
-										{product.thumbs.map((thumb, index) => (
-											<img
+										{getGallery(product).map((thumb, index) => (
+											<button
 												key={`${product.id}-${index}`}
-												src={thumb}
-												alt={`${product.name} miniatura ${index + 1}`}
-											/>
+												type="button"
+												className={`na-thumb-btn ${getSelectedIndex(product.id) === index ? 'is-active' : ''}`}
+												onClick={() => handleSelectImage(product.id, index)}
+												aria-label={`Mostrar imagen ${index + 1} de ${product.name}`}
+											>
+												<img
+													src={thumb}
+													alt={`${product.name} miniatura ${index + 1}`}
+												/>
+											</button>
 										))}
 									</div>
 								</article>

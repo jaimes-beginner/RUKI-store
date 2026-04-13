@@ -4,6 +4,11 @@
 
 .ruki-header-new .ruki-top-navbar-new,
 .ruki-header-new .ruki-bottom-navbar-new {
+  padding-inline: clamp(1rem, 3vw, 2.5rem);
+}
+
+.ruki-header-new .ruki-top-navbar-new,
+.ruki-header-new .ruki-bottom-navbar-new {
   background-color: #ffffff !important;
 }
 
@@ -49,7 +54,7 @@
 }
 
 .ruki-header-new .ruki-logo-new {
-  height: 34px;
+  height: 28px;
   width: auto;
   display: block;
 }
