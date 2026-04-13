@@ -33,7 +33,8 @@ public class AddressController {
     @Operation(summary = "Crear direccion", description = "Agrega una nueva direccion a un usuario existente")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Direccion creada correctamente"),
-            @ApiResponse(responseCode = "400", description = "Datos invalidos o usuario no encontrado")
+            @ApiResponse(responseCode = "400", description = "Datos invalidos o usuario no encontrado"),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado: No eres el propietario de este recurso")
     })
     public ResponseEntity<AddressResponse> createAddress(@Valid @RequestBody AddressCreate addressCreate) {
         return ResponseEntity.ok(addressService.createAddress(addressCreate));
@@ -47,6 +48,7 @@ public class AddressController {
     @Operation(summary = "Obtener direcciones de un usuario", description = "Retorna todas las direcciones asociadas a un ID de usuario")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Lista de direcciones obtenida"),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado: No eres el propietario de este recurso"),
             @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
     })
     public ResponseEntity<List<AddressResponse>> getAddressesByUser(@PathVariable @Positive Long userId) {
@@ -75,6 +77,7 @@ public class AddressController {
     @Operation(summary = "Actualizar direccion", description = "Actualiza parcialmente una direccion existente")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Direccion actualizada correctamente"),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado: No eres el propietario de este recurso"),
             @ApiResponse(responseCode = "404", description = "Direccion no encontrada")
     })
     public ResponseEntity<AddressResponse> updateAddress(
@@ -91,6 +94,7 @@ public class AddressController {
     @Operation(summary = "Eliminar direccion", description = "Elimina una direccion existente")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Direccion eliminada correctamente"),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado: No eres el propietario de este recurso"),
             @ApiResponse(responseCode = "404", description = "Direccion no encontrada")
     })
     public ResponseEntity<Void> deleteAddress(@PathVariable @Positive Long addressId) {

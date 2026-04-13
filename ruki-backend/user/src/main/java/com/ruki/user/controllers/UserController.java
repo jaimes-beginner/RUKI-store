@@ -45,7 +45,7 @@ public class UserController {
     @Operation(summary = "Crear usuario", description = "Registra un nuevo usuario en el sistema")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Usuario creado correctamente"),
-            @ApiResponse(responseCode = "400", description = "Datos invalidos")
+            @ApiResponse(responseCode = "400", description = "Datos invalidos o correo ya en uso")
     })
     public ResponseEntity<UserResponse> createUser(@Valid @RequestBody UserCreate userCreate) {
         return ResponseEntity.ok(userService.createUser(userCreate));
@@ -79,8 +79,7 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserByEmail(email));
     }
 
-    /*   
-        Endpoint para obtener todos los usuarios activos, filtrando 
+    /* Endpoint para obtener todos los usuarios activos, filtrando 
         por el estado isActive en true, retornando una lista de 
         usuarios que cumplen con esa condición
     */
@@ -116,6 +115,7 @@ public class UserController {
     @Operation(summary = "Actualizar usuario", description = "Actualiza parcialmente los campos del usuario")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Usuario actualizado correctamente"),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado: No eres el propietario del recurso"),
             @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
     })
     public ResponseEntity<UserResponse> updateUser(@PathVariable @Positive Long id, @Valid @RequestBody UserUpdate userUpdate) {
@@ -131,6 +131,7 @@ public class UserController {
     @Operation(summary = "Eliminar usuario", description = "Realiza una baja logica del usuario")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Usuario desactivado correctamente"),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado: No eres el propietario del recurso"),
             @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
     })
     public ResponseEntity<Void> deleteUser(@PathVariable @Positive Long id) {
