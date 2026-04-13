@@ -36,6 +36,13 @@
   transition: color 0.2s ease, text-shadow 0.2s ease;
 }
 
+.ruki-header-new .nav-link.nav-active {
+  color: #0b2a4a !important;
+  text-decoration: underline;
+  text-underline-offset: 6px;
+  text-decoration-thickness: 2px;
+}
+
 .ruki-header-new .navbar-brand:focus,
 .ruki-header-new .nav-link:hover,
 .ruki-header-new .nav-link:focus,

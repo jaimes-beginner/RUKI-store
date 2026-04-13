@@ -1,4 +1,5 @@
 import './FooterUsuario.css';
+import { Link } from 'react-router-dom';
 
 function Footer() {
   return (
@@ -31,10 +32,10 @@ function Footer() {
           <nav className="ruki-footer-links" aria-label="Footer links">
             <div className="ruki-footer-column">
               <h3>TIENDA</h3>
-              <a href="#inicio">Inicio</a>
-              <a href="#productos">Productos</a>
-              <a href="#blog">Blog</a>
-              <a href="#contacto">Contacto</a>
+              <Link to="/">Inicio</Link>
+              <Link to="/new-arrivals">New Arrivals</Link>
+              <Link to="/productos">Productos</Link>
+              <Link to="/sale">Sale</Link>
             </div>
 
             <div className="ruki-footer-divider" aria-hidden="true"></div>

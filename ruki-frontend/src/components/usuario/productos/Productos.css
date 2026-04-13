@@ -1,0 +1,69 @@
+.products-page .na-products h2 {
+    color: #111111;
+}
+
+.products-subtitle {
+    margin: 0 0 18px;
+    text-align: center;
+    color: #444444;
+    font-size: 17px;
+}
+
+.products-badge-new {
+    color: #1f79b6;
+    text-shadow:
+        -1px -1px 0 #0b2a4a,
+        1px -1px 0 #0b2a4a,
+        -1px 1px 0 #0b2a4a,
+        1px 1px 0 #0b2a4a;
+}
+
+.products-badge-sale {
+    color: #ff5e57;
+    text-shadow:
+        -1px -1px 0 #5f1010,
+        1px -1px 0 #5f1010,
+        -1px 1px 0 #5f1010,
+        1px 1px 0 #5f1010;
+}
+
+.products-badge-regular {
+    color: #0b2a4a;
+    text-shadow:
+        -1px -1px 0 #ffffff,
+        1px -1px 0 #ffffff,
+        -1px 1px 0 #ffffff,
+        1px 1px 0 #ffffff;
+    font-size: 28px;
+    animation: none;
+}
+
+.products-price-wrap {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+}
+
+.products-price-old {
+    margin: 0;
+    font-size: 24px;
+    color: #777777;
+    text-decoration: line-through;
+}
+
+.products-price-new {
+    margin: 0;
+    font-size: 34px;
+    font-weight: 700;
+    color: #c81f1f;
+}
+
+@media (max-width: 900px) {
+    .products-price-old {
+        font-size: 20px;
+    }
+
+    .products-price-new {
+        font-size: 28px;
+    }
+}

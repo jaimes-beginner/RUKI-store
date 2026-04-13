@@ -1,12 +1,9 @@
 // src/components/Header.jsx
-import { useState } from 'react';
 import { Navbar, Nav, Container } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import './NavbarNew.css';
 
 function Header() {
-  const [activeLink, setActiveLink] = useState(null);
-
   return (
     <header className="ruki-header-new">
       {/* Parte superior: Logo y links de acceso */}
@@ -28,14 +25,11 @@ function Header() {
       {/* Parte inferior: Navegación principal */}
       <Navbar bg="light" variant="light" className="py-2 border-top ruki-bottom-navbar-new">
         <Container fluid className="px-4 px-lg-5">
-          <Nav
-            className="mx-auto gap-5"
-            activeKey={activeLink}
-            onSelect={(selectedKey) => selectedKey && setActiveLink(selectedKey)}
-          >
-            <Nav.Link as={Link} to="/new-arrivals" eventKey="new" className="fw-bold small">NEW ARRIVALS</Nav.Link>
-            <Nav.Link eventKey="productos" href="#productos" className="fw-bold small">PRODUCTOS</Nav.Link>
-            <Nav.Link as={Link} to="/sale" eventKey="sale" className="fw-bold small">SALE</Nav.Link>
+          <Nav className="mx-auto gap-5">
+            <NavLink to="/" end className={({ isActive }) => `nav-link fw-bold small ${isActive ? 'nav-active' : ''}`}>INICIO</NavLink>
+            <NavLink to="/new-arrivals" className={({ isActive }) => `nav-link fw-bold small ${isActive ? 'nav-active' : ''}`}>NEW ARRIVALS</NavLink>
+            <NavLink to="/productos" className={({ isActive }) => `nav-link fw-bold small ${isActive ? 'nav-active' : ''}`}>PRODUCTOS</NavLink>
+            <NavLink to="/sale" className={({ isActive }) => `nav-link fw-bold small ${isActive ? 'nav-active' : ''}`}>SALE</NavLink>
           </Nav>
         </Container>
       </Navbar>
