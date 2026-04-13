@@ -9,8 +9,10 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -77,4 +79,15 @@ public class GlobalExceptionHandler {
     private String formatFieldError(FieldError fieldError) {
         return fieldError.getField() + ": " + fieldError.getDefaultMessage();
     }
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<Map<String, Object>> handleResponseStatusException(ResponseStatusException ex) {
+        Map<String, Object> errorResponse = new java.util.HashMap<>();
+        errorResponse.put("status", ex.getStatusCode().value());
+        errorResponse.put("error", ex.getReason());
+        errorResponse.put("timestamp", java.time.LocalDateTime.now().toString());
+        
+        return new ResponseEntity<>(errorResponse, ex.getStatusCode());
+    }
+
 }
