@@ -6,11 +6,14 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -57,13 +60,44 @@ public class JwtUtils {
     }
 
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
+        
+        /* 
+            Creamos una copia del mapa para evitar 
+            mutar el original (Side Effects)
+        */
+        Map<String, Object> claimsToSave = new HashMap<>(extraClaims);
+
+        /* 
+            Extraemos todos los roles de forma segura
+        */
+        List<String> roles = userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList();
+
+        claimsToSave.put("roles", roles);
+        
+      
+        /* 
+            Solo agregamos 'role' si realmente hay 
+            uno, evitando valores 'null' en el token
+        */
+        if (!roles.isEmpty()) {
+            claimsToSave.put("role", roles.get(0));
+        } else {
+            throw new RuntimeException("Error: El usuario " + userDetails.getUsername() + " no tiene roles asignados en la BD.");
+        }
+
         return Jwts.builder()
-                .setClaims(extraClaims)
-                .setSubject(userDetails.getUsername())
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
-                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
-                .compact();
+                
+            /* 
+                Usamos nuestra copia segura
+            */
+            .setClaims(claimsToSave)
+            .setSubject(userDetails.getUsername())
+            .setIssuedAt(new Date(System.currentTimeMillis()))
+            .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
+            .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+            .compact();
     }
 
     /*
@@ -95,4 +129,5 @@ public class JwtUtils {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
+    
 }
