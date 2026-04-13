@@ -9,9 +9,14 @@ import com.ruki.user.requests.UserCreate;
 import com.ruki.user.requests.UserResponse;
 import com.ruki.user.requests.UserUpdate;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+
 import java.util.List;
 
 @Service
@@ -20,9 +25,8 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
 
     /*
-        Inyección de dependencias del respositorio y el 
-        encoder de contraseñas para realizar las 
-        operaciones necesarias sobre los usuarios
+        Inyección de dependencias del respositorio 
+        y el encoder de contraseñas
     */
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -30,6 +34,8 @@ public class UserServiceImpl implements UserService {
     /*
         Crear un nuevo usuario verificando que 
         el correo electrónico no esté registrado
+
+        Todo usuario nuevo se fuerza al rol CUSTOMER
     */
     @Override
     public UserResponse createUser(UserCreate userCreate) {
@@ -42,7 +48,7 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(userCreate.getPassword()));
         user.setFirstName(userCreate.getFirstName());
         user.setLastName(userCreate.getLastName());
-        user.setRole(userCreate.getRole() != null ? userCreate.getRole() : Role.CUSTOMER);
+        user.setRole(Role.CUSTOMER); 
         user.setActive(true);
 
         User savedUser = userRepository.save(user);
@@ -51,11 +57,17 @@ public class UserServiceImpl implements UserService {
 
     /*
         Obtener un usuario por su ID, lanzando
-        una excepción si no se encuentra
+        una excepción si no se encuentra. (Protegido por IDOR)
     */
     @Override
     @Transactional(readOnly = true)
     public UserResponse getUserById(Long id) {
+
+        /* 
+            Bloqueamos la lectura cruzada por ID
+        */
+        validateOwnershipOrAdmin(id); 
+
         User user = userRepository.findByIdAndIsActiveTrue(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
         return toResponse(user);
@@ -63,13 +75,18 @@ public class UserServiceImpl implements UserService {
 
     /*
         Obtener un usuario por su correo electrónico 
-        lanzando una excepción si no se encuentra
+        lanzando una excepción si no se encuentra. (Protegido por IDOR)
     */
     @Override
     @Transactional(readOnly = true)
     public UserResponse getUserByEmail(String email) {
         User user = userRepository.findByEmailAndIsActiveTrue(email)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+        /* 
+            Bloqueamos la lectura cruzada por Email
+        */
+        validateOwnershipOrAdmin(user.getId()); 
+        
         return toResponse(user);
     }
 
@@ -86,6 +103,10 @@ public class UserServiceImpl implements UserService {
                 .toList();
     }
 
+    /*
+        Obtener todos los usuarios 
+        sin filtrar por estado
+    */
     @Override
     @Transactional(readOnly = true)
     public List<UserResponse> getAllUsers() {
@@ -97,11 +118,17 @@ public class UserServiceImpl implements UserService {
 
     /*
         Actualizar a un usuario existente, permitiendo
-        la acutlización parcial de los campos, ya que
-        todos son opcionales
+        la actualización parcial de los campos, ya que
+        todos son opcionales. (Protegido por IDOR)
     */
     @Override
     public UserResponse updateUser(Long id, UserUpdate userUpdate) {
+
+        /* 
+            Cierre de vulnerabilidad IDOR
+        */
+        validateOwnershipOrAdmin(id); 
+
         User user = userRepository.findByIdAndIsActiveTrue(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
@@ -121,10 +148,16 @@ public class UserServiceImpl implements UserService {
 
     /*
         Eliminar un usuario realizando una baja lógica
-        cambiando solo el estado del usuario
+        cambiando solo el estado del usuario. (Protegido por IDOR)
     */
     @Override
     public void deleteUser(Long id) {
+
+        /*
+            Cierre de vulnerabilidad IDOR
+        */
+        validateOwnershipOrAdmin(id); 
+
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
@@ -149,6 +182,34 @@ public class UserServiceImpl implements UserService {
                 user.getRole(),
                 user.getCreatedAt()
         );
+    }
+
+    /*
+        Método de seguridad que verifica si el usuario autenticado
+        tiene permisos para modificar el recurso solicitado.
+    */
+    private void validateOwnershipOrAdmin(Long targetUserId) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null) return; 
+
+        /*
+            Si es ADMIN, tiene paso libre
+        */
+        boolean isAdmin = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        if (isAdmin) return;
+
+        /*
+            Si es CUSTOMER, validamos que su correo 
+            coincida con el correo del ID a modificar
+        */
+        String currentUserEmail = auth.getName();
+        User targetUser = userRepository.findById(targetUserId)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado para validar permisos"));
+
+        if (!targetUser.getEmail().equals(currentUserEmail)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acceso denegado: No eres el propietario de esta cuenta");
+        }
     }
 
 }

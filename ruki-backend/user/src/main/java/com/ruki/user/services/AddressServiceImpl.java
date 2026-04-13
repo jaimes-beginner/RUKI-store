@@ -10,8 +10,13 @@ import com.ruki.user.requests.AddressCreate;
 import com.ruki.user.requests.AddressResponse;
 import com.ruki.user.requests.AddressUpdate;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+
 import java.util.List;
 
 @Service
@@ -23,24 +28,20 @@ public class AddressServiceImpl implements AddressService {
     private final UserRepository userRepository;
 
     /* 
-        Método para crear una nueva dirección, primero 
-        verificamos que el usuario exista para luego asociar 
-        la dirección a ese usuario y guardarla en la base de datos
+        Método para crear una nueva dirección, pero solo puedes 
+        crear direcciones para tu propio ID (o si eres ADMIN)
     */
     @Override
     public AddressResponse createAddress(AddressCreate addressCreate) {
 
-        /*
-            Primero nos aseguramos de que el usuario 
-            al que queremos asociar la dirección exista
+        /* 
+            Cierre de vulnerabilidad IDOR
         */
+        validateAddressOwnershipOrAdmin(addressCreate.getUserId());
+
         User user = userRepository.findByIdAndIsActiveTrue(addressCreate.getUserId())
             .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado para asociar la dirección"));
 
-        /*
-            Si todo va bien, entonces creamos la 
-            entidad Address y le asignamos los datos del DTO
-        */
         Address address = new Address();
         address.setStreet(addressCreate.getStreet());
         address.setCity(addressCreate.getCity());
@@ -53,14 +54,19 @@ public class AddressServiceImpl implements AddressService {
         return toResponse(savedAddress);
     }
 
+    /*
+        Obtener direcciones de un usuario, pero 
+        solo puedes ver tus propias direcciones
+    */
     @Override
     @Transactional(readOnly = true)
     public List<AddressResponse> getAddressesByUserId(Long userId) {
 
-        /*
-            Antes verificamos que el usuario exista, de lo 
-            contrario, entonces que mande la excpeción correspondiente
+        /* 
+            Cierre de vulnerabilidad IDOR
         */
+        validateAddressOwnershipOrAdmin(userId); 
+
         if (!userRepository.existsByIdAndIsActiveTrue(userId)) {
             throw new ResourceNotFoundException("Usuario no encontrado");
         }
@@ -80,10 +86,18 @@ public class AddressServiceImpl implements AddressService {
                 .toList();
     }
 
+    /*
+        Actualizar una dirección solo si te pertenece
+    */
     @Override
     public AddressResponse updateAddress(Long addressId, AddressUpdate addressUpdate) {
         Address address = addressRepository.findById(addressId)
                 .orElseThrow(() -> new ResourceNotFoundException("Dirección no encontrada"));
+
+        /* 
+            Cierre de vulnerabilidad IDOR
+        */
+        validateAddressOwnershipOrAdmin(address.getUser().getId()); 
 
         if (!address.getUser().isActive()) {
             throw new ForbiddenOperationException("No se puede actualizar una dirección de un usuario inactivo");
@@ -109,10 +123,18 @@ public class AddressServiceImpl implements AddressService {
         return toResponse(updatedAddress);
     }
 
+    /*
+        Eliminar una dirección solo si te pertenece
+    */
     @Override
     public void deleteAddress(Long addressId) {
         Address address = addressRepository.findById(addressId)
                 .orElseThrow(() -> new ResourceNotFoundException("Dirección no encontrada"));
+
+        /* 
+            Cierre de vulnerabilidad IDOR
+        */
+        validateAddressOwnershipOrAdmin(address.getUser().getId()); 
 
         if (!address.getUser().isActive()) {
             throw new ForbiddenOperationException("No se puede eliminar una dirección de un usuario inactivo");
@@ -121,7 +143,10 @@ public class AddressServiceImpl implements AddressService {
         addressRepository.delete(address);
     }
 
-    // Método auxiliar para transformar Entidad a DTO
+    /*
+        Método auxiliar para convertir una entidad user
+        en un objeto de respuesta AddressResponse
+    */
     private AddressResponse toResponse(Address address) {
         return new AddressResponse(
                 address.getId(),
@@ -130,13 +155,30 @@ public class AddressServiceImpl implements AddressService {
                 address.getRegion(),
                 address.getZipCode(),
                 address.getReferenceInfo(),
-                
-                /*
-                    En este caso solo extraemos el ID del 
-                    usuario para no saturar el JSON con 
-                    toda la información del usuario
-                */
                 address.getUser().getId() 
         );
     }
+
+    /*
+        Método de seguridad que verifica si el usuario autenticado
+        tiene permisos para gestionar direcciones de este ID
+    */
+    private void validateAddressOwnershipOrAdmin(Long targetUserId) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null) return; 
+
+        boolean isAdmin = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+                
+        if (isAdmin) return;
+
+        String currentUserEmail = auth.getName();
+        User targetUser = userRepository.findById(targetUserId)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado para validar permisos"));
+
+        if (!targetUser.getEmail().equals(currentUserEmail)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acceso denegado: No eres el propietario de esta dirección");
+        }
+    }
+
 }
