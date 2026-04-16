@@ -47,6 +47,9 @@ public class Product {
     private BigDecimal basePrice;
 
     @Column(nullable = false)
+    private Integer stock;
+
+    @Column(nullable = false)
     private boolean isActive = true;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -11,8 +11,8 @@ public interface ProductService {
         que tendrá la lógica de negocio para los productos.
         En este caso tiene para; Crear un producto, obtener 
         todos los productos activos, obtener productos por 
-        categoría, obtener un producto por su ID y desactivar 
-        un producto.
+        categoría, obtener un producto por su ID, desactivar 
+        un producto y descontar stock de un producto
     */
 
     ProductResponse createProduct(ProductCreate request);
@@ -20,5 +20,6 @@ public interface ProductService {
     List<ProductResponse> getProductsByCategory(Long categoryId);
     ProductResponse getProductById(Long id);
     void deactivateProduct(Long id);
+    void discountStock(Long id, Integer quantity);
 
 }

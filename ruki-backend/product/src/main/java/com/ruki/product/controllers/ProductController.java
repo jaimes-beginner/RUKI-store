@@ -90,4 +90,19 @@ public class ProductController {
         return ResponseEntity.ok().build();
     }
     
+    /* 
+        Endpoint para descontar stock de un producto
+    */
+    @PutMapping("/{id}/discount-stock")
+    @Operation(summary = "Descontar stock", description = "Resta inventario al producto (Uso interno microservicios)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Stock descontado"),
+            @ApiResponse(responseCode = "400", description = "Stock insuficiente o producto inactivo"),
+            @ApiResponse(responseCode = "404", description = "Producto no encontrado")
+    })
+    public ResponseEntity<Void> discountStock(@PathVariable Long id, @RequestParam Integer quantity) {
+        productService.discountStock(id, quantity);
+        return ResponseEntity.ok().build();
+    }
+
 }

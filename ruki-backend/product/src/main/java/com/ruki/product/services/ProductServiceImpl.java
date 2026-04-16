@@ -24,16 +24,9 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
 
-    /*
-        Método para crear un producto.
-    */
     @Override
     public ProductResponse createProduct(ProductCreate request) {
 
-        /*
-            Buscamos que la categoría exista
-            antes de asociarle el producto
-        */
         Category category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Categoría no encontrada"));
 
@@ -46,40 +39,31 @@ public class ProductServiceImpl implements ProductService {
         product.setDescription(request.getDescription());
         product.setMainImageUrl(request.getMainImageUrl());
         product.setBasePrice(request.getBasePrice());
+        product.setStock(request.getStock());
         product.setCategory(category);
 
         Product saved = productRepository.save(product);
         return toResponse(saved);
     }
 
-    /*
-        Método para listar todos los productos activos.
-    */
     @Override
     @Transactional(readOnly = true)
     public List<ProductResponse> getAllActiveProducts() {
         return productRepository.findAllByIsActiveTrue()
-                .stream()
-                .map(this::toResponse)
-                .toList();
+            .stream()
+            .map(this::toResponse)
+            .toList();
     }
 
-    /*
-        Método para obtener todos los
-        productos de una categoría específica.
-    */
     @Override
     @Transactional(readOnly = true)
     public List<ProductResponse> getProductsByCategory(Long categoryId) {
         return productRepository.findAllByCategoryIdAndIsActiveTrue(categoryId)
-                .stream()
-                .map(this::toResponse)
-                .toList();
+            .stream()
+            .map(this::toResponse)
+            .toList();
     }
 
-    /*
-        Método para obtener un producto por su ID.
-    */
     @Override
     @Transactional(readOnly = true)
     public ProductResponse getProductById(Long id) {
@@ -88,9 +72,6 @@ public class ProductServiceImpl implements ProductService {
         return toResponse(product);
     }
 
-    /*
-        Método para desactivar un producto por su ID.
-    */
     @Override
     public void deactivateProduct(Long id) {
         Product product = productRepository.findById(id)
@@ -99,10 +80,23 @@ public class ProductServiceImpl implements ProductService {
         productRepository.save(product);
     }
 
-    /*
-        Método privado para envolver el Producto y
-        su Categoría en los DTOs correspondientes.
-    */
+    @Override
+    public void discountStock(Long id, Integer quantity) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Producto no encontrado"));
+        
+        if (!product.isActive()) {
+            throw new ResponseStatusException(BAD_REQUEST, "El producto está inactivo");
+        }
+
+        if (product.getStock() < quantity) {
+            throw new ResponseStatusException(BAD_REQUEST, "Stock insuficiente para el producto: " + product.getName());
+        }
+
+        product.setStock(product.getStock() - quantity);
+        productRepository.save(product);
+    }
+
     private ProductResponse toResponse(Product product) {
         CategoryResponse catResponse = new CategoryResponse(
                 product.getCategory().getId(),
@@ -114,7 +108,9 @@ public class ProductServiceImpl implements ProductService {
                 product.getDescription(),
                 product.getMainImageUrl(),
                 product.getBasePrice(),
-                catResponse
+                product.getStock(),
+                catResponse,
+                product.isActive()
         );
     }
 

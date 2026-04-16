@@ -21,6 +21,8 @@ public class ProductResponse {
     private String description;
     private String mainImageUrl;
     private BigDecimal basePrice;
-    private CategoryResponse category; 
+    private Integer stock;
+    private CategoryResponse category;
+    private boolean active;
     
 }

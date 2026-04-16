@@ -1,5 +1,6 @@
 package com.ruki.product.requests;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -34,6 +35,10 @@ public class ProductCreate {
     @NotNull(message = "El precio base es obligatorio")
     @Positive(message = "El precio debe ser mayor a cero")
     private BigDecimal basePrice;
+
+    @NotNull(message = "El stock inicial es obligatorio")
+    @Min(value = 0, message = "El stock no puede ser negativo")
+    private Integer stock;
 
     @NotNull(message = "El ID de la categoría es obligatorio")
     @Positive(message = "El ID de la categoría debe ser mayor a cero")
