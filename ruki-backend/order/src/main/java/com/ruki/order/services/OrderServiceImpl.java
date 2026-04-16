@@ -27,14 +27,14 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final ProductClient productClient;
 
-    /*
-        Crear un pedido/orden de compra 
+    /* 
+        Crear un nuevo pedido
     */
     @Override
     public Order createOrder(OrderCreate request, Long userId) {
         
         Order order = new Order();
-        order.setUserId(userId); // ¡Adiós al ID quemado a mano!
+        order.setUserId(userId); 
         order.setShippingAddressId(request.getShippingAddressId());
         order.setStatus(OrderStatus.PENDING);
         
@@ -56,14 +56,30 @@ public class OrderServiceImpl implements OrderService {
                     "El producto '" + realProduct.getName() + "' ya no está disponible.");
             }
 
-            BigDecimal itemSubTotal = realProduct.getPrice().multiply(new BigDecimal(itemRequest.getQuantity()));
+            if (realProduct.getStock() < itemRequest.getQuantity()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
+                    "Stock insuficiente para el producto: '" + realProduct.getName() + "'. Solo quedan " + realProduct.getStock() + " unidades.");
+            }
+
+            /* 
+                Descontar el stock conectándonos con 
+                el microservicio de productos
+            */
+            try {
+                productClient.discountStock(realProduct.getId(), itemRequest.getQuantity());
+            } catch (Exception e) {
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, 
+                    "Ocurrió un error al intentar descontar el inventario del producto.");
+            }
+
+            BigDecimal itemSubTotal = realProduct.getBasePrice().multiply(new BigDecimal(itemRequest.getQuantity()));
             totalAmount = totalAmount.add(itemSubTotal);
 
             OrderItem orderItem = new OrderItem();
             orderItem.setOrder(order);
             orderItem.setProductId(realProduct.getId());
             orderItem.setQuantity(itemRequest.getQuantity());
-            orderItem.setUnitPrice(realProduct.getPrice());
+            orderItem.setUnitPrice(realProduct.getBasePrice());
             orderItem.setSubTotal(itemSubTotal);
 
             items.add(orderItem);
@@ -75,8 +91,8 @@ public class OrderServiceImpl implements OrderService {
         return orderRepository.save(order);
     }
 
-    /*
-        Obtener una orden por ID, con validación de ownership
+    /* 
+        Obtener un pedido por su ID
     */
     @Override
     @Transactional(readOnly = true)
@@ -85,11 +101,6 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pedido no encontrado"));
 
-        /* 
-            Aquí entra la validación ownership, o sea si 
-            no eres admin y el pedido no es tuyo, entonces 
-            mandamos un 403 Forbidden
-        */
         if (!isAdmin && !order.getUserId().equals(currentUserId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acceso denegado: Este pedido no te pertenece");
         }
@@ -98,7 +109,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     /* 
-        Ver el historial completo de mis pedidos 
+        Obtener los pedidos de un usuario
     */
     @Override
     @Transactional(readOnly = true)
@@ -107,20 +118,13 @@ public class OrderServiceImpl implements OrderService {
     }
 
     /* 
-        Cancelar un pedido (esta vez protegido por Anti-IDOR) 
+        Cancelar un pedido (solo si no está entregado o ya cancelado)
     */
     @Override
     public Order cancelMyOrder(Long orderId, Long currentUserId, boolean isAdmin) {
         
-        /* 
-            Reutilizamos el método que ya tiene el escudo Anti-IDOR
-        */
         Order order = getOrderById(orderId, currentUserId, isAdmin);
         
-        /* 
-            No puedes cancelar algo que ya se entregó o ya 
-            se canceló, aquí se valida esto útlimo
-        */
         if (order.getStatus() == OrderStatus.DELIVERED || order.getStatus() == OrderStatus.CANCELLED) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "No se puede cancelar un pedido en estado " + order.getStatus());
         }
@@ -131,9 +135,8 @@ public class OrderServiceImpl implements OrderService {
         return orderRepository.save(order);
     }
 
-    /*
-        Para el administador, ver absolutamente 
-        todos los pedidos del sistema 
+    /* 
+        Para el administrador: Obtener todos los pedidos
     */
     @Override
     @Transactional(readOnly = true)
@@ -142,7 +145,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     /* 
-        Para el administrador, cambiar el estado de un pedido
+        Para el administrador: Cambiar el estado de un pedido
     */
     @Override
     public Order updateOrderStatusAdmin(Long orderId, OrderStatus newStatus) {
