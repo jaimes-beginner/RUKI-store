@@ -1,2 +1,11 @@
 /mvnw text eol=lf
 *.cmd text eol=crlf
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!target/*.jar
+*.class
+.git/
+.vscode/
+.idea/
+*.iml
+.env
