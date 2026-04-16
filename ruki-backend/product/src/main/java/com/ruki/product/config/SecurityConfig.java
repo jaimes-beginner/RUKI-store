@@ -16,7 +16,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
 import java.util.List;
 
 @Configuration
@@ -36,11 +35,14 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
   
-                /*
-                    Permitir requests OPTIONS 
-                    (Preflight de React)
-                */
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                
+                /* Rutas de Swagger UI liberadas para desarrollo */
+                .requestMatchers(
+                        "/v3/api-docs/**", 
+                        "/swagger-ui/**", 
+                        "/swagger-ui.html"
+                ).permitAll()
                 
                 .requestMatchers(HttpMethod.GET, "/api-ruki/categories/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api-ruki/products/**").permitAll()
