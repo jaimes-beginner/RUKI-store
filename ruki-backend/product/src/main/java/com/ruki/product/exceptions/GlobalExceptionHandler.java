@@ -6,10 +6,14 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
+
+import lombok.extern.slf4j.Slf4j;
+
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -19,6 +23,9 @@ public class GlobalExceptionHandler {
     */
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<Map<String, Object>> handleResponseStatusException(ResponseStatusException ex) {
+        
+        log.error("AUDITORÍA DE ERROR [ResponseStatusException]: Status {} - Razón: {}", ex.getStatusCode(), ex.getReason(), ex);
+        
         Map<String, Object> errorResponse = new HashMap<>();
         errorResponse.put("status", ex.getStatusCode().value());
         errorResponse.put("error", ex.getReason());
@@ -33,6 +40,9 @@ public class GlobalExceptionHandler {
     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        
+        log.error("AUDITORÍA DE ERROR [Validación de DTO]: Se recibieron datos incorrectos en el JSON.");
+
         Map<String, Object> errorResponse = new HashMap<>();
         errorResponse.put("status", HttpStatus.BAD_REQUEST.value());
         
@@ -53,6 +63,9 @@ public class GlobalExceptionHandler {
     */
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Map<String, Object>> handleRuntimeException(RuntimeException ex) {
+        
+        log.error("AUDITORÍA DE ERROR CRÍTICO [Excepción Global]: Ocurrió un fallo no controlado.", ex);
+        
         Map<String, Object> errorResponse = new HashMap<>();
         errorResponse.put("status", HttpStatus.BAD_REQUEST.value());
         errorResponse.put("error", ex.getMessage());

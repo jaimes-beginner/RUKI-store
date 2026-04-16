@@ -6,6 +6,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,6 +17,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -39,49 +41,46 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         jwt = authHeader.substring(7);
 
-        if (jwtUtils.isTokenValid(jwt) && SecurityContextHolder.getContext().getAuthentication() == null) {
-            userEmail = jwtUtils.extractUsername(jwt);
-            Claims claims = jwtUtils.extractAllClaims(jwt);
+        try {
+            if (jwtUtils.isTokenValid(jwt) && SecurityContextHolder.getContext().getAuthentication() == null) {
+                userEmail = jwtUtils.extractUsername(jwt);
+                Claims claims = jwtUtils.extractAllClaims(jwt);
 
-            List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-            
-            /* 
-                Aquí intentamos leer la lista de roles del token
-            */
-            List<String> roles = claims.get("roles", List.class);
+                List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+                
+                @SuppressWarnings("unchecked")
+                List<String> roles = claims.get("roles", List.class);
 
-            if (roles != null && !roles.isEmpty()) {
-                for (String roleName : roles) {
-                    authorities.add(new SimpleGrantedAuthority(
-                            roleName.startsWith("ROLE_") ? roleName : "ROLE_" + roleName
-                    ));
-                }
-            } else {
-
-                /* 
-                    Si la lista no existe, intentamos leer el rol 
-                    en formato antiguo (String simple) o asignamos 
-                    CUSTOMER por defecto
-                */
-                String singleRole = claims.get("role", String.class);
-                if (singleRole != null) {
-                    authorities.add(new SimpleGrantedAuthority(
-                            singleRole.startsWith("ROLE_") ? singleRole : "ROLE_" + singleRole
-                    ));
+                if (roles != null && !roles.isEmpty()) {
+                    for (String roleName : roles) {
+                        authorities.add(new SimpleGrantedAuthority(
+                                roleName.startsWith("ROLE_") ? roleName : "ROLE_" + roleName
+                        ));
+                    }
                 } else {
-                    authorities.add(new SimpleGrantedAuthority("ROLE_CUSTOMER"));
+                    String singleRole = claims.get("role", String.class);
+                    if (singleRole != null) {
+                        authorities.add(new SimpleGrantedAuthority(
+                                singleRole.startsWith("ROLE_") ? singleRole : "ROLE_" + singleRole
+                        ));
+                    } else {
+                        authorities.add(new SimpleGrantedAuthority("ROLE_CUSTOMER"));
+                    }
                 }
+
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                        userEmail,
+                        null,
+                        authorities
+                );
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+                SecurityContextHolder.getContext().setAuthentication(authToken);
             }
-
-            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                    userEmail,
-                    null,
-                    authorities
-            );
-            authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-            SecurityContextHolder.getContext().setAuthentication(authToken);
+        } catch (Exception e) {
+            log.error("AUDITORÍA DE SEGURIDAD - Acceso denegado. Falla en el Token JWT: {}", e.getMessage());
         }
+        
         filterChain.doFilter(request, response);
     }
 }
