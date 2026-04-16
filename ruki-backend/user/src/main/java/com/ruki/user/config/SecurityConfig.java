@@ -76,9 +76,8 @@ public class SecurityConfig {
             )
 
             /* 
-                Colocamos a nuestro guardia en la puerta 
-                de entrada, para que revise cada petición 
-                antes de que llegue a los controladores
+                Colocamos a nuestro guardia en la puerta de entrada, para que 
+                revise cada petición antes de que llegue a los controladores
             */
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
             
@@ -98,4 +97,5 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
+
 }
