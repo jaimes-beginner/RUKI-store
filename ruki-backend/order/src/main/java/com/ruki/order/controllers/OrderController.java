@@ -137,4 +137,18 @@ public class OrderController {
         return ResponseEntity.ok(orderService.updateOrderStatusAdmin(id, status));
     }
 
+    /*  
+        Endpoint para actualizar el estado de un pedido
+    */
+    @PutMapping("/{id}/status")
+    @Operation(summary = "Actualizar estado (S2S)", description = "Webhook interno para que el microservicio de Pagos cambie el estado a PAID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Estado actualizado exitosamente")
+    })
+    public ResponseEntity<Order> updateStatusFromPayment(
+            @PathVariable Long id, 
+            @RequestParam String status) {
+        return ResponseEntity.ok(orderService.updateStatusFromPayment(id, status));
+    }
+
 }

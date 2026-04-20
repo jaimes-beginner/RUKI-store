@@ -23,5 +23,6 @@ public interface OrderService {
     Order cancelMyOrder(Long orderId, Long currentUserId, boolean isAdmin);
     List<Order> getAllOrdersAdmin();
     Order updateOrderStatusAdmin(Long orderId, OrderStatus newStatus);
+    Order updateStatusFromPayment(Long orderId, String status);
 
 }

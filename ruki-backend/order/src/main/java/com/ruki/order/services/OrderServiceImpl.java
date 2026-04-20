@@ -158,4 +158,15 @@ public class OrderServiceImpl implements OrderService {
         return orderRepository.save(order);
     }
 
+    /* 
+        Actualizar el estado de un pedido 
+    */
+    public Order updateStatusFromPayment(Long orderId, String status) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Orden #" + orderId + " no encontrada"));
+
+        order.setStatus(OrderStatus.valueOf(status));
+        return orderRepository.save(order);
+    }
+
 }
