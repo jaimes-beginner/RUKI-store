@@ -1,0 +1,44 @@
+server:
+  port: 8000
+
+spring:
+  application:
+    name: ruki-gateway
+  cloud:
+    gateway:
+      routes:
+        #------------------------------------------------#
+        # MICROSERVICIO DE USUARIOS
+        # Gestiona: Login, Usuarios y Direcciones
+        #------------------------------------------------#
+        - id: user-service
+          uri: ${USER_SERVICE_URL:http://localhost:8080}
+          predicates:
+            - Path=/api-ruki/auth/**,/api-ruki/users/**,/api-ruki/addresses/**
+
+        #------------------------------------------------#
+        # MICROSERVICIO DE PRODUCTOS
+        # Gestiona: Productos y Categorías
+        #------------------------------------------------#
+        - id: product-service
+          uri: ${PRODUCT_SERVICE_URL:http://localhost:8081}
+          predicates:
+            - Path=/api-ruki/products/**,/api-ruki/categories/**
+
+        #------------------------------------------------#
+        # MICROSERVICIO DE PEDIDOS
+        # Gestiona: Historial, Creación y Estado de órdenes
+        #------------------------------------------------#
+        - id: order-service
+          uri: ${ORDER_SERVICE_URL:http://localhost:8082}
+          predicates:
+            - Path=/api-ruki/orders/**
+
+        #------------------------------------------------#
+        # MICROSERVICIO DE PAGOS
+        # Gestiona: Simulación de Pasarela RukiPay
+        #------------------------------------------------#
+        - id: payment-service
+          uri: ${PAYMENT_SERVICE_URL:http://localhost:8083}
+          predicates:
+            - Path=/api-ruki/payments/**
