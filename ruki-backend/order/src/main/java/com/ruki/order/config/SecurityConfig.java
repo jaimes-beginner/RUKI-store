@@ -40,6 +40,8 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
 
+                .requestMatchers("/api-ruki/orders/**").permitAll()
+
                 /* 
                     Aquí permitimos la solicitudes OPTIONS para que 
                     el frontend pueda hacer las preflight requests 
