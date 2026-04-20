@@ -51,7 +51,7 @@ public class SecurityConfig {
                 */
                 .requestMatchers("/api-ruki/users/create").permitAll() 
                 .requestMatchers("/api-ruki/auth/login").permitAll() 
-                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll() 
+                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
 
                 // Rutas de panel administrativo
                 .requestMatchers("/api-ruki/users/admin/**", "/api-ruki/addresses/admin/**").hasRole("ADMIN")
