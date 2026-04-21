@@ -28,5 +28,4 @@ public class RukiGatewayApplication {
 
         return new CorsWebFilter(source);
     }
-
 }
