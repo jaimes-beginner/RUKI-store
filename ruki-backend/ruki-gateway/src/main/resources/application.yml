@@ -42,3 +42,46 @@ spring:
           uri: ${PAYMENT_SERVICE_URL:http://localhost:8083}
           predicates:
             - Path=/api-ruki/payments/**
+
+        #------------------------------------------------#
+        # OPENAPI DOCS DE MICROSERVICIOS
+        #------------------------------------------------#
+        - id: user-service-docs
+          uri: ${USER_SERVICE_URL:http://localhost:8080}
+          predicates:
+            - Path=/v3/api-docs/user
+          filters:
+            - SetPath=/v3/api-docs
+
+        - id: product-service-docs
+          uri: ${PRODUCT_SERVICE_URL:http://localhost:8081}
+          predicates:
+            - Path=/v3/api-docs/product
+          filters:
+            - SetPath=/v3/api-docs
+
+        - id: order-service-docs
+          uri: ${ORDER_SERVICE_URL:http://localhost:8082}
+          predicates:
+            - Path=/v3/api-docs/order
+          filters:
+            - SetPath=/v3/api-docs
+
+        - id: payment-service-docs
+          uri: ${PAYMENT_SERVICE_URL:http://localhost:8083}
+          predicates:
+            - Path=/v3/api-docs/payment
+          filters:
+            - SetPath=/v3/api-docs
+
+springdoc:
+  swagger-ui:
+    urls:
+      - name: User Service
+        url: /v3/api-docs/user
+      - name: Product Service
+        url: /v3/api-docs/product
+      - name: Order Service
+        url: /v3/api-docs/order
+      - name: Payment Service
+        url: /v3/api-docs/payment
