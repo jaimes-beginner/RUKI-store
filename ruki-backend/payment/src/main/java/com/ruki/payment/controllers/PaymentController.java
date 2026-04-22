@@ -2,6 +2,11 @@ package com.ruki.payment.controllers;
 
 import com.ruki.payment.entities.PaymentRecord;
 import com.ruki.payment.services.PaymentService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -13,22 +18,34 @@ import java.util.Map;
 @RequestMapping("/api-ruki/payments")
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = "Pagos (RukiPay)", description = "Simulación de pasarela de pagos integrada")
 public class PaymentController {
 
     private final PaymentService paymentService;
 
-    // 1. Endpoint para crear el pago (Usado por Postman / React)
+    /* 
+        Endpoint para crear el pago
+    */
     @PostMapping("/create")
+    @Operation(summary = "Generar link de pago", description = "Crea una intención de pago para una orden. (Requiere autenticación)")
+    @SecurityRequirement(name = "bearerAuth")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "URL de pago generada exitosamente"),
+            @ApiResponse(responseCode = "401", description = "Token ausente o inválido"),
+            @ApiResponse(responseCode = "404", description = "Orden no encontrada")
+    })
     public ResponseEntity<?> createPayment(@RequestParam Long orderId) {
         log.info("Iniciando cobro con RukiPay para la Orden #{}", orderId);
         String url = paymentService.createPayment(orderId);
         return ResponseEntity.ok(Map.of("url", url));
     }
 
-    // 2. LA PANTALLA FALSA DE PAGO (Devuelve HTML)
+    /* 
+        Pantalla temporal de pago
+    */
     @GetMapping(value = "/checkout", produces = MediaType.TEXT_HTML_VALUE)
+    @Operation(summary = "Mostrar pantalla de pago", description = "Renderiza el HTML de RukiPay. (Público, usa token de URL)")
     public String showCheckoutScreen(@RequestParam String token) {
-        // Un HTML simple, elegante y moderno inyectado directamente desde Java
         return """
             <html>
                 <body style='font-family: Arial; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f3f4f6; margin: 0;'>
@@ -53,8 +70,15 @@ public class PaymentController {
             """.formatted(token, token);
     }
 
-    // 3. Endpoint que procesa el click del botón
+    /* 
+        Endpoint que procesa el click del botón
+    */
     @PostMapping("/process")
+    @Operation(summary = "Procesar confirmación de pago", description = "Recibe el formulario de RukiPay y aprueba la orden. (Público, validado por token interno)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Pago procesado y orden actualizada"),
+            @ApiResponse(responseCode = "400", description = "Token inválido o expirado")
+    })
     public ResponseEntity<?> processPayment(@RequestParam String token) {
         log.info("Procesando pago en RukiPay...");
         PaymentRecord result = paymentService.confirmPayment(token);
@@ -64,4 +88,5 @@ public class PaymentController {
                 "message", "¡Dinero recibido! La Orden #" + result.getOrderId() + " ha sido pagada y actualizada en Pedidos."
         ));
     }
+    
 }

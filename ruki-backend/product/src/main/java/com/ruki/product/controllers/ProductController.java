@@ -6,6 +6,7 @@ import com.ruki.product.services.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement; // <-- Importación añadida
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ public class ProductController {
     */
     @PostMapping("/create")
     @Operation(summary = "Crear producto", description = "Agrega un nuevo producto al catálogo (Requiere ROLE_ADMIN)")
+    @SecurityRequirement(name = "bearerAuth")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Producto creado"),
             @ApiResponse(responseCode = "400", description = "Datos inválidos o categoría inactiva"),
@@ -79,6 +81,7 @@ public class ProductController {
     */
     @PutMapping("/delete/{id}")
     @Operation(summary = "Eliminar producto", description = "Baja lógica de un producto (Requiere ROLE_ADMIN)")
+    @SecurityRequirement(name = "bearerAuth") 
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Producto desactivado"),
             @ApiResponse(responseCode = "401", description = "Token ausente o inválido"),
@@ -95,6 +98,7 @@ public class ProductController {
     */
     @PutMapping("/{id}/discount-stock")
     @Operation(summary = "Descontar stock", description = "Resta inventario al producto (Uso interno microservicios)")
+    @SecurityRequirement(name = "bearerAuth") 
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Stock descontado"),
             @ApiResponse(responseCode = "400", description = "Stock insuficiente o producto inactivo"),

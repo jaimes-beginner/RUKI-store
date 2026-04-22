@@ -7,6 +7,7 @@ import com.ruki.user.services.AddressService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
@@ -31,6 +32,7 @@ public class AddressController {
     */
     @PostMapping("/create")
     @Operation(summary = "Crear direccion", description = "Agrega una nueva direccion a un usuario existente")
+    @SecurityRequirement(name = "bearerAuth")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Direccion creada correctamente"),
             @ApiResponse(responseCode = "400", description = "Datos invalidos o usuario no encontrado"),
@@ -46,6 +48,7 @@ public class AddressController {
     */
     @GetMapping("/user/{userId}")
     @Operation(summary = "Obtener direcciones de un usuario", description = "Retorna todas las direcciones asociadas a un ID de usuario")
+    @SecurityRequirement(name = "bearerAuth")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Lista de direcciones obtenida"),
             @ApiResponse(responseCode = "403", description = "Acceso denegado: No eres el propietario de este recurso"),
@@ -61,6 +64,7 @@ public class AddressController {
     */
     @GetMapping("/admin/all")
     @Operation(summary = "Listar todas las direcciones (Admin)", description = "Retorna todas las direcciones para el panel de administrador")
+    @SecurityRequirement(name = "bearerAuth")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Lista de direcciones obtenida"),
             @ApiResponse(responseCode = "403", description = "Acceso denegado para usuarios sin rol ADMIN")
@@ -75,6 +79,7 @@ public class AddressController {
     */
     @PutMapping("/update/{addressId}")
     @Operation(summary = "Actualizar direccion", description = "Actualiza parcialmente una direccion existente")
+    @SecurityRequirement(name = "bearerAuth")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Direccion actualizada correctamente"),
             @ApiResponse(responseCode = "403", description = "Acceso denegado: No eres el propietario de este recurso"),
@@ -92,6 +97,7 @@ public class AddressController {
     */
     @DeleteMapping("/delete/{addressId}")
     @Operation(summary = "Eliminar direccion", description = "Elimina una direccion existente")
+    @SecurityRequirement(name = "bearerAuth")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Direccion eliminada correctamente"),
             @ApiResponse(responseCode = "403", description = "Acceso denegado: No eres el propietario de este recurso"),
