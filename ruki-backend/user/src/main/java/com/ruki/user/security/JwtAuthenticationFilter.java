@@ -27,7 +27,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
+        
         final String authHeader = request.getHeader("Authorization");
+        
+        /* 
+            Esto imprimirá en la consola qué está recibiendo realmente
+        */
+        System.out.println("TOKEN RECIBIDO EN EL HEADER: " + authHeader);
+
         final String jwt;
         final String userEmail;
 
@@ -41,38 +48,59 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         /* 
-            Luego aquí comenzamos a extraer el 
-            token, quitando la palabra 'Bearer '
+            Extraemos el token quitando la primera palabra 'Bearer '
         */
-        jwt = authHeader.substring(7);
-        userEmail = jwtUtils.extractUsername(jwt);
+        String extractedToken = authHeader.substring(7).trim();
 
         /* 
-            En caso de que el token tenga un correo 
-            y el usuario no está ya autenticado 
+            Si por error viene "Bearer Bearer eyJ..." lo limpiamos
         */
-        if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
-
-            /*
-                Validamos que el token no sea 
-                falso ni esté expirado
-            */
-            if (jwtUtils.isTokenValid(jwt, userDetails) && userDetails.isEnabled()) {
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities()
-                );
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-                /* 
-                    Le avisamos a Spring Security 
-                    que el usuario pasó la prueba
-                */
-                SecurityContextHolder.getContext().setAuthentication(authToken);
-            }
+        if (extractedToken.toLowerCase().startsWith("bearer ")) {
+            extractedToken = extractedToken.substring(7).trim();
+            System.out.println("Se detectó un Bearer doble, token limpiado automáticamente.");
         }
+        
+        jwt = extractedToken;
+
+        try {
+            userEmail = jwtUtils.extractUsername(jwt);
+
+            /* 
+                En caso de que el token tenga un correo 
+                y el usuario no está ya autenticado 
+            */
+            if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
+
+                /*
+                    Validamos que el token no sea 
+                    falso ni esté expirado
+                */
+                if (jwtUtils.isTokenValid(jwt, userDetails) && userDetails.isEnabled()) {
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            userDetails.getAuthorities()
+                    );
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+                    /* 
+                        Le avisamos a Spring Security 
+                        que el usuario pasó la prueba
+                    */
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                    System.out.println("Usuario autenticado con éxito: " + userEmail);
+                }
+            }
+        } catch (Exception e) {
+            /* 
+                Si el token es inválido, está mal formado o 
+                expiró, atrapamos el error para que no explote el servidor
+            */
+            System.out.println("Error procesando el token JWT: " + e.getMessage());
+        }
+        
         filterChain.doFilter(request, response);
     }
+
 }
