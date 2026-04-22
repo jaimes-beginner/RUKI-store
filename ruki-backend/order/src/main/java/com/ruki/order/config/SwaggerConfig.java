@@ -29,8 +29,8 @@ public class SwaggerConfig {
         return new OpenAPI()
             .servers(List.of(new Server().url("/")))
             .info(new io.swagger.v3.oas.models.info.Info()
-                .title("RUKI Microservices API")
-                .description("Documentación centralizada de microservicios con autenticación JWT")
+                .title("RUKI Microservices")
+                .description("Documentación centralizada de microservicios junto con los mantenedores respectivos de los usuarios, productos, pedidos y pagos, implementados con autenticación JWT")
                 .version("1.0.0"));
     }
 
