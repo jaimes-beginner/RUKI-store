@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+
+  # Gateway es el único punto de entrada que tiene que estar público
+  gateway-service:
+    build: ./ruki-gateway 
+    ports:
+      - "8000:8000"
+    networks:
+      - ruki-network
+    environment:
+      - USER_SERVICE_URL=http://usuarios-service:8080
+      - PRODUCT_SERVICE_URL=http://productos-service:8081
+      - ORDER_SERVICE_URL=http://pedidos-service:8082
+      - PAYMENT_SERVICE_URL=http://pagos-service:8083
+
+  # Microservicios de los usuarios
+  usuarios-service:
+    build: ./user
+    networks:
+      - ruki-network
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+      - DB_URL=${DB_URL}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - FRONTEND_URL=${FRONTEND_URL}
+
+  # Microservicio de los productos
+  productos-service:
+    build: ./product
+    networks:
+      - ruki-network
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+      - DB_URL=${DB_URL}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - FRONTEND_URL=${FRONTEND_URL}
+
+  # Microservicio de los pedidos
+  pedidos-service:
+    build: ./order
+    networks:
+      - ruki-network
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+      - DB_URL=${DB_URL}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - PRODUCT_SERVICE_URL=http://productos-service:8081
+
+  # Microservicio de los pagos
+  pagos-service:
+    build: ./payment
+    networks:
+      - ruki-network
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+      - DB_URL=${DB_URL}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - ORDER_SERVICE_URL=http://pedidos-service:8082
+      - PAYMENT_SERVICE_URL=http://pagos-service:8083
+
+networks:
+  ruki-network:
+    driver: bridge
