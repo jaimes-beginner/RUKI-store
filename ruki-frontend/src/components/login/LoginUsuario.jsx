@@ -27,13 +27,13 @@ export function LoginUsuario() {
 		}
 	}, [correo]);
 
-	// Validacion de Contrasena
+	// Validacion de Contraseña
 	useEffect(() => {
 		const regexContrasena = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
 		if (!password.trim()) {
-			setErrores((prev) => ({ ...prev, contrasena: "La contrasena es obligatoria." }));
+			setErrores((prev) => ({ ...prev, contrasena: "La contraseña es obligatoria." }));
 		} else if (!regexContrasena.test(password)) {
-			setErrores((prev) => ({ ...prev, contrasena: "La contrasena no cumple con el formato requerido." }));
+			setErrores((prev) => ({ ...prev, contrasena: "La contraseña no cumple con el formato requerido." }));
 		} else {
 			setErrores((prev) => ({ ...prev, contrasena: "" }));
 		}
@@ -68,7 +68,7 @@ export function LoginUsuario() {
 				console.log("Rol detectado para redireccion:", idRol);
 
 				if (idRol === 1) {
-					navigate("/admin");
+					navigate("/admin/crear-usuario");
 				} else {
 					navigate("/");
 				}
@@ -76,9 +76,10 @@ export function LoginUsuario() {
 		} catch (error) {
 			console.error("ERROR AL INICIAR SESION:", error);
 			const errorMsg =
+				error?.message ||
 				error.response?.data?.message ||
 				error.response?.data ||
-				"Correo o contrasena incorrectos.";
+				"Correo o contraseña incorrectos.";
 
 			setMensaje(typeof errorMsg === "string" ? errorMsg : "Error de autenticacion");
 			setLoading(false); // Detiene la carga solo si hay error
@@ -89,7 +90,7 @@ export function LoginUsuario() {
 		<div className="container mt-5 mb-5" style={{ maxWidth: "450px" }}>
 			<div className="card rounded border-dark shadow">
 				<div className="py-3 d-flex justify-content-center rounded-top">
-					<h2 className="m-0">Iniciar sesion</h2>
+					<h2 className="m-0" style={{ color: "#000" }}>Iniciar sesion</h2>
 				</div>
 				<div className="card-body">
 					{mensaje && (
@@ -111,7 +112,7 @@ export function LoginUsuario() {
 							{errores.correo && <div className="invalid-feedback">{errores.correo}</div>}
 						</div>
 						<div className="mb-3">
-							<label className="form-label fw-bold small">Contrasena *</label>
+							<label className="form-label fw-bold small">Contraseña *</label>
 							<input
 								type="password"
 								name="contrasena"

@@ -22,13 +22,18 @@ export function AuthProvider({ children }) {
 	});
 
 	async function login(correo, password) {
-		const response = await fetch(`${API_BASE_URL}/api-ruki/auth/login`, {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({ email: correo, password }),
-		});
+		let response;
+		try {
+			response = await fetch(`${API_BASE_URL}/api-ruki/auth/login`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({ email: correo, password }),
+			});
+		} catch {
+			throw new Error("No se pudo conectar con el servidor. Verifica que el backend este encendido en http://localhost:8000.");
+		}
 
 		if (!response.ok) {
 			let message = "Correo o contrasena incorrectos.";
