@@ -57,14 +57,20 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
 
-                // Rutas de panel administrativo
-                .requestMatchers("/api-ruki/users/admin/**", "/api-ruki/addresses/admin/**").hasRole("ADMIN")
+                /* 
+                    Rutas de panel administrativo y 
+                    acciones para el administrador
+                */
+                .requestMatchers(
+                        "/api-ruki/users/admin/**", 
+                        "/api-ruki/addresses/admin/**", 
+                        "/api-ruki/users/reactivate/**" 
+                ).hasRole("ADMIN")
 
                 /* 
                     Estas son las rutas privadas, las 
                     que piden token para poder acceder
                 */
-              
                 .anyRequest().authenticated() 
             )
             .sessionManagement(session -> session

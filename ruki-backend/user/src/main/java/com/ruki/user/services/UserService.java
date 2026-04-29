@@ -12,8 +12,8 @@ public interface UserService {
         lógica de los usuarios, en este caso tiene el de crear 
         un usuario | obtener un usuario por su ID | obtener un 
         usuario por su correo electrónico | obtener todos los 
-        usuarios activos | actualizar un usuario existente y 
-        eliminar un usuario
+        usuarios activos | actualizar un usuario existente,
+        eliminar un usuario y reactivar un usuario eliminado
     */
 
     UserResponse createUser(UserCreate userCreate);
@@ -23,5 +23,6 @@ public interface UserService {
     List<UserResponse> getAllUsers();
     UserResponse updateUser(Long id, UserUpdate userUpdate);
     void deleteUser(Long id);
+    void reactivateUser(Long id);
 
 }

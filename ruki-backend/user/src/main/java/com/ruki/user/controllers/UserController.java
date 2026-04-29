@@ -147,4 +147,20 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserByEmail(currentUserEmail));
     }
 
+    /* 
+        Endpoint para reactivar un usuario
+    */
+    @PutMapping("/reactivate/{id}")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Reactivar usuario", description = "Vuelve a activar a un usuario que fue dado de baja previamente")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Usuario reactivado correctamente"),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado: No eres el propietario del recurso o no eres ADMIN"),
+            @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+    })
+    public ResponseEntity<Void> reactivateUser(@PathVariable @Positive Long id) {
+        userService.reactivateUser(id);
+        return ResponseEntity.ok().build();
+    }
+
 }

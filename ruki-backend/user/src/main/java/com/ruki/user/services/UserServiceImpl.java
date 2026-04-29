@@ -16,7 +16,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-
 import java.util.List;
 
 @Service
@@ -210,6 +209,29 @@ public class UserServiceImpl implements UserService {
         if (!targetUser.getEmail().equals(currentUserEmail)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acceso denegado: No eres el propietario de esta cuenta");
         }
+    }
+
+    /*
+        Reactivar un usuario que previamente tuvo una baja lógica
+        cambiando su estado a true. (Protegido por IDOR)
+    */
+    @Override
+    public void reactivateUser(Long id) {
+        
+        /*
+            Cierre de vulnerabilidad IDOR
+        */
+        validateOwnershipOrAdmin(id); 
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+
+        if (user.isActive()) {
+            return; 
+        }
+
+        user.setActive(true);
+        userRepository.save(user);
     }
 
 }
