@@ -1,6 +1,8 @@
 package com.ruki.product.entities;
 
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -15,6 +17,8 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -58,4 +62,13 @@ public class Product {
     @EqualsAndHashCode.Exclude
     private Category category;
     
+    /* 
+        @ElementCollection crea automáticamente una tabla anexa 
+        para guardar la lista de URLs asociada a este producto.
+    */
+    @ElementCollection
+    @CollectionTable(name = "product_images", joinColumns = @JoinColumn(name = "product_id"))
+    @Column(name = "image_url", length = 500)
+    private List<String> imageUrls = new ArrayList<>();
+
 }

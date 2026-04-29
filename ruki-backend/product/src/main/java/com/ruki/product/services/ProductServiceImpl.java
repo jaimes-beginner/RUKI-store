@@ -37,7 +37,7 @@ public class ProductServiceImpl implements ProductService {
         Product product = new Product();
         product.setName(request.getName());
         product.setDescription(request.getDescription());
-        product.setMainImageUrl(request.getMainImageUrl());
+        product.setImageUrls(request.getImageUrls());
         product.setBasePrice(request.getBasePrice());
         product.setStock(request.getStock());
         product.setCategory(category);
@@ -106,7 +106,7 @@ public class ProductServiceImpl implements ProductService {
                 product.getId(),
                 product.getName(),
                 product.getDescription(),
-                product.getMainImageUrl(),
+                product.getImageUrls(),
                 product.getBasePrice(),
                 product.getStock(),
                 catResponse,

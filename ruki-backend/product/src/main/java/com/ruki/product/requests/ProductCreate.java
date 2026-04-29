@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 public class ProductCreate {
@@ -26,11 +27,12 @@ public class ProductCreate {
     private String description;
     
     /*
-        Validamos que si mandan una 
-        URL, tenga formato real de enlace.
+        Ahora recibimos un arreglo de URLs.
+        El frontend debe enviar al menos una imagen (la principal).
     */
-    @org.hibernate.validator.constraints.URL(message = "Debe ser una URL válida")
-    private String mainImageUrl;
+    @NotNull(message = "La lista de imágenes no puede ser nula")
+    @Size(min = 1, message = "Debe haber al menos una imagen para el producto")
+    private List<@org.hibernate.validator.constraints.URL(message = "Una de las rutas no es una URL válida") String> imageUrls;
 
     @NotNull(message = "El precio base es obligatorio")
     @Positive(message = "El precio debe ser mayor a cero")
