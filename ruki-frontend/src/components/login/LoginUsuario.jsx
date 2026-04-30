@@ -138,7 +138,7 @@ export function LoginUsuario() {
 					</form>
 					<div className="text-center mt-3">
 						<small>
-							No tienes una cuenta? <Link to="/registro">Registrate aqui</Link>
+							No tienes una cuenta? <Link to="/admin/crear-usuario">Registrate aqui</Link>
 						</small>
 					</div>
 				</div>

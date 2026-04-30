@@ -1,6 +1,6 @@
 // Importaciones
-import { FooterAdmin } from "../../components/admin/footer/FooterAdmin";
-import { NavbarAdmin } from "../../components/admin/navbar/NavbarAdmin";
+import FooterUsuario from "../../components/usuario/footer/FooterUsuario";
+import NavabarUsuarios from "../../components/usuario/navbar/NavabarUsuarios";
 import { CrearUsuario } from "../../components/admin/gestion/CrearUsuario";
 
 /*-------------------------------------------------*/
@@ -9,9 +9,9 @@ import { CrearUsuario } from "../../components/admin/gestion/CrearUsuario";
 export function CrearUsuarioAdmin() {
 	return (
 		<>
-			<NavbarAdmin />
+			<NavabarUsuarios />
 			<CrearUsuario />
-			<FooterAdmin />
+			<FooterUsuario />
 		</>
 	);
 }

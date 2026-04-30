@@ -105,7 +105,7 @@ export function CrearUsuario() {
 		<div className="container mt-5 mb-5" style={{ maxWidth: "600px" }}>
 			<div className="card rounded border-dark shadow">
 				<div className="py-3 d-flex justify-content-center rounded-top">
-					<h2 className="m-0">Crear nuevo usuario</h2>
+					<h2 className="m-0" style={{ color: "#000" }}>Nuevo usuario</h2>
 				</div>
 				<div className="card-body">
 					{mensaje && <div className="alert alert-info small py-2 text-center">{mensaje}</div>}
@@ -148,7 +148,7 @@ export function CrearUsuario() {
 								{errores.correo && <div className="invalid-feedback">{errores.correo}</div>}
 							</div>
 							<div className="mb-2 col-md-6">
-								<label htmlFor="contrasena" className="form-label fw-bold small">Contrasena *</label>
+								<label htmlFor="contrasena" className="form-label fw-bold small">Contraseña *</label>
 								<input
 									id="contrasena"
 									type="password"
