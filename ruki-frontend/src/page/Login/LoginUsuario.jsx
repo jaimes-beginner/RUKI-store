@@ -1,4 +1,3 @@
-import FooterUsuario from "../../components/usuario/footer/FooterUsuario";
 import { LoginUsuario } from "../../components/login/LoginUsuario";
 import NavbarUsuario from "../../components/usuario/navbar/NavabarUsuarios";
 
@@ -10,7 +9,6 @@ export function Login() {
 		<>
 			<NavbarUsuario />
 			<LoginUsuario />
-			<FooterUsuario />
 		</>
 	);
 }

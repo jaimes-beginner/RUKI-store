@@ -4,6 +4,7 @@ import { PaginaNuevosCliente } from './page/Cliente/PaginaNuevos.jsx'
 import { PaginaSaleCliente } from './page/Cliente/PaginaSale.jsx'
 import { PaginaProductosCliente } from './page/Cliente/PaginaProductos.jsx'
 import { CrearUsuarioAdmin } from './page/Admin/CrearUsuarioAdmin.jsx'
+import { CrearReporteDashboard } from './page/Admin/CrearReporteDashboard.jsx'
 import { Login } from './page/Login/LoginUsuario.jsx'
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
       <Route path="/sale" element={<PaginaSaleCliente />} />
       <Route path="/admin" element={<CrearUsuarioAdmin />} />
       <Route path="/admin/crear-usuario" element={<CrearUsuarioAdmin />} />
+      <Route path="/admin/reporte-dashboard" element={<CrearReporteDashboard />} />
       <Route path="/login" element={<Login />} />
     </Routes>
   )

@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { registrarUsuario } from "../../../services/AuthService";
+import { regiones } from "../../../data/Regiones";
 
 /*-------------------------------------------------*/
 
@@ -13,6 +14,9 @@ export function CrearUsuario() {
 		lastName: "",
 		correo: "",
 		contrasena: "",
+		region: "",
+		comuna: "",
+		direccion: "",
 	});
 	const [errores, setErrores] = useState({});
 	const [mensaje, setMensaje] = useState(null);
@@ -21,12 +25,16 @@ export function CrearUsuario() {
 	// Actualiza el estado del formulario en cada cambio de input.
 	const handleChange = (e) => {
 		const { name, value } = e.target;
-		setUsuario({ ...usuario, [name]: value });
+		if (name === 'region') {
+			setUsuario({ ...usuario, region: value, comuna: '' });
+		} else {
+			setUsuario({ ...usuario, [name]: value });
+		}
 		setErrores({ ...errores, [name]: "" });
 	};
 
-	// Navega de vuelta al listado de usuarios.
-	const handleCancelar = () => navigate("/usuarios-admin");
+	// Navega de vuelta a la página principal.
+	const handleCancelar = () => navigate("/");
 
 	// Validacion de nombre
 	useEffect(() => {
@@ -70,11 +78,43 @@ export function CrearUsuario() {
 		if (!usuario.contrasena.trim()) {
 			setErrores((prev) => ({ ...prev, contrasena: "La contrasena es obligatoria." }));
 		} else if (!regexContrasena.test(usuario.contrasena)) {
-			setErrores((prev) => ({ ...prev, contrasena: "Minimo 8 caracteres, mayuscula, minuscula, numero y caracter especial." }));
+			setErrores((prev) => ({ ...prev, contrasena: "Minimo 8 caracteres, mayuscula, minuscula, número y caracter especial." }));
 		} else {
 			setErrores((prev) => ({ ...prev, contrasena: "" }));
 		}
 	}, [usuario.contrasena]);
+
+	// Validacion de direccion
+	useEffect(() => {
+		if (!usuario.direccion.trim()) {
+			setErrores((prev) => ({ ...prev, direccion: "La dirección es obligatoria." }));
+		} else if (usuario.direccion.length > 200) {
+			setErrores((prev) => ({ ...prev, direccion: "Maximo 200 caracteres." }));
+		} else {
+			setErrores((prev) => ({ ...prev, direccion: "" }));
+		}
+	}, [usuario.direccion]);
+
+	// Validacion de region
+	useEffect(() => {
+		if (!usuario.region) {
+			setErrores((prev) => ({ ...prev, region: "La región es obligatoria." }));
+		} else {
+			const existe = regiones.some((r) => r.nombre === usuario.region);
+			setErrores((prev) => ({ ...prev, region: existe ? "" : "Región inválida." }));
+		}
+	}, [usuario.region]);
+
+	// Validacion de comuna
+	useEffect(() => {
+		if (!usuario.comuna) {
+			setErrores((prev) => ({ ...prev, comuna: "La comuna es obligatoria." }));
+		} else {
+			const regionObj = regiones.find((r) => r.nombre === usuario.region);
+			const valida = regionObj?.comunas.includes(usuario.comuna);
+			setErrores((prev) => ({ ...prev, comuna: valida ? "" : "Comuna inválida para la región seleccionada." }));
+		}
+	}, [usuario.comuna, usuario.region]);
 
 	// Maneja el envio del formulario
 	const handleSubmit = async (e) => {
@@ -90,12 +130,17 @@ export function CrearUsuario() {
 				password: usuario.contrasena,
 				firstName: usuario.firstName,
 				lastName: usuario.lastName,
+				address: {
+					region: usuario.region,
+					comuna: usuario.comuna,
+					direccion: usuario.direccion,
+				},
 			});
 			setMensaje("Usuario creado con exito.");
 			setTimeout(() => navigate("/usuarios-admin"), 1500);
 		} catch (error) {
 			console.error("ERROR AL CREAR USUARIO:", error);
-			setMensaje("Error al crear el usuario, revisa los datos.");
+			setMensaje("Error, revisa los datos ingresados.");
 		} finally {
 			setLoading(false);
 		}
@@ -110,30 +155,33 @@ export function CrearUsuario() {
 				<div className="card-body">
 					{mensaje && <div className="alert alert-info small py-2 text-center">{mensaje}</div>}
 					<form onSubmit={handleSubmit}>
-						<div className="mb-2">
-							<label htmlFor="firstName" className="form-label fw-bold small">Nombre *</label>
-							<input
-								id="firstName"
-								type="text"
-								name="firstName"
-								value={usuario.firstName}
-								onChange={handleChange}
-								className={`form-control form-control-sm ${errores.firstName ? "is-invalid" : "is-valid"}`}
-							/>
-							{errores.firstName && <div className="invalid-feedback">{errores.firstName}</div>}
+						<div className="row">
+							<div className="mb-2 col-md-6">
+								<label htmlFor="firstName" className="form-label fw-bold small">Nombre *</label>
+								<input
+									id="firstName"
+									type="text"
+									name="firstName"
+									value={usuario.firstName}
+									onChange={handleChange}
+									className={`form-control form-control-sm ${errores.firstName ? "is-invalid" : "is-valid"}`}
+								/>
+								{errores.firstName && <div className="invalid-feedback">{errores.firstName}</div>}
+							</div>
+							<div className="mb-2 col-md-6">
+								<label htmlFor="lastName" className="form-label fw-bold small">Apellido *</label>
+								<input
+									id="lastName"
+									type="text"
+									name="lastName"
+									value={usuario.lastName}
+									onChange={handleChange}
+									className={`form-control form-control-sm ${errores.lastName ? "is-invalid" : "is-valid"}`}
+								/>
+								{errores.lastName && <div className="invalid-feedback">{errores.lastName}</div>}
+							</div>
 						</div>
-						<div className="mb-2">
-							<label htmlFor="lastName" className="form-label fw-bold small">Apellido *</label>
-							<input
-								id="lastName"
-								type="text"
-								name="lastName"
-								value={usuario.lastName}
-								onChange={handleChange}
-								className={`form-control form-control-sm ${errores.lastName ? "is-invalid" : "is-valid"}`}
-							/>
-							{errores.lastName && <div className="invalid-feedback">{errores.lastName}</div>}
-						</div>
+
 						<div className="row">
 							<div className="mb-2 col-md-6">
 								<label htmlFor="correo" className="form-label fw-bold small">Correo *</label>
@@ -160,10 +208,59 @@ export function CrearUsuario() {
 								{errores.contrasena && <div className="invalid-feedback">{errores.contrasena}</div>}
 							</div>
 						</div>
+
+						<div className="mb-2">
+							<label htmlFor="direccion" className="form-label fw-bold small">Dirección *</label>
+							<input
+								id="direccion"
+								type="text"
+								name="direccion"
+								value={usuario.direccion}
+								onChange={handleChange}
+								className={`form-control form-control-sm ${errores.direccion ? "is-invalid" : "is-valid"}`}
+							/>
+							{errores.direccion && <div className="invalid-feedback">{errores.direccion}</div>}
+						</div>
+
+						<div className="row">
+							<div className="mb-2 col-md-6">
+								<label htmlFor="region" className="form-label fw-bold small">Región *</label>
+								<select
+									id="region"
+									name="region"
+									value={usuario.region}
+									onChange={handleChange}
+									className={`form-select form-select-sm ${errores.region ? "is-invalid" : "is-valid"}`}
+								>
+									<option value="">Selecciona una región</option>
+									{regiones.map((r, idx) => (
+										<option key={idx} value={r.nombre}>{r.nombre}</option>
+									))}
+								</select>
+								{errores.region && <div className="invalid-feedback">{errores.region}</div>}
+							</div>
+							<div className="mb-2 col-md-6">
+								<label htmlFor="comuna" className="form-label fw-bold small">Comuna *</label>
+								<select
+									id="comuna"
+									name="comuna"
+									value={usuario.comuna}
+									onChange={handleChange}
+									className={`form-select form-select-sm ${errores.comuna ? "is-invalid" : "is-valid"}`}
+								>
+									<option value="">Selecciona una comuna</option>
+									{(regiones.find(r => r.nombre === usuario.region)?.comunas || []).map((c, i) => (
+										<option key={i} value={c}>{c}</option>
+									))}
+								</select>
+								{errores.comuna && <div className="invalid-feedback">{errores.comuna}</div>}
+							</div>
+						</div>
+
 						<div className="d-flex gap-2 pt-3 justify-content-center">
 							<button type="button" onClick={handleCancelar} className="btn btn-sm btn-danger">Cancelar</button>
 							<button type="submit" className="btn btn-sm btn-dark" disabled={loading}>
-								{loading ? "Guardando..." : "Crear usuario"}
+								{loading ? "Guardando..." : "Guardar"}
 							</button>
 						</div>
 					</form>

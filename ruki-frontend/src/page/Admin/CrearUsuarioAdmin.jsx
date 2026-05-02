@@ -1,5 +1,4 @@
 // Importaciones
-import FooterUsuario from "../../components/usuario/footer/FooterUsuario";
 import NavabarUsuarios from "../../components/usuario/navbar/NavabarUsuarios";
 import { CrearUsuario } from "../../components/admin/gestion/CrearUsuario";
 
@@ -11,7 +10,6 @@ export function CrearUsuarioAdmin() {
 		<>
 			<NavabarUsuarios />
 			<CrearUsuario />
-			<FooterUsuario />
 		</>
 	);
 }

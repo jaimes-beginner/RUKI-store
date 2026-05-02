@@ -16,7 +16,7 @@ function Header() {
           </Navbar.Brand>
           
           <div className="ruki-topbar-side-new d-flex justify-content-end align-items-center gap-3">
-            <Nav.Link href="#login" className="small p-0">Log in/Join</Nav.Link>
+            <Nav.Link as={Link} to="/login" className="small p-0">Log in/Join</Nav.Link>
             <span className="cart-icon-new">🛒</span>
           </div>
         </Container>

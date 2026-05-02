@@ -14,7 +14,6 @@ export function NavbarAdmin() {
     const { usuario, logout } = useAuth();
     
     const navLinks = [
-        { path: "/admin", label: "Página principal" },
         { path: "/inventario-admin", label: "Gestión de productos" },
         { path: "/usuarios-admin", label: "Gestión de usuarios" },
         { path: "/pedidos-admin", label: "Gestión de pedidos"}
@@ -23,7 +22,7 @@ export function NavbarAdmin() {
     // Función para manejar el cierre de sesión
     function handleLogout(e) {
         e.preventDefault();
-        if (window.confirm("¿Estás seguro de cerrar sesión?")) {
+        if (globalThis.confirm("¿Estás seguro de cerrar sesión?")) {
             logout();               // Llama al logout del contexto (borra el token)
             navigate("/login");     // Redirige al login unificado
         }
@@ -35,7 +34,7 @@ export function NavbarAdmin() {
                 <div className="container">
                     {/* Logo */}
                     <Link className="navbar-brand d-flex align-items-center" to="/admin">
-                        <img src="/logo.png" alt="Logo RUKI" height="40" className="me-2" />
+                        <img src="/imagenes/logo.png" alt="Logo RUKI" height="40" className="me-2" />
                         <span className="badge bg-danger ms-2">ADMIN</span>
                     </Link>
 

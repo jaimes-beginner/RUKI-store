@@ -87,7 +87,7 @@ export function LoginUsuario() {
 	};
 
 	return (
-		<div className="container mt-5 mb-5" style={{ maxWidth: "450px" }}>
+		<div className="container mt-5 mb-5" style={{ maxWidth: "520px" }}>
 			<div className="card rounded border-dark shadow">
 				<div className="py-3 d-flex justify-content-center rounded-top">
 					<h2 className="m-0" style={{ color: "#000" }}>Iniciar sesion</h2>
