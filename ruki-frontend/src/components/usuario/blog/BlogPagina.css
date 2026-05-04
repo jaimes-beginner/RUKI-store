@@ -1,0 +1,11 @@
+.ruki-blog-section { background-color: #13121275; }
+.ruki-blog-title { font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+.ruki-divider { width: 60px; height: 3px; background-color: #333; opacity: 1; border: none; margin-top: 1rem; }
+.ruki-post-card { border: 0; }
+.ruki-img-wrap { height: 100%; min-height: 220px; overflow: hidden; }
+.ruki-img-wrap img { object-fit: cover; height: 100%; }
+.ruki-excerpt { line-height: 1.7; }
+.ruki-btn { padding-left: 1.2rem; padding-right: 1.2rem; }
+@media (max-width: 767px) {
+  .ruki-img-wrap { min-height: 180px; }
+}

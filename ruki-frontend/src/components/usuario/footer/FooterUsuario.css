@@ -9,8 +9,9 @@
   color: #ffffff;
   min-height: 96px;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   align-items: center;
+  justify-items: center;
   padding: 8px 24px;
 }
 
@@ -62,6 +63,8 @@
   animation: ruki-card-pulse 3.2s ease-in-out infinite;
 }
 
+/* keep ruki-footer-card as a plain container; no global link behavior */
+
 @keyframes ruki-card-pulse {
   0%,
   100% {
@@ -90,8 +93,24 @@
 
 .ruki-card-subtitle {
   margin: 8px 0 0;
-  font-size: 18px;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 800;
+  color: #ffffff;
+  background: transparent;
+  width: auto;
+  height: auto;
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
+  display: inline-block;
+  text-decoration: none;
+  transition: color 140ms ease, transform 140ms ease;
+}
+
+.ruki-card-subtitle:hover,
+.ruki-card-subtitle:focus {
+  color: #e6e6e6;
+  transform: translateY(-2px);
 }
 
 .ruki-footer-links {
