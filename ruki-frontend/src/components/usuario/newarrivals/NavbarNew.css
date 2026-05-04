@@ -5,10 +5,6 @@
 .ruki-header-new .ruki-top-navbar-new,
 .ruki-header-new .ruki-bottom-navbar-new {
   padding-inline: clamp(1rem, 3vw, 2.5rem);
-}
-
-.ruki-header-new .ruki-top-navbar-new,
-.ruki-header-new .ruki-bottom-navbar-new {
   background-color: #ffffff !important;
 }
 
@@ -64,4 +60,39 @@
   height: 28px;
   width: auto;
   display: block;
+}
+
+.ruki-header-new .ruki-bottom-navbar-new .nav {
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .ruki-header-new .ruki-topbar-new {
+    flex-direction: column;
+    gap: 10px;
+    padding-inline: 12px !important;
+  }
+
+  .ruki-header-new .ruki-brand-centered-new {
+    position: static;
+    transform: none;
+  }
+
+  .ruki-header-new .ruki-topbar-side-new {
+    width: 100%;
+    justify-content: center !important;
+  }
+
+  .ruki-header-new .ruki-topbar-side-new:first-child {
+    display: none;
+  }
+
+  .ruki-header-new .ruki-bottom-navbar-new .nav {
+    gap: 0.75rem !important;
+  }
+
+  .ruki-header-new .ruki-bottom-navbar-new .nav-link {
+    font-size: 0.78rem;
+  }
 }
