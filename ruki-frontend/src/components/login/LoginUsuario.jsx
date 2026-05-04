@@ -17,13 +17,13 @@ export function LoginUsuario() {
 
 	// Validacion de Correo
 	useEffect(() => {
-		const regexCorreo = /^[\w.-]+@gmail\.com$/;
+		const regexCorreo = /^[\w.-]+@(gmail\.com|ruki\.com)$/i;
 		if (!correo.trim()) {
 			setErrores((prev) => ({ ...prev, correo: "El correo es obligatorio." }));
-		} else if (!regexCorreo.test(correo)) {
-			setErrores((prev) => ({ ...prev, correo: "Solo se permiten correos Gmail." }));
-		} else {
+		} else if (regexCorreo.test(correo)) {
 			setErrores((prev) => ({ ...prev, correo: "" }));
+		} else {
+			setErrores((prev) => ({ ...prev, correo: "Solo se permiten correos " }));
 		}
 	}, [correo]);
 
@@ -32,10 +32,10 @@ export function LoginUsuario() {
 		const regexContrasena = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
 		if (!password.trim()) {
 			setErrores((prev) => ({ ...prev, contrasena: "La contraseña es obligatoria." }));
-		} else if (!regexContrasena.test(password)) {
-			setErrores((prev) => ({ ...prev, contrasena: "La contraseña no cumple con el formato requerido." }));
-		} else {
+		} else if (regexContrasena.test(password)) {
 			setErrores((prev) => ({ ...prev, contrasena: "" }));
+		} else {
+			setErrores((prev) => ({ ...prev, contrasena: "La contraseña no cumple con el formato requerido." }));
 		}
 	}, [password]);
 
@@ -62,6 +62,12 @@ export function LoginUsuario() {
 
 			setMensaje("Inicio de sesion exitoso. Redirigiendo...");
 
+			// Si el correo termina en @ruki, se redirige inmediatamente al dashboard.
+			if (correo.trim().toLowerCase().endsWith("@ruki")) {
+				navigate("/admin/reporte-dashboard");
+				return;
+			}
+
 			// Logica de Redireccion basada en el ROL
 			setTimeout(() => {
 				const idRol = datosUsuario?.rol?.id || datosUsuario?.rol;
@@ -86,6 +92,15 @@ export function LoginUsuario() {
 		}
 	};
 
+	const getInputStateClass = (errorValue, fieldValue) => {
+		if (errorValue) return "is-invalid";
+		if (fieldValue) return "is-valid";
+		return "";
+	};
+
+	const correoInputState = getInputStateClass(errores.correo, correo);
+	const contrasenaInputState = getInputStateClass(errores.contrasena, password);
+
 	return (
 		<div className="container mt-5 mb-5" style={{ maxWidth: "520px" }}>
 			<div className="card rounded border-dark shadow">
@@ -100,25 +115,27 @@ export function LoginUsuario() {
 					)}
 					<form onSubmit={handleSubmit}>
 						<div className="mb-3">
-							<label className="form-label fw-bold small">Correo *</label>
+							<label htmlFor="correo" className="form-label fw-bold small">Correo *</label>
 							<input
+								id="correo"
 								type="email"
 								name="correo"
 								value={correo}
 								onChange={(e) => setCorreo(e.target.value)}
-								className={`form-control form-control-sm ${errores.correo ? "is-invalid" : correo ? "is-valid" : ""}`}
+								className={`form-control form-control-sm ${correoInputState}`}
 								placeholder="ejemplo@gmail.com"
 							/>
 							{errores.correo && <div className="invalid-feedback">{errores.correo}</div>}
 						</div>
 						<div className="mb-3">
-							<label className="form-label fw-bold small">Contraseña *</label>
+							<label htmlFor="contrasena" className="form-label fw-bold small">Contraseña *</label>
 							<input
+								id="contrasena"
 								type="password"
 								name="contrasena"
 								value={password}
 								onChange={(e) => setPassword(e.target.value)}
-								className={`form-control form-control-sm ${errores.contrasena ? "is-invalid" : password ? "is-valid" : ""}`}
+								className={`form-control form-control-sm ${contrasenaInputState}`}
 								placeholder="********"
 							/>
 							{errores.contrasena && (
