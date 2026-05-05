@@ -1,21 +1,11 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+import apiClient from './apiClient';
 
 export async function obtenerProductos() {
-    let response;
     try {
-        response = await fetch(`${API_BASE_URL}/api-ruki/products/active`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
-        });
-    } catch {
-        throw new Error("No se pudo conectar con el servidor de productos.");
+        const response = await apiClient.get('/api-ruki/products/active');
+        return response.data;
+    } catch (error) {
+        const message = error.response?.data?.message || "No se pudo obtener el inventario de productos.";
+        throw new Error(message);
     }
-
-    if (!response.ok) {
-        throw new Error("No se pudo obtener el inventario de productos.");
-    }
-
-    return response.json();
 }
