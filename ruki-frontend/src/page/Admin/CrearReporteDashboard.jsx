@@ -1,7 +1,6 @@
 import { NavbarAdmin } from "../../components/admin/navbar/NavbarAdmin";
 import { FooterAdmin } from "../../components/admin/footer/FooterAdmin";
 import { ReporteDashboard } from "../../components/admin/gestion/ReporteDashboard";
-import "./CrearReporteDashboard.css";
 
 /*-------------------------------------------------*/
 
