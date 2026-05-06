@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://137.184.109.26:8000/";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://137.184.109.26:8000";
 
 export async function registrarUsuario(payload) {
 	let response;
