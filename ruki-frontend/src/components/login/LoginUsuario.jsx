@@ -17,7 +17,7 @@ export function LoginUsuario() {
 
 	// Validacion de Correo
 	useEffect(() => {
-		const regexCorreo = /^[\w.-]+@(gmail\.com|ruki\.com)$/i;
+		const regexCorreo = /^[\w.-]+@(gmail\.com|ruki\.com|test\.com)$/i;
 		if (!correo.trim()) {
 			setErrores((prev) => ({ ...prev, correo: "El correo es obligatorio." }));
 		} else if (regexCorreo.test(correo)) {
@@ -74,7 +74,7 @@ export function LoginUsuario() {
 				console.log("Rol detectado para redireccion:", idRol);
 
 				if (idRol === 1) {
-					navigate("/admin/crear-usuario");
+					navigate("/admin/reporte-dashboard");
 				} else {
 					navigate("/");
 				}

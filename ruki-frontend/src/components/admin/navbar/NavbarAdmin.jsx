@@ -33,7 +33,7 @@ export function NavbarAdmin() {
             <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
                 <div className="container">
                     {/* Logo */}
-                    <Link className="navbar-brand d-flex align-items-center" to="/admin">
+                    <Link className="navbar-brand d-flex align-items-center" to="/admin/reporte-dashboard">
                         <img src="/imagenes/logo.png" alt="Logo RUKI" height="40" className="me-2" />
                         <span className="badge bg-danger ms-2">ADMIN</span>
                     </Link>
