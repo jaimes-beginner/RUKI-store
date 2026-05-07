@@ -165,3 +165,22 @@ export async function descontarStockProducto(id, quantity) {
     }
     return true;
 }
+
+/*
+    Función asincrona para actualizar un producto 
+    específico, solo si el usuario es ADMIN
+*/
+export async function actualizarProducto(id, productoData) {
+    const token = getToken();
+    const response = await fetch(`${API_BASE_URL}/api-ruki/products/update/${id}`, {
+        method: "PUT",
+        headers: {"Content-Type": "application/json", "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify(productoData),
+    });
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "Error al actualizar el producto");
+    }
+    return response.json();
+}
