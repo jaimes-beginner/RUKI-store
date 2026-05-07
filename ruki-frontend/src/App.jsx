@@ -16,51 +16,51 @@ import { PedidosAdminPage } from './page/Admin/PedidosAdminPage.jsx'
 
 function App() {
   return (
-    <Routes>
-      {/* RUTAS PÚBLICAS */}
-      <Route path="/" element={<PaginaPrincipalCliente />} />
-      <Route path="/new-arrivals" element={<PaginaNuevosCliente />} />
-      <Route path="/productos" element={<PaginaProductosCliente />} />
-      <Route path="/noticias" element={<PaginaBlogCliente />} />
-      <Route path="/faq" element={<PaginaFAQCliente />} />
-      <Route path="/sale" element={<PaginaSaleCliente />} />
-      <Route path="/login" element={<Login />} />
+      <Routes>
+        {/* RUTAS PÚBLICAS */}
+        <Route path="/" element={<PaginaPrincipalCliente />} />
+        <Route path="/new-arrivals" element={<PaginaNuevosCliente />} />
+        <Route path="/productos" element={<PaginaProductosCliente />} />
+        <Route path="/noticias" element={<PaginaBlogCliente />} />
+        <Route path="/faq" element={<PaginaFAQCliente />} />
+        <Route path="/sale" element={<PaginaSaleCliente />} />
+        <Route path="/login" element={<Login />} />
 
-      {/* RUTAS PRIVADAS DE ADMINISTRADOR */}
-      <Route path="/admin" element={
-        <AdminRoute>
-          <CrearUsuarioAdmin />
-        </AdminRoute>
-      } />
-      
-      <Route path="/admin/crear-usuario" element={
-        <AdminRoute>
-          <CrearUsuarioAdmin />
-        </AdminRoute>
-      } />
-      
-      <Route path="/admin/reporte-dashboard" element={
-        <AdminRoute>
-          <CrearReporteDashboard />
-        </AdminRoute>
-      } />
+        {/* RUTAS PRIVADAS DE ADMINISTRADOR */}
+        <Route path="/admin" element={
+          <AdminRoute>
+            <CrearUsuarioAdmin />
+          </AdminRoute>
+        } />
 
-      <Route path="/inventario-admin" element={
-        <AdminRoute>
-          <InventarioAdminPage />
-        </AdminRoute>
-      } />
-      <Route path="/usuarios-admin" element={
-        <AdminRoute>
-          <UsuariosAdminPage />
-        </AdminRoute>
-      } />
-      <Route path="/pedidos-admin" element={
-        <AdminRoute>
-          <PedidosAdminPage />
-        </AdminRoute>
-      } />
-    </Routes>
+        <Route path="/admin/crear-usuario" element={
+          <AdminRoute>
+            <CrearUsuarioAdmin />
+          </AdminRoute>
+        } />
+
+        <Route path="/admin/reporte-dashboard" element={
+          <AdminRoute>
+            <CrearReporteDashboard />
+          </AdminRoute>
+        } />
+
+        <Route path="/inventario-admin" element={
+          <AdminRoute>
+            <InventarioAdminPage />
+          </AdminRoute>
+        } />
+        <Route path="/usuarios-admin" element={
+          <AdminRoute>
+            <UsuariosAdminPage />
+          </AdminRoute>
+        } />
+        <Route path="/pedidos-admin" element={
+          <AdminRoute>
+            <PedidosAdminPage />
+          </AdminRoute>
+        } />
+      </Routes>
   )
 }
 
