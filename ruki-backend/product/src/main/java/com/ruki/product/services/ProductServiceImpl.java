@@ -24,6 +24,9 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
 
+    /* 
+        Método para crear un producto
+    */
     @Override
     public ProductResponse createProduct(ProductCreate request) {
 
@@ -46,6 +49,9 @@ public class ProductServiceImpl implements ProductService {
         return toResponse(saved);
     }
 
+    /* 
+        Método para obtener todos los productos activos
+    */
     @Override
     @Transactional(readOnly = true)
     public List<ProductResponse> getAllActiveProducts() {
@@ -55,6 +61,9 @@ public class ProductServiceImpl implements ProductService {
             .toList();
     }
 
+    /* 
+        Método para obtener productos según su categoría
+    */
     @Override
     @Transactional(readOnly = true)
     public List<ProductResponse> getProductsByCategory(Long categoryId) {
@@ -64,6 +73,9 @@ public class ProductServiceImpl implements ProductService {
             .toList();
     }
 
+    /* 
+        Método para obtener un producto por su ID
+    */
     @Override
     @Transactional(readOnly = true)
     public ProductResponse getProductById(Long id) {
@@ -72,6 +84,9 @@ public class ProductServiceImpl implements ProductService {
         return toResponse(product);
     }
 
+    /* 
+        Método para desactivar un producto por su ID
+    */
     @Override
     public void deactivateProduct(Long id) {
         Product product = productRepository.findById(id)
@@ -80,6 +95,9 @@ public class ProductServiceImpl implements ProductService {
         productRepository.save(product);
     }
 
+    /* 
+        Método para descontar stock de un producto
+    */
     @Override
     public void discountStock(Long id, Integer quantity) {
         Product product = productRepository.findById(id)
@@ -96,6 +114,47 @@ public class ProductServiceImpl implements ProductService {
         product.setStock(product.getStock() - quantity);
         productRepository.save(product);
     }
+
+    /* 
+        Método para actualizar un producto
+    */
+    @Override
+    public ProductResponse updateProduct(Long id, com.ruki.product.requests.ProductUpdate request) {
+        
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Producto no encontrado"));
+
+
+        if (request.getName() != null) {
+            product.setName(request.getName());
+        }
+        if (request.getDescription() != null) {
+            product.setDescription(request.getDescription());
+        }
+        if (request.getImageUrls() != null) {
+            product.getImageUrls().clear();
+            product.getImageUrls().addAll(request.getImageUrls());
+        }
+        if (request.getBasePrice() != null) {
+            product.setBasePrice(request.getBasePrice());
+        }
+        if (request.getStock() != null) {
+            product.setStock(request.getStock());
+        }
+        if (request.getCategoryId() != null) {
+            Category category = categoryRepository.findById(request.getCategoryId())
+                    .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Categoría no encontrada"));
+            
+            if (!category.isActive()) {
+                throw new ResponseStatusException(BAD_REQUEST, "No se puede asignar un producto a una categoría inactiva");
+            }
+            product.setCategory(category);
+        }
+
+        Product saved = productRepository.save(product);
+        return toResponse(saved);
+    }
+    
 
     private ProductResponse toResponse(Product product) {
         CategoryResponse catResponse = new CategoryResponse(

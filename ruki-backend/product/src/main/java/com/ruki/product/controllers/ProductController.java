@@ -2,6 +2,7 @@ package com.ruki.product.controllers;
 
 import com.ruki.product.requests.ProductCreate;
 import com.ruki.product.requests.ProductResponse;
+import com.ruki.product.requests.ProductUpdate;
 import com.ruki.product.services.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -107,6 +108,25 @@ public class ProductController {
     public ResponseEntity<Void> discountStock(@PathVariable Long id, @RequestParam Integer quantity) {
         productService.discountStock(id, quantity);
         return ResponseEntity.ok().build();
+    }
+
+    /* 
+        Endpoint para actualizar un producto existente
+    */
+    @PutMapping("/update/{id}")
+    @Operation(summary = "Actualizar producto", description = "Actualiza parcialmente los campos de un producto (Requiere ROLE_ADMIN)")
+    @SecurityRequirement(name = "bearerAuth")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Producto actualizado correctamente"),
+            @ApiResponse(responseCode = "400", description = "Datos inválidos o categoría inactiva"),
+            @ApiResponse(responseCode = "401", description = "Token ausente o inválido"),
+            @ApiResponse(responseCode = "403", description = "No tienes permisos de ADMIN"),
+            @ApiResponse(responseCode = "404", description = "Producto o categoría no encontrados")
+    })
+    public ResponseEntity<ProductResponse> updateProduct(
+            @PathVariable Long id, 
+            @Valid @RequestBody ProductUpdate request) {
+        return ResponseEntity.ok(productService.updateProduct(id, request));
     }
 
 }
