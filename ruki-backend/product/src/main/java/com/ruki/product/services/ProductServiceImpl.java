@@ -7,12 +7,12 @@ import com.ruki.product.repositories.ProductRepository;
 import com.ruki.product.requests.CategoryResponse;
 import com.ruki.product.requests.ProductCreate;
 import com.ruki.product.requests.ProductResponse;
+import com.ruki.product.requests.ProductUpdate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
-
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
@@ -119,7 +119,7 @@ public class ProductServiceImpl implements ProductService {
         Método para actualizar un producto
     */
     @Override
-    public ProductResponse updateProduct(Long id, com.ruki.product.requests.ProductUpdate request) {
+    public ProductResponse updateProduct(Long id, ProductUpdate request) {
         
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Producto no encontrado"));
