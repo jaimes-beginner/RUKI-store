@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react";
-import { obtenerCategoriasActivas, crearProducto, obtenerProductosActivos, eliminarProducto } from "../../../services/ProductoService";
+import { obtenerCategoriasActivas, crearProducto, obtenerProductosActivos, eliminarProducto, actualizarProducto } from "../../../services/ProductoService";
 
 export function InventarioAdmin() {
     const [categorias, setCategorias] = useState([]);
     const [productos, setProductos] = useState([]);
     const [mensaje, setMensaje] = useState("");
     const [loading, setLoading] = useState(false);
+
+    const [editingId, setEditingId] = useState(null);
+
     const [formulario, setFormulario] = useState({
         name: "",
         description: "",
@@ -36,29 +39,69 @@ export function InventarioAdmin() {
         setFormulario({ ...formulario, [e.target.name]: e.target.value });
     };
 
+
+    /*
+        Lógica Híbrida para poder actualizar y crear un producto
+    */
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         
         try {
+            // Convertimos string a array limpio
             const arrayImagenes = formulario.imageUrls
                 .split(",")
                 .map(img => img.trim())
                 .filter(img => img !== "");
 
-            const payload = {
-                name: formulario.name,
-                description: formulario.description,
-                basePrice: Number(formulario.basePrice),
-                stock: Number(formulario.stock),
-                categoryId: Number(formulario.categoryId),
-                imageUrls: arrayImagenes
-            };
+            /*
+                Iniciamos un Payload vacío
+            */
+            const payload = {};
 
-            await crearProducto(payload);
-            setMensaje("¡Producto creado con éxito!");
+            /*
+                Solo agregamos las propiedades si realmente tienen datos
+            */
+            if (formulario.name.trim() !== "") {
+                payload.name = formulario.name;
+            }
+            if (formulario.description.trim() !== "") {
+                payload.description = formulario.description;
+            }
+            if (String(formulario.basePrice).trim() !== "") {
+                payload.basePrice = Number(formulario.basePrice);
+            }
+            if (String(formulario.stock).trim() !== "") {
+                payload.stock = Number(formulario.stock);
+            }
+            if (String(formulario.categoryId).trim() !== "") {
+                payload.categoryId = Number(formulario.categoryId);
+            }
             
-            setFormulario({ name: "", description: "", basePrice: "", stock: "", categoryId: "", imageUrls: "" });
+            /*
+                Solo enviamos el array de imágenes si tiene al menos 1 elemento
+            */
+            if (arrayImagenes.length > 0) {
+                payload.imageUrls = arrayImagenes;
+            }
+
+            if (editingId) {
+
+                /*
+                    Modo edición de un producto
+                */
+                await actualizarProducto(editingId, payload);
+                setMensaje(`¡Producto #${editingId} actualizado con éxito!`);
+            } else {
+
+                /*
+                    Modo creación de un nuevo producto
+                */
+                await crearProducto(payload);
+                setMensaje("¡Producto creado con éxito!");
+            }
+            
+            cancelarEdicion();
             cargarDatos();
             
         } catch (error) {
@@ -70,25 +113,12 @@ export function InventarioAdmin() {
     };
 
     const handleEliminar = async (id, nombreProducto) => {
-
-        /* 
-            Confirmación de seguridad
-        */
         if (!window.confirm(`¿Estás seguro de que deseas eliminar "${nombreProducto}"?`)) {
             return;
         }
-
         try {
-
-            /* 
-                Llamada real al backend
-            */
             await eliminarProducto(id);
             setMensaje(`Producto #${id} eliminado correctamente.`);
-            
-            /* 
-                Recargar la tabla con los productos
-            */
             cargarDatos();
         } catch (error) {
             setMensaje("Error al eliminar: " + error.message);
@@ -97,26 +127,35 @@ export function InventarioAdmin() {
         }
     };
 
+    // Cargar datos al formulario para editar
     const handleEditar = (producto) => {
+        setEditingId(producto.id);
+        setFormulario({
+            name: producto.name || "",
+            description: producto.description || "",
+            basePrice: producto.basePrice || "",
+            stock: producto.stock || "",
+            categoryId: producto.category?.id || "",
+            // Volvemos a juntar el array en un string separado por comas
+            imageUrls: producto.imageUrls ? producto.imageUrls.join(", ") : ""
+        });
         
-        /*
-            Aviso técnico para el desarrollador
-        */
-        alert(`AVISO TÉCNICO:\nPara editar "${producto.name}", primero debes crear el endpoint @PutMapping("/update/{id}") en tu ProductController.java del backend.`);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    // Salir del modo edición
+    const cancelarEdicion = () => {
+        setEditingId(null);
+        setFormulario({ name: "", description: "", basePrice: "", stock: "", categoryId: "", imageUrls: "" });
     };
 
     return (
-        <div className="container mt-2 position-relative" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif" }}>
+        <div className="container mt-5 position-relative" style={{ fontFamily: "'-apple-system', BlinkMacSystemFont, 'Inter', sans-serif" }}>
             
             <style>{`
-                /* IMPORTACIÓN DE FUENTE MODERNA DESDE GOOGLE FONTS */
                 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
-                body {
-                    background-color: #f5f5f7 !important; 
-                    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
-                }
                 
+                body { background-color: #f5f5f7 !important; }
                 .ios-card {
                     background: #ffffff;
                     border: 2px solid #e5e5ea;
@@ -127,133 +166,66 @@ export function InventarioAdmin() {
                     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.03);
                 }
                 .ios-header {
-                    border-bottom: 1.5px solid #e5e5ea;
-                    padding: 12px 16px;
-                    font-weight: 700;
-                    color: #1d1d1f;
-                    font-size: 14px;
-                    letter-spacing: -0.01em;
+                    border-bottom: 1.5px solid #e5e5ea; padding: 12px 16px;
+                    font-weight: 700; color: #1d1d1f; font-size: 14px; letter-spacing: -0.01em;
                 }
                 .ios-label {
-                    font-size: 11px;
-                    font-weight: 700;
-                    color: #86868b;
-                    text-transform: uppercase;
-                    letter-spacing: 0.04em;
-                    margin-bottom: 4px;
+                    font-size: 11px; font-weight: 700; color: #86868b;
+                    text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px;
                 }
                 .ios-input {
                     font-family: 'Inter', sans-serif !important;
-                    font-size: 12px !important;
-                    background: #fbfbfd;
-                    border: 1.5px solid #d2d2d7;
-                    border-radius: 10px;
-                    color: #1d1d1f;
-                    padding: 8px 12px;
-                    transition: all 0.2s;
+                    font-size: 12px !important; background: #fbfbfd;
+                    border: 1.5px solid #d2d2d7; border-radius: 10px;
+                    color: #1d1d1f; padding: 8px 12px; transition: all 0.2s;
                 }
                 .ios-input:focus {
-                    background: #ffffff;
-                    border-color: #1d1d1f;
-                    outline: none;
-                    box-shadow: 0 0 0 3px rgba(0,0,0,0.05);
+                    background: #ffffff; border-color: #1d1d1f;
+                    outline: none; box-shadow: 0 0 0 3px rgba(0,0,0,0.05);
                 }
                 .ios-btn {
                     font-family: 'Inter', sans-serif !important;
-                    font-size: 12px;
-                    font-weight: 600;
-                    border-radius: 10px;
-                    padding: 10px;
-                    border: 1.5px solid #1d1d1f;
-                    transition: all 0.2s;
+                    font-size: 12px; font-weight: 600; border-radius: 10px;
+                    padding: 10px; border: 1.5px solid #1d1d1f; transition: all 0.2s;
                 }
-                .ios-btn-dark {
-                    background: #1d1d1f;
-                    color: #ffffff;
-                }
+                .ios-btn-dark { background: #1d1d1f; color: #ffffff; }
                 .ios-btn-dark:hover { background: #000000; color: #ffffff; }
+                .ios-btn-outline { background: transparent; color: #1d1d1f; }
+                .ios-btn-outline:hover { background: #f5f5f7; }
                 
-                /* ESTILOS DE LOS BOTONES DE ICONO */
                 .ios-btn-icon {
-                    background: #fbfbfd;
-                    color: #1d1d1f;
-                    border: 1.5px solid #e5e5ea;
-                    border-radius: 8px;
-                    width: 28px;
-                    height: 28px;
-                    display: inline-flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 11px;
-                    transition: all 0.2s;
-                    cursor: pointer;
+                    background: #fbfbfd; color: #1d1d1f; border: 1.5px solid #e5e5ea;
+                    border-radius: 8px; width: 28px; height: 28px;
+                    display: inline-flex; align-items: center; justify-content: center;
+                    font-size: 11px; transition: all 0.2s; cursor: pointer;
                 }
-                .ios-btn-icon:hover {
-                    background: #1d1d1f;
-                    color: #ffffff;
-                    border-color: #1d1d1f;
-                }
+                .ios-btn-icon:hover { background: #1d1d1f; color: #ffffff; border-color: #1d1d1f; }
                 
                 .ios-table-wrapper {
-                    border: 1.5px solid #e5e5ea;
-                    border-radius: 12px;
-                    max-height: 560px; 
-                    overflow-y: auto;
-                    overflow-x: auto;
-                    background: #ffffff;
+                    border: 1.5px solid #e5e5ea; border-radius: 12px;
+                    max-height: 560px; overflow-y: auto; overflow-x: auto; background: #ffffff;
                 }
-                
-                .ios-table-wrapper::-webkit-scrollbar {
-                    width: 6px;
-                    height: 6px;
-                }
-                .ios-table-wrapper::-webkit-scrollbar-track {
-                    background: transparent;
-                    margin: 4px;
-                }
-                .ios-table-wrapper::-webkit-scrollbar-thumb {
-                    background-color: #d2d2d7;
-                    border-radius: 10px;
-                }
-                .ios-table-wrapper::-webkit-scrollbar-thumb:hover {
-                    background-color: #86868b;
-                }
+                .ios-table-wrapper::-webkit-scrollbar { width: 6px; height: 6px; }
+                .ios-table-wrapper::-webkit-scrollbar-track { background: transparent; margin: 4px; }
+                .ios-table-wrapper::-webkit-scrollbar-thumb { background-color: #d2d2d7; border-radius: 10px; }
+                .ios-table-wrapper::-webkit-scrollbar-thumb:hover { background-color: #86868b; }
 
-                .ios-table {
-                    margin-bottom: 0;
-                    font-size: 12px;
-                    min-width: 600px; 
-                }
+                .ios-table { margin-bottom: 0; font-size: 12px; min-width: 600px; }
                 .ios-table th {
-                    position: sticky;
-                    top: 0;
-                    z-index: 2;
-                    background: #fbfbfd;
-                    color: #86868b;
-                    font-weight: 600;
-                    text-transform: uppercase;
-                    letter-spacing: 0.04em;
-                    border-bottom: 1.5px solid #e5e5ea !important;
-                    padding: 10px 16px;
-                    white-space: nowrap; 
+                    position: sticky; top: 0; z-index: 2; background: #fbfbfd; color: #86868b;
+                    font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;
+                    border-bottom: 1.5px solid #e5e5ea !important; padding: 10px 16px; white-space: nowrap; 
                 }
                 .ios-table td {
-                    vertical-align: middle;
-                    border-bottom: 1px solid #e5e5ea;
-                    padding: 10px 16px;
-                    color: #1d1d1f;
-                    white-space: nowrap; 
+                    vertical-align: middle; border-bottom: 1px solid #e5e5ea;
+                    padding: 10px 16px; color: #1d1d1f; white-space: nowrap; 
                 }
                 .ios-table tr:last-child td { border-bottom: none; }
                 
                 .ios-badge {
                     font-family: 'Inter', sans-serif !important;
-                    font-size: 10px;
-                    font-weight: 700;
-                    padding: 4px 8px;
-                    border-radius: 6px;
-                    border: 1.5px solid;
-                    display: inline-block;
+                    font-size: 10px; font-weight: 700; padding: 4px 8px;
+                    border-radius: 6px; border: 1.5px solid; display: inline-block;
                 }
                 .badge-ok { border-color: #1d1d1f; color: #1d1d1f; }
                 .badge-low { border-color: #86868b; color: #86868b; }
@@ -265,7 +237,7 @@ export function InventarioAdmin() {
 
             <div className="mb-5 border-bottom border-2 pb-4" style={{ borderColor: "#e5e5ea" }}>
                 <h1 className="fw-bolder text-dark mb-1" style={{ letterSpacing: "-0.04em", fontSize: "2.5rem" }}>Gestión de Productos</h1>
-                <p className="text-secondary fw-medium mb-0" style={{ color: "#86868b" }}>Recopilación y gestión de <strong>productos</strong></p>
+                <p className="text-secondary fw-medium mb-0" style={{ color: "#86868b" }}>Recopilación de inventario y gestión de <strong>productos</strong></p>
             </div>
             
             {mensaje && (
@@ -275,11 +247,17 @@ export function InventarioAdmin() {
             )}
 
             <div className="row g-4">
-                {/* FORMULARIO DE CREACIÓN */}
+                {/* FORMULARIO DINÁMICO */}
                 <div className="col-md-4">
                     <div className="ios-card">
-                        <div className="ios-header">
-                            <i className="fas fa-plus-circle me-2"></i> Nuevo Producto
+                        <div className="ios-header d-flex justify-content-between align-items-center">
+                            <div>
+                                <i className={`fas ${editingId ? 'fa-pen' : 'fa-plus-circle'} me-2`}></i> 
+                                {editingId ? "Editar Producto" : "Nuevo Producto"}
+                            </div>
+                            {editingId && (
+                                <span className="badge bg-dark text-white rounded-pill" style={{fontSize: "9px"}}>ID: {editingId}</span>
+                            )}
                         </div>
                         <div className="card-body p-3">
                             <form onSubmit={handleSubmit}>
@@ -331,8 +309,14 @@ export function InventarioAdmin() {
                                 </div>
 
                                 <button type="submit" className="ios-btn ios-btn-dark w-100" disabled={loading}>
-                                    {loading ? <><i className="fas fa-spinner fa-spin me-2"></i>GUARDANDO</> : "CREAR PRODUCTO"}
+                                    {loading ? <><i className="fas fa-spinner fa-spin me-2"></i>PROCESANDO</> : (editingId ? "ACTUALIZAR PRODUCTO" : "CREAR PRODUCTO")}
                                 </button>
+                                
+                                {editingId && (
+                                    <button type="button" className="ios-btn ios-btn-outline w-100 mt-2" onClick={cancelarEdicion} disabled={loading}>
+                                        CANCELAR EDICIÓN
+                                    </button>
+                                )}
                             </form>
                         </div>
                     </div>
@@ -349,7 +333,6 @@ export function InventarioAdmin() {
                         </div>
                         <div className="card-body p-3 flex-grow-1">
                             
-                            {/* CONTENEDOR CON SCROLL */}
                             <div className="ios-table-wrapper">
                                 <table className="table table-borderless ios-table">
                                     <thead>
@@ -363,7 +346,7 @@ export function InventarioAdmin() {
                                     </thead>
                                     <tbody>
                                         {productos.map(p => (
-                                            <tr key={p.id}>
+                                            <tr key={p.id} style={{ backgroundColor: editingId === p.id ? '#f5f5f7' : 'transparent' }}>
                                                 <td>
                                                     <div className="d-flex align-items-center">
                                                         {p.imageUrls && p.imageUrls.length > 0 ? (
@@ -372,7 +355,7 @@ export function InventarioAdmin() {
                                                                  className="me-2" />
                                                         ) : (
                                                             <div className="d-flex justify-content-center align-items-center me-2 fw-bold" 
-                                                                 style={{ width: '32px', height: '32px', borderRadius: '8px', border: '1px solid #e5e5ea', background: '#fbfbfd', color: '#1d1d1f', fontSize: '12px' }}>
+                                                                 style={{ width: '32px', height: '32px', borderRadius: '8px', border: '1px solid #e5e5ea', backgroundColor: '#ffffff', color: '#1d1d1f', fontSize: '12px' }}>
                                                                 {p.name.charAt(0).toUpperCase()}
                                                             </div>
                                                         )}
@@ -398,7 +381,6 @@ export function InventarioAdmin() {
                                                     )}
                                                 </td>
                                                 <td className="text-end">
-                                                    {/* BOTONES DE ACCIÓN (LÁPIZ Y BASURA) */}
                                                     <div className="d-flex justify-content-end gap-2">
                                                         <button type="button" className="ios-btn-icon" title="Editar Producto" onClick={() => handleEditar(p)}>
                                                             <i className="fas fa-pen"></i>
