@@ -9,6 +9,8 @@ import com.ruki.product.requests.ProductCreate;
 import com.ruki.product.requests.ProductResponse;
 import com.ruki.product.requests.ProductUpdate;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -155,6 +157,18 @@ public class ProductServiceImpl implements ProductService {
         return toResponse(saved);
     }
     
+    /* 
+        Método para devolver stock (Rollback de compras fallidas)
+    */
+    @Override
+    public void addStock(Long id, Integer quantity) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Producto no encontrado"));
+        
+        product.setStock(product.getStock() + quantity);
+        productRepository.save(product);
+    }
+
 
     private ProductResponse toResponse(Product product) {
         CategoryResponse catResponse = new CategoryResponse(

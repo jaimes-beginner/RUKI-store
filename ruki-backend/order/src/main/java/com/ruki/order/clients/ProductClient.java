@@ -15,5 +15,9 @@ public interface ProductClient {
 
     @PutMapping("/api-ruki/products/{id}/discount-stock")
     void discountStock(@PathVariable("id") Long id, @RequestParam("quantity") Integer quantity);
+
+    @PutMapping("/api-ruki/products/{id}/add-stock")
+    void addStock(@PathVariable("id") Long id, @RequestParam("quantity") Integer quantity);
     
 }
+    

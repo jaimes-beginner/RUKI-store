@@ -12,7 +12,8 @@ public interface ProductService {
         servicio de productos, crear producto, obtener todos 
         los productos activos, obtener productos por 
         categoría, obtener producto por ID, desactivar 
-        producto, descontar stock y actualizar producto
+        producto, descontar stock, actualizar producto
+        y agregar stock en caso de compras fallidas
     */
 
     ProductResponse createProduct(ProductCreate request);
@@ -22,5 +23,6 @@ public interface ProductService {
     void deactivateProduct(Long id);
     void discountStock(Long id, Integer quantity);
     ProductResponse updateProduct(Long id, ProductUpdate request);
+    void addStock(Long id, Integer quantity);
 
 }

@@ -32,7 +32,6 @@ public class OrderServiceImpl implements OrderService {
     */
     @Override
     public Order createOrder(OrderCreate request, Long userId) {
-        
         Order order = new Order();
         order.setUserId(userId); 
         order.setShippingAddressId(request.getShippingAddressId());
@@ -40,55 +39,88 @@ public class OrderServiceImpl implements OrderService {
         
         BigDecimal totalAmount = BigDecimal.ZERO;
         List<OrderItem> items = new ArrayList<>();
+        
+        /* 
+            LLevaremos un registro de los productos que 
+            ya descontamos en caso de que falle
+        */
+        List<OrderItemRequest> processedItems = new ArrayList<>();
 
-        for (OrderItemRequest itemRequest : request.getItems()) {
-            
-            ProductClientResponse realProduct;
-            try {
-                realProduct = productClient.getProductById(itemRequest.getProductId());
-            } catch (Exception e) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
-                    "El producto con ID " + itemRequest.getProductId() + " no existe.");
+        try {
+            for (OrderItemRequest itemRequest : request.getItems()) {
+                
+                ProductClientResponse realProduct;
+                try {
+                    realProduct = productClient.getProductById(itemRequest.getProductId());
+                } catch (Exception e) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
+                        "El producto con ID " + itemRequest.getProductId() + " no existe.");
+                }
+
+                if (!realProduct.isActive()) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
+                        "El producto '" + realProduct.getName() + "' ya no está disponible.");
+                }
+
+                if (realProduct.getStock() < itemRequest.getQuantity()) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
+                        "Stock insuficiente para: '" + realProduct.getName() + "'. Quedan " + realProduct.getStock() + ".");
+                }
+
+                /* 
+                    Intentamos descontar el stock del producto
+                */
+                try {
+                    productClient.discountStock(realProduct.getId(), itemRequest.getQuantity());
+                    
+                    /* 
+                        Si tiene exito, lo registramos
+                    */
+                    processedItems.add(itemRequest);
+                } catch (Exception e) {
+                    throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, 
+                        "Fallo de conexión al descontar inventario.");
+                }
+
+                BigDecimal itemSubTotal = realProduct.getBasePrice().multiply(new BigDecimal(itemRequest.getQuantity()));
+                totalAmount = totalAmount.add(itemSubTotal);
+
+                OrderItem orderItem = new OrderItem();
+                orderItem.setOrder(order);
+                orderItem.setProductId(realProduct.getId());
+                orderItem.setQuantity(itemRequest.getQuantity());
+                orderItem.setUnitPrice(realProduct.getBasePrice());
+                orderItem.setSubTotal(itemSubTotal);
+
+                items.add(orderItem);
             }
 
-            if (!realProduct.isActive()) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
-                    "El producto '" + realProduct.getName() + "' ya no está disponible.");
-            }
+            order.setItems(items);
+            order.setTotalAmount(totalAmount);
 
-            if (realProduct.getStock() < itemRequest.getQuantity()) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
-                    "Stock insuficiente para el producto: '" + realProduct.getName() + "'. Solo quedan " + realProduct.getStock() + " unidades.");
-            }
+            return orderRepository.save(order);
 
+        } catch (Exception e) {
             /* 
-                Descontar el stock conectándonos con 
-                el microservicio de productos
+                Si algo sale mal en el proceso, hacemos 
+                rollback de los stocks descontados
             */
-            try {
-                productClient.discountStock(realProduct.getId(), itemRequest.getQuantity());
-            } catch (Exception e) {
-                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, 
-                    "Ocurrió un error al intentar descontar el inventario del producto.");
+            log.error("Error creando el pedido. Iniciando Rollback de stock...");
+            for (OrderItemRequest processedItem : processedItems) {
+                try {
+                    productClient.addStock(processedItem.getProductId(), processedItem.getQuantity());
+                    log.info("Rollback exitoso: Devueltas {} unidades al producto {}", processedItem.getQuantity(), processedItem.getProductId());
+                } catch (Exception rollbackEx) {
+                    log.error("ALERTA CRÍTICA: Falló el rollback para el producto {}", processedItem.getProductId());
+                }
             }
-
-            BigDecimal itemSubTotal = realProduct.getBasePrice().multiply(new BigDecimal(itemRequest.getQuantity()));
-            totalAmount = totalAmount.add(itemSubTotal);
-
-            OrderItem orderItem = new OrderItem();
-            orderItem.setOrder(order);
-            orderItem.setProductId(realProduct.getId());
-            orderItem.setQuantity(itemRequest.getQuantity());
-            orderItem.setUnitPrice(realProduct.getBasePrice());
-            orderItem.setSubTotal(itemSubTotal);
-
-            items.add(orderItem);
+            
+            /* 
+                Volvemos a lanzar la excepción original 
+                para que el Frontend se entere del error
+            */
+            throw e;
         }
-
-        order.setItems(items);
-        order.setTotalAmount(totalAmount);
-
-        return orderRepository.save(order);
     }
 
     /* 

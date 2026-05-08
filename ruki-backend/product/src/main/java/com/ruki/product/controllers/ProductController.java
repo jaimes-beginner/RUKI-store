@@ -129,4 +129,15 @@ public class ProductController {
         return ResponseEntity.ok(productService.updateProduct(id, request));
     }
 
+    /* 
+        Endpoint para agregar stock a un producto (Rollback de compras fallidas)
+    */
+    @PutMapping("/{id}/add-stock")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Devolver stock", description = "Suma unidades al inventario (usado para rollbacks de pedidos fallidos)")
+    public ResponseEntity<Void> addStock(@PathVariable Long id, @RequestParam Integer quantity) {
+        productService.addStock(id, quantity);
+        return ResponseEntity.ok().build();
+    }
+
 }
