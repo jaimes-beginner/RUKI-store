@@ -86,7 +86,7 @@ export async function obtenerTodosLosPedidos() {
 */
 export async function actualizarEstadoPedido(id, status) {
     const response = await fetch(`${API_BASE_URL}/api-ruki/orders/admin/${id}/status?status=${status}`, {
-        method: "PATCH",
+        method: "PUT",
         headers: { "Authorization": `Bearer ${getToken()}` }
     });
     if (!response.ok) throw new Error("Error al actualizar el estado del pedido");
