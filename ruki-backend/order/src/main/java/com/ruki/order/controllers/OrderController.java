@@ -81,7 +81,7 @@ public class OrderController {
     /* 
         Endpoint para cancelar un pedido (con el recién implementando Anti-IDOR) 
     */
-    @PatchMapping("/me/{id}/cancel")
+    @PutMapping("/me/{id}/cancel")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Cancelar un pedido", description = "Cambia el estado del pedido a CANCELED. Protegido por Anti-IDOR.")
     @ApiResponses(value = {
@@ -116,7 +116,7 @@ public class OrderController {
     /* 
         Endpoint para que el administrador actualice el estado de un pedido
     */
-    @PatchMapping("/admin/{id}/status")
+    @PutMapping("/admin/{id}/status")
     @SecurityRequirement(name = "bearerAuth") 
     @Operation(summary = "Cambiar estado de pedido (ADMIN)", description = "Actualiza el estado de envío/preparación. Requiere rol ROLE_ADMIN.")
     @ApiResponses(value = {
