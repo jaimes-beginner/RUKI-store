@@ -58,10 +58,6 @@ export function NavbarAdmin() {
                             {/* Botón de logout */}
                             <li className="nav-item ms-lg-3 mt-2 mt-lg-0">
                                 <div className="d-flex align-items-center gap-3">
-                                    {/* Mostrar nombre del admin */}
-                                    <span className="text-white small">
-                                        {usuario?.nombreUsuario}
-                                    </span>
                                     <button
                                         className="btn btn-outline-light btn-sm px-3 py-1"
                                         onClick={handleLogout}
