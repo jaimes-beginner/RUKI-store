@@ -1,28 +1,29 @@
-import { Navigate } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext"; 
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 export function AdminRoute({ children }) {
-    const { usuario, isAuthenticated } = useAuth();
+    const { usuario, token } = useAuth();
 
     /*
-        En caso de que el usuario no esté 
-        logeado, entonces lo mandamos al login
+        Si no hay ningún token, entonces vamos al login
     */
-    if (!isAuthenticated) {
+    if (!token) {
         return <Navigate to="/login" replace />;
     }
 
     /*
-        Si el usuario está logueado pero no es 
-        administrador, entonces lo mandamos a la página principal
+        Extraemos el rol
     */
-    if (usuario?.role !== "ADMIN" && usuario?.role !== "ROLE_ADMIN") {
+    const roleName = typeof usuario?.role === 'object' ? usuario?.role?.name : usuario?.role;
+    const isAdmin = roleName === "ROLE_ADMIN" || roleName === "ADMIN";
+
+    /*
+        Si no es administrador, entonces lo redireccionamos 
+        a la página principal publica
+    */
+    if (!isAdmin) {
         return <Navigate to="/" replace />;
     }
 
-    /*
-        Si el usuario es administrador, entonces 
-        mostramos su pantalla correspondiente  
-    */
     return children;
 }
