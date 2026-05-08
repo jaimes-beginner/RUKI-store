@@ -34,8 +34,6 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
 
-                .requestMatchers("/api-ruki/orders/**").permitAll()
-
                 /* 
                     Aquí permitimos la solicitudes OPTIONS para que 
                     el frontend pueda hacer las preflight requests 
@@ -54,6 +52,12 @@ public class SecurityConfig {
                 */
                 .requestMatchers("/api-ruki/orders/admin/**").hasRole("ADMIN")
                 
+                /* 
+                    Liberando el webhook de pagos para que 
+                    se pueda comunicar entre servidores
+                */
+                .requestMatchers(HttpMethod.PUT, "/api-ruki/orders/*/status").permitAll()
+
                 /* 
                     Todos los demás endpoints requieren 
                     autenticación, pero no un rol específico
