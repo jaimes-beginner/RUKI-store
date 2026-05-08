@@ -141,7 +141,7 @@ export function ReporteDashboard() {
         productosBajoStock,
         bajoStockCount,
         pctOk,
-        pctLow,
+        /* pctLow, */
         totalPedidos,
         pedidosPendientes,
         ingresosTotales,

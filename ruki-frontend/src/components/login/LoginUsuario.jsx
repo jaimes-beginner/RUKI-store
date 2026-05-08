@@ -1,259 +1,200 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { registrarUsuario } from "../../contexts/AuthContext";
-import { regiones } from "../../data/Regiones";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
 
 const REGEX_CORREO = /^[\w.-]+@(gmail\.com|ruki\.com|test\.com)$/i;
 const REGEX_CONTRASENA = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
 
 export function LoginUsuario() {
     const navigate = useNavigate();
-    const [usuario, setUsuario] = useState({
-        firstName: "",
-        lastName: "",
+    const { login } = useAuth();
+    
+    const [credenciales, setCredenciales] = useState({
         correo: "",
-        contrasena: "",
-        region: "",
-        comuna: "",
-        direccion: "",
+        password: ""
     });
     
     const [errores, setErrores] = useState({});
     const [mensaje, setMensaje] = useState(null);
     const [loading, setLoading] = useState(false);
 
-    // LÓGICA: VALIDACIÓN CENTRALIZADA
-    const validarCampo = (name, value, formState) => {
+    // 1. VALIDACIÓN CENTRALIZADA (Sin useEffect)
+    const validarCampo = (name, value) => {
         let errorMsg = "";
-        
-        switch (name) {
-            case "firstName":
-                if (!value.trim()) errorMsg = "El nombre es obligatorio.";
-                else if (value.length > 100) errorMsg = "Máximo 100 caracteres.";
-                break;
-            case "lastName":
-                if (!value.trim()) errorMsg = "El apellido es obligatorio.";
-                else if (value.length > 100) errorMsg = "Máximo 100 caracteres.";
-                break;
-            case "correo":
-                if (!value.trim()) errorMsg = "El correo es obligatorio.";
-                else if (value.length > 100) errorMsg = "Máximo 100 caracteres.";
-                else if (!REGEX_CORREO.test(value)) errorMsg = "Solo se aceptan correos @gmail.com.";
-                break;
-            case "contrasena":
-                if (!value.trim()) errorMsg = "La contraseña es obligatoria.";
-                else if (!REGEX_CONTRASENA.test(value)) errorMsg = "Mínimo 8 caracteres, mayúscula, minúscula, número y caracter especial.";
-                break;
-            case "direccion":
-                if (!value.trim()) errorMsg = "La dirección es obligatoria.";
-                else if (value.length > 200) errorMsg = "Máximo 200 caracteres.";
-                break;
-            case "region":
-                if (!value) errorMsg = "La región es obligatoria.";
-                else {
-                    const existe = regiones.some((r) => r.nombre === value);
-                    if (!existe) errorMsg = "Región inválida.";
-                }
-                break;
-            case "comuna":
-                if (!value) errorMsg = "La comuna es obligatoria.";
-                else {
-                    const regionObj = regiones.find((r) => r.nombre === formState.region);
-                    const valida = regionObj?.comunas.includes(value);
-                    if (!valida) errorMsg = "Comuna inválida para la región seleccionada.";
-                }
-                break;
-            default:
-                break;
+        if (name === "correo") {
+            if (!value.trim()) errorMsg = "El correo es obligatorio.";
+            else if (!REGEX_CORREO.test(value)) errorMsg = "Formato de correo no válido.";
+        }
+        if (name === "password") {
+            if (!value.trim()) errorMsg = "La contraseña es obligatoria.";
+            else if (!REGEX_CONTRASENA.test(value)) errorMsg = "La contraseña no cumple el formato de seguridad.";
         }
         return errorMsg;
     };
 
+    // 2. MANEJADOR DE CAMBIOS INTELIGENTE
     const handleChange = (e) => {
         const { name, value } = e.target;
-        let nuevosValores = { ...usuario, [name]: value };
+        setCredenciales(prev => ({ ...prev, [name]: value }));
         
-        if (name === 'region') {
-            nuevosValores.comuna = '';
-        }
-
-        setUsuario(nuevosValores);
-
-        const errorDelCampo = validarCampo(name, value, nuevosValores);
-        
-        setErrores((prev) => ({
-            ...prev,
-            [name]: errorDelCampo,
-            ...(name === 'region' ? { comuna: validarCampo('comuna', '', nuevosValores) } : {})
-        }));
+        // Validar en tiempo real mientras escribe
+        const error = validarCampo(name, value);
+        setErrores(prev => ({ ...prev, [name]: error }));
     };
 
-    const handleCancelar = () => navigate("/");
-
+    // 3. ENVÍO DE FORMULARIO Y REDIRECCIÓN POR ROL
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
-        const nuevosErrores = {};
-        let tieneErrores = false;
 
-        Object.keys(usuario).forEach((key) => {
-            const error = validarCampo(key, usuario[key], usuario);
-            nuevosErrores[key] = error;
-            if (error) tieneErrores = true;
-        });
+        // Validar antes de intentar el login
+        const errorCorreo = validarCampo("correo", credenciales.correo);
+        const errorPass = validarCampo("password", credenciales.password);
 
-        setErrores(nuevosErrores);
-
-        if (tieneErrores) {
-            setMensaje("Corrige los errores en rojo antes de continuar.");
-            setTimeout(() => setMensaje(null), 3000);
+        if (errorCorreo || errorPass) {
+            setErrores({ correo: errorCorreo, password: errorPass });
+            setMensaje("Revisa los campos marcados en rojo.");
             return;
         }
 
         setLoading(true);
+        setMensaje(null);
+
         try {
-            await registrarUsuario({
-                email: usuario.correo,
-                password: usuario.contrasena,
-                firstName: usuario.firstName,
-                lastName: usuario.lastName,
-                address: {
-                    region: usuario.region,
-                    comuna: usuario.comuna,
-                    direccion: usuario.direccion,
-                },
-            });
-            setMensaje("Usuario creado con éxito.");
+            // Llamamos a la función login del contexto
+            const data = await login(credenciales.correo, credenciales.password);
             
-            setTimeout(() => navigate("/login"), 1500); 
-            
+            setMensaje("Acceso concedido. Redirigiendo...");
+
+            // LÓGICA DE REDIRECCIÓN PROFESIONAL (Basada en el ROL del Backend)
+            // Soportamos si el rol viene como ID (1), string (ADMIN) o el objeto completo
+            setTimeout(() => {
+                const rol = data?.user?.role || data?.rol;
+                const roleName = typeof rol === 'object' ? rol.name : String(rol);
+                
+                const isAdmin = roleName === "1" || roleName.includes("ADMIN");
+
+                if (isAdmin) {
+                    navigate("/admin/reporte-dashboard");
+                } else {
+                    navigate("/");
+                }
+            }, 1000);
+
         } catch (error) {
-            console.error("ERROR AL CREAR USUARIO:", error);
-            setMensaje("Error: " + error.message);
-        } finally {
+            console.error("ERROR DE AUTENTICACIÓN:", error);
+            setMensaje(error.message || "Credenciales incorrectas.");
             setLoading(false);
         }
     };
 
     return (
-        <div className="container mt-5 mb-5" style={{ maxWidth: "600px" }}>
-            <div className="card rounded border-dark shadow">
-                <div className="py-3 d-flex justify-content-center rounded-top">
-                    <h2 className="m-0" style={{ color: "#000" }}>Nuevo usuario</h2>
+        <div className="container mt-5 mb-5" style={{ maxWidth: "480px", fontFamily: "'Inter', sans-serif" }}>
+            
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+                
+                .ios-login-card {
+                    background: #ffffff;
+                    border: 1.5px solid #161616;
+                    border-radius: 20px;
+                    padding: 40px;
+                }.ios-login-card:hover {
+                    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+                }
+                .login-title {
+                    font-weight: 800;
+                    letter-spacing: -0.03em;
+                    color: #1d1d1f;
+                    font-size: 28px;
+                }
+                .ios-input-group label {
+                    font-size: 11px;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    color: #86868b;
+                    margin-bottom: 6px;
+                }
+                .ios-input-field {
+                    border: 1.5px solid #d2d2d7;
+                    border-radius: 12px;
+                    padding: 12px 16px;
+                    font-size: 14px;
+                    transition: all 0.2s ease;
+                }
+                .ios-input-field:focus {
+                    border-color: #1d1d1f;
+                    box-shadow: 0 0 0 4px rgba(0,0,0,0.05);
+                    outline: none;
+                }
+                .ios-btn-login {
+                    background: #1d1d1f;
+                    color: white;
+                    border: none;
+                    border-radius: 12px;
+                    padding: 14px;
+                    font-weight: 600;
+                    font-size: 14px;
+                    transition: all 0.2s;
+                }
+                .ios-btn-login:hover { background: #000; }
+                .ios-btn-login:disabled { background: #d2d2d7; cursor: not-allowed; }
+            `}</style>
+
+            <div className="ios-login-card">
+                <div className="text-center mb-4">
+                    <h2 className="login-title">Bienvenido a RUKI</h2>
+                    <p className="text-muted small">Ingresa tus credenciales para continuar</p>
                 </div>
-                <div className="card-body">
-                    {mensaje && <div className="alert alert-info small py-2 text-center fw-bold">{mensaje}</div>}
-                    <form onSubmit={handleSubmit} noValidate>
-                        <div className="row">
-                            <div className="mb-2 col-md-6">
-                                <label htmlFor="firstName" className="form-label fw-bold small">Nombre *</label>
-                                <input
-                                    id="firstName"
-                                    type="text"
-                                    name="firstName"
-                                    value={usuario.firstName}
-                                    onChange={handleChange}
-                                    className={`form-control form-control-sm ${errores.firstName ? "is-invalid" : usuario.firstName ? "is-valid" : ""}`}
-                                />
-                                {errores.firstName && <div className="invalid-feedback">{errores.firstName}</div>}
-                            </div>
-                            <div className="mb-2 col-md-6">
-                                <label htmlFor="lastName" className="form-label fw-bold small">Apellido *</label>
-                                <input
-                                    id="lastName"
-                                    type="text"
-                                    name="lastName"
-                                    value={usuario.lastName}
-                                    onChange={handleChange}
-                                    className={`form-control form-control-sm ${errores.lastName ? "is-invalid" : usuario.lastName ? "is-valid" : ""}`}
-                                />
-                                {errores.lastName && <div className="invalid-feedback">{errores.lastName}</div>}
-                            </div>
-                        </div>
 
-                        <div className="row">
-                            <div className="mb-2 col-md-6">
-                                <label htmlFor="correo" className="form-label fw-bold small">Correo *</label>
-                                <input
-                                    id="correo"
-                                    type="email"
-                                    name="correo"
-                                    value={usuario.correo}
-                                    onChange={handleChange}
-                                    className={`form-control form-control-sm ${errores.correo ? "is-invalid" : usuario.correo ? "is-valid" : ""}`}
-                                />
-                                {errores.correo && <div className="invalid-feedback">{errores.correo}</div>}
-                            </div>
-                            <div className="mb-2 col-md-6">
-                                <label htmlFor="contrasena" className="form-label fw-bold small">Contraseña *</label>
-                                <input
-                                    id="contrasena"
-                                    type="password"
-                                    name="contrasena"
-                                    value={usuario.contrasena}
-                                    onChange={handleChange}
-                                    className={`form-control form-control-sm ${errores.contrasena ? "is-invalid" : usuario.contrasena ? "is-valid" : ""}`}
-                                />
-                                {errores.contrasena && <div className="invalid-feedback">{errores.contrasena}</div>}
-                            </div>
-                        </div>
+                {mensaje && (
+                    <div className={`alert ${mensaje.includes("concedido") ? "alert-dark" : "alert-danger"} py-2 small text-center fw-bold rounded-3 mb-4`}>
+                        {mensaje}
+                    </div>
+                )}
 
-                        <div className="mb-2">
-                            <label htmlFor="direccion" className="form-label fw-bold small">Dirección *</label>
-                            <input
-                                id="direccion"
-                                type="text"
-                                name="direccion"
-                                value={usuario.direccion}
-                                onChange={handleChange}
-                                className={`form-control form-control-sm ${errores.direccion ? "is-invalid" : usuario.direccion ? "is-valid" : ""}`}
-                            />
-                            {errores.direccion && <div className="invalid-feedback">{errores.direccion}</div>}
-                        </div>
+                <form onSubmit={handleSubmit} noValidate>
+                    <div className="ios-input-group mb-3 d-flex flex-column">
+                        <label>Correo Electrónico</label>
+                        <input
+                            type="email"
+                            name="correo"
+                            placeholder="nombre@gmail.com"
+                            className={`ios-input-field ${errores.correo ? "is-invalid" : credenciales.correo ? "is-valid" : ""}`}
+                            value={credenciales.correo}
+                            onChange={handleChange}
+                            required
+                        />
+                        {errores.correo && <div className="invalid-feedback fw-bold" style={{fontSize: '10px'}}>{errores.correo}</div>}
+                    </div>
 
-                        <div className="row">
-                            <div className="mb-2 col-md-6">
-                                <label htmlFor="region" className="form-label fw-bold small">Región *</label>
-                                <select
-                                    id="region"
-                                    name="region"
-                                    value={usuario.region}
-                                    onChange={handleChange}
-                                    className={`form-select form-select-sm ${errores.region ? "is-invalid" : usuario.region ? "is-valid" : ""}`}
-                                >
-                                    <option value="">Selecciona una región</option>
-                                    {regiones.map((r, idx) => (
-                                        <option key={idx} value={r.nombre}>{r.nombre}</option>
-                                    ))}
-                                </select>
-                                {errores.region && <div className="invalid-feedback">{errores.region}</div>}
-                            </div>
-                            <div className="mb-2 col-md-6">
-                                <label htmlFor="comuna" className="form-label fw-bold small">Comuna *</label>
-                                <select
-                                    id="comuna"
-                                    name="comuna"
-                                    value={usuario.comuna}
-                                    onChange={handleChange}
-                                    className={`form-select form-select-sm ${errores.comuna ? "is-invalid" : usuario.comuna ? "is-valid" : ""}`}
-                                    disabled={!usuario.region}
-                                >
-                                    <option value="">Selecciona una comuna</option>
-                                    {(regiones.find(r => r.nombre === usuario.region)?.comunas || []).map((c, i) => (
-                                        <option key={i} value={c}>{c}</option>
-                                    ))}
-                                </select>
-                                {errores.comuna && <div className="invalid-feedback">{errores.comuna}</div>}
-                            </div>
-                        </div>
+                    <div className="ios-input-group mb-4 d-flex flex-column">
+                        <label>Contraseña</label>
+                        <input
+                            type="password"
+                            name="password"
+                            placeholder="••••••••"
+                            className={`ios-input-field ${errores.password ? "is-invalid" : credenciales.password ? "is-valid" : ""}`}
+                            value={credenciales.password}
+                            onChange={handleChange}
+                            required
+                        />
+                        {errores.password && <div className="invalid-feedback fw-bold" style={{fontSize: '10px'}}>{errores.password}</div>}
+                    </div>
 
-                        <div className="d-flex gap-2 pt-3 justify-content-center">
-                            <button type="button" onClick={handleCancelar} className="btn btn-sm btn-danger px-4">Cancelar</button>
-                            <button type="submit" className="btn btn-sm btn-dark px-4" disabled={loading}>
-                                {loading ? <><i className="fas fa-spinner fa-spin me-2"></i>Guardando...</> : "Guardar Registro"}
-                            </button>
-                        </div>
-                    </form>
+                    <div className="d-grid gap-2">
+                        <button type="submit" className="ios-btn-login" disabled={loading}>
+                            {loading ? <><i className="fas fa-spinner fa-spin me-2"></i>Verificando...</> : "Iniciar Sesión"}
+                        </button>
+                        <button type="button" onClick={() => navigate("/")} className="btn btn-link text-dark text-decoration-none fw-bold small">
+                            Volver al inicio
+                        </button>
+                    </div>
+                </form>
+
+                <div className="text-center mt-4 border-top pt-3" style={{ borderColor: '#f5f5f7' }}>
+                    <small className="text-muted">
+                        ¿No tienes una cuenta? <Link to="/crear-usuario" className="text-dark fw-bold">Regístrate ahora</Link>
+                    </small>
                 </div>
             </div>
         </div>
