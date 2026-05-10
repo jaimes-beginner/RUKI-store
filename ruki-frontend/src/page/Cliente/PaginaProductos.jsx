@@ -1,13 +1,13 @@
 import '../../App.css'
 
-import NavbarNew from '../../components/usuario/newarrivals/NavabarNew'
+import NavbarUsuario from '../../components/usuario/navbar/NavabarUsuarios'
 import FooterUsuario from '../../components/usuario/footer/FooterUsuario'
 import Productos from '../../components/usuario/productos/Productos'
 
 export function PaginaProductosCliente() {
 	return (
 		<>
-			<NavbarNew />
+			<NavbarUsuario />
 			<Productos />
 			<FooterUsuario />
 		</>
