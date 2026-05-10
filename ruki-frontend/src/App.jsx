@@ -13,10 +13,16 @@ import { InventarioAdmin } from './components/admin/gestion/InventarioAdmin.jsx'
 import { InventarioAdminPage } from './page/Admin/InventarioAdminPage.jsx'
 import { UsuariosAdminPage } from './page/Admin/UsuariosAdminPage.jsx'
 import { PedidosAdminPage } from './page/Admin/PedidosAdminPage.jsx'
+import { CheckoutPage } from './page/Cliente/CheckoutPage.jsx'
+import { PagoExitosoPage } from './page/Cliente/PagoExitosoPage.jsx'
+import { PublicRoute } from './security/PublicRoute.jsx'
+import { PerfilPage } from './page/Cliente/PerfilPage.jsx'
+
 
 function App() {
   return (
       <Routes>
+
         {/* RUTAS PÚBLICAS */}
         <Route path="/" element={<PaginaPrincipalCliente />} />
         <Route path="/new-arrivals" element={<PaginaNuevosCliente />} />
@@ -24,7 +30,16 @@ function App() {
         <Route path="/noticias" element={<PaginaBlogCliente />} />
         <Route path="/faq" element={<PaginaFAQCliente />} />
         <Route path="/sale" element={<PaginaSaleCliente />} />
-        <Route path="/login" element={<Login />} />
+        <Route path="/mi-perfil" element={<PerfilPage />} />
+
+        <Route path="/login" element={
+          <PublicRoute>
+            <Login />
+          </PublicRoute>
+        } />
+
+        <Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/pago-exitoso" element={<PagoExitosoPage />} />
 
         {/* RUTAS PRIVADAS DE ADMINISTRADOR */}
         <Route path="/admin" element={
@@ -50,11 +65,13 @@ function App() {
             <InventarioAdminPage />
           </AdminRoute>
         } />
+
         <Route path="/usuarios-admin" element={
           <AdminRoute>
             <UsuariosAdminPage />
           </AdminRoute>
         } />
+
         <Route path="/pedidos-admin" element={
           <AdminRoute>
             <PedidosAdminPage />
