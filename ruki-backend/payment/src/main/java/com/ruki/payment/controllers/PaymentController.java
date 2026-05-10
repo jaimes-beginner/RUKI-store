@@ -7,12 +7,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/api-ruki/payments")
@@ -79,14 +81,10 @@ public class PaymentController {
             @ApiResponse(responseCode = "200", description = "Pago procesado y orden actualizada"),
             @ApiResponse(responseCode = "400", description = "Token inválido o expirado")
     })
-    public ResponseEntity<?> processPayment(@RequestParam String token) {
+    public void processPayment(@RequestParam String token, HttpServletResponse response) throws IOException {
         log.info("Procesando pago en RukiPay...");
         PaymentRecord result = paymentService.confirmPayment(token);
-        
-        return ResponseEntity.ok(Map.of(
-                "status", "SUCCESS",
-                "message", "¡Dinero recibido! La Orden #" + result.getOrderId() + " ha sido pagada y actualizada en Pedidos."
-        ));
+        response.sendRedirect("http://localhost:5173/pago-exitoso?orderId=" + result.getOrderId());
     }
     
 }
