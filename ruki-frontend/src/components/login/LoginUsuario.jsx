@@ -18,7 +18,6 @@ export function LoginUsuario() {
     const [mensaje, setMensaje] = useState(null);
     const [loading, setLoading] = useState(false);
 
-    // 1. VALIDACIÓN CENTRALIZADA (Sin useEffect)
     const validarCampo = (name, value) => {
         let errorMsg = "";
         if (name === "correo") {
@@ -32,21 +31,23 @@ export function LoginUsuario() {
         return errorMsg;
     };
 
-    // 2. MANEJADOR DE CAMBIOS INTELIGENTE
     const handleChange = (e) => {
         const { name, value } = e.target;
         setCredenciales(prev => ({ ...prev, [name]: value }));
         
-        // Validar en tiempo real mientras escribe
+        /*
+            Validar en tiempo real mientras escribe
+        */
         const error = validarCampo(name, value);
         setErrores(prev => ({ ...prev, [name]: error }));
     };
 
-    // 3. ENVÍO DE FORMULARIO Y REDIRECCIÓN POR ROL
+    /*
+        Envio de formulario y redirección según el rol
+    */
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Validar antes de intentar el login
         const errorCorreo = validarCampo("correo", credenciales.correo);
         const errorPass = validarCampo("password", credenciales.password);
 
@@ -60,23 +61,19 @@ export function LoginUsuario() {
         setMensaje(null);
 
         try {
-            // Llamamos a la función login del contexto
             const data = await login(credenciales.correo, credenciales.password);
             
             setMensaje("Acceso concedido. Redirigiendo...");
 
-            // LÓGICA DE REDIRECCIÓN PROFESIONAL (Basada en el ROL del Backend)
-            // Soportamos si el rol viene como ID (1), string (ADMIN) o el objeto completo
             setTimeout(() => {
                 const rol = data?.user?.role || data?.rol;
                 const roleName = typeof rol === 'object' ? rol.name : String(rol);
-                
                 const isAdmin = roleName === "1" || roleName.includes("ADMIN");
 
                 if (isAdmin) {
-                    navigate("/admin/reporte-dashboard");
+                    navigate("/admin/reporte-dashboard", { replace: true });
                 } else {
-                    navigate("/");
+                    navigate("/", { replace: true });
                 }
             }, 1000);
 
