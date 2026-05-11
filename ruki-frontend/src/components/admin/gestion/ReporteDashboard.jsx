@@ -141,7 +141,7 @@ export function ReporteDashboard() {
         productosBajoStock,
         bajoStockCount,
         pctOk,
-        /* pctLow, */
+        pctLow,
         totalPedidos,
         pedidosPendientes,
         ingresosTotales,
@@ -524,7 +524,10 @@ export function ReporteDashboard() {
                                                     const itemKey = String(d?.productoId ?? d?.productId ?? d?.id ?? `item-${quantity}`);
                                                     return (
                                                         <tr key={itemKey} style={{borderBottom: "1px solid #e5e5ea"}}>
-                                                            <td className="ps-0 fw-semibold text-muted">ID {d?.productoId ?? d?.productId}</td>
+                                                            <td className="ps-0 fw-semibold text-dark text-truncate" style={{maxWidth: '150px'}}>
+                                                                {productos.find(p => p.id === (d?.productoId ?? d?.productId))?.name || `Prod #${d?.productoId ?? d?.productId}`}
+                                                                <div className="text-muted" style={{fontSize: '9px'}}>ID: {d?.productoId ?? d?.productId}</div>
+                                                            </td>
                                                             <td className="text-center fw-bold">x{quantity}</td>
                                                             <td className="text-end pe-0 fw-bold text-dark">{formatearPrecio(lineTotal)}</td>
                                                         </tr>
