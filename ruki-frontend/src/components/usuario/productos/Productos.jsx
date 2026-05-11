@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useCart } from '../../../contexts/CartContext'; 
 import { obtenerProductosActivos } from '../../../services/ProductoService'; 
+import { Link } from 'react-router-dom';
 import '../newarrivals/NewArriivals.css';
 import './Productos.css';
 
@@ -79,7 +80,7 @@ export default function Productos() {
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-                /* 1. MANTENER TU LAYOUT ORIGINAL Y FRENAR EL FILTRO */
+                /* LAYOUT ORIGINAL Y FRENAR EL FILTRO */
                 .na-filter {
                     background: #ffffff;
                     border: 1.5px solid #e5e5ea;
@@ -90,7 +91,7 @@ export default function Productos() {
                     top: 20px !important;
                 }
 
-                /* 2. HACER TU GRILLA ORIGINAL MÁS COMPACTA */
+                /* GRILLA ORIGINAL MÁS COMPACTA */
                 .na-grid {
                     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)) !important;
                     gap: 16px !important;
@@ -165,7 +166,7 @@ export default function Productos() {
 
             <section className="na-content py-4 container">
                 
-                {/* PANEL DE FILTROS LATERAL (AHORA USA TU CLASE ORIGINAL 'na-filter') */}
+                {/* PANEL DE FILTROS LATERAL */}
                 <aside className="na-filter mb-4 mb-md-0">
                     <p className="fw-bolder mb-3" style={{ fontSize: '14px', letterSpacing: '0.04em', textTransform: 'uppercase', color: '#86868b' }}>Filtro</p>
 
@@ -180,7 +181,7 @@ export default function Productos() {
                     </div>
                 </aside>
 
-                {/* ÁREA DE PRODUCTOS (USA TU CLASE ORIGINAL 'na-products') */}
+                {/* ÁREA DE PRODUCTOS */}
                 <div className="na-products">
                     <div className="mb-4 pb-2 border-bottom" style={{ borderColor: '#e5e5ea' }}>
                         <h2 className="fw-bolder text-dark mb-1" style={{ letterSpacing: "-0.03em", fontSize: "2rem" }}>Productos</h2>
@@ -194,15 +195,17 @@ export default function Productos() {
                         </div>
                     )}
 
-                    {/* GRILLA (USA TU CLASE ORIGINAL 'na-grid') */}
+                    {/* GRILLA */}
                     <div className="na-grid">
                         {productosReales.map((product) => (
                             <article key={product.id} className="na-card ios-card p-2">
 
                                 <div className="na-image-wrap rounded-3 overflow-hidden position-relative mb-2" style={{ background: '#f5f5f7' }}>
-                                    {/* IMAGEN 4/5 ASEGURADA */}
-                                    <img src={getDisplayImage(product)} alt={product.name} style={{ width: '100%', aspectRatio: '4/5', objectFit: 'cover' }} />
-                                    
+                                   
+                                    <Link to={`/producto/${product.id}`}>
+                                        <img src={getDisplayImage(product)} alt={product.name} style={{ width: '100%', aspectRatio: '4/4', objectFit: 'cover' }} />
+                                    </Link>
+
                                     {/* BADGES ORIGINALES FLOTANDO */}
                                     <div className="position-absolute top-0 start-0 p-2" style={{ zIndex: 20 }}>
                                         {product.stock > 0 && product.stock <= 5 && (
