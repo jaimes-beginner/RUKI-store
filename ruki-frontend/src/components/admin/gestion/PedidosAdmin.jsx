@@ -1,11 +1,15 @@
 import { useState, useEffect } from "react";
-import { obtenerTodosLosPedidos, actualizarEstadoPedido } from "../../../services/PedidoService";
+import { obtenerTodosLosPedidos, actualizarEstadoPedido } from "../../../services/PedidoService"; 
+import { obtenerProductoPorId } from "../../../services/ProductoService";
 
 export function PedidosAdmin() {
     const [pedidos, setPedidos] = useState([]);
     const [loading, setLoading] = useState(false);
     const [toast, setToast] = useState({ mostrar: false, mensaje: "", tipo: "success" });
     
+    // Diccionario para los nombres de los productos
+    const [nombresProductos, setNombresProductos] = useState({});
+
     // Estado para el pedido que el admin seleccione para ver detalles
     const [pedidoSeleccionado, setPedidoSeleccionado] = useState(null);
     const [nuevoEstado, setNuevoEstado] = useState("");
@@ -17,9 +21,26 @@ export function PedidosAdmin() {
     const cargarDatos = async () => {
         try {
             const data = await obtenerTodosLosPedidos();
-            // Ordenar los pedidos del más nuevo al más antiguo
             const ordenados = (Array.isArray(data) ? data : []).sort((a, b) => b.id - a.id);
             setPedidos(ordenados);
+
+            // MAGIA: Extraer IDs y buscar nombres para el Admin
+            const idsUnicos = new Set();
+            ordenados.forEach(pedido => {
+                pedido.items?.forEach(item => idsUnicos.add(item.productId));
+            });
+
+            const diccionarioNombres = {};
+            await Promise.all(Array.from(idsUnicos).map(async (id) => {
+                try {
+                    const prod = await obtenerProductoPorId(id);
+                    diccionarioNombres[id] = prod.name;
+                } catch (e) {
+                    diccionarioNombres[id] = "Producto Eliminado/Desconocido";
+                }
+            }));
+            setNombresProductos(diccionarioNombres);
+
         } catch (error) {
             console.error("Error cargando pedidos", error);
             mostrarToast("Error al cargar los pedidos", "danger");
@@ -46,9 +67,7 @@ export function PedidosAdmin() {
             await actualizarEstadoPedido(pedidoSeleccionado.id, nuevoEstado);
             mostrarToast(`Estado del pedido #${pedidoSeleccionado.id} actualizado a ${nuevoEstado}`);
             
-            // Actualizamos la tabla
             await cargarDatos();
-            // Actualizamos el pedido seleccionado para que refleje el cambio
             setPedidoSeleccionado({ ...pedidoSeleccionado, status: nuevoEstado });
         } catch (error) {
             mostrarToast("Error: " + error.message, "danger");
@@ -67,13 +86,12 @@ export function PedidosAdmin() {
         return fecha.toLocaleDateString('es-CL', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute:'2-digit' });
     };
 
-    // Función para renderizar el badge correcto según el estado
     const renderBadgeEstado = (statusStr) => {
         const s = String(statusStr).toUpperCase();
-        if (s === 'COMPLETED' || s === 'DELIVERED' || s === 'PAID') {
+        if (s === 'COMPLETED' || s === 'DELIVERED' || s === 'PAID' || s === 'SHIPPED') {
             return <span className="ios-badge badge-ok">{s}</span>;
         }
-        if (s === 'CANCELED') {
+        if (s === 'CANCELED' || s === 'CANCELLED') {
             return <span className="ios-badge badge-out">CANCELADO</span>;
         }
         return <span className="ios-badge badge-low">{s}</span>;
@@ -198,14 +216,14 @@ export function PedidosAdmin() {
 
                 /* Estilo especial para la mini tabla de items del pedido */
                 .mini-table td, .mini-table th {
-                    padding: 6px 0;
+                    padding: 8px 0;
                     font-size: 11px;
                 }
             `}</style>
 
             <div className="mb-5 border-bottom border-2 pb-4" style={{ borderColor: "#e5e5ea" }}>
                 <h1 className="fw-bolder text-dark mb-1" style={{ letterSpacing: "-0.04em", fontSize: "2.5rem" }}>Gestión de Pedidos</h1>
-                <p className="text-secondary fw-medium mb-0" style={{ color: "#86868b" }}>Recopilación y gestión de <strong>pedidos</strong></p>
+                <p className="text-secondary fw-medium mb-0" style={{ color: "#86868b" }}>Recopilación y logística de <strong>pedidos</strong></p>
             </div>
 
             <div className="row g-4">
@@ -245,17 +263,23 @@ export function PedidosAdmin() {
                                         </div>
                                     </div>
 
-                                    {/* Lista de Ítems (Mini tabla) */}
+                                    {/* Lista de Ítems (Mini tabla con NOMBRES REALES) */}
                                     <div className="mb-4">
-                                        <label className="ios-label">Artículos ({pedidoSeleccionado.items?.length || 0})</label>
-                                        <div style={{ maxHeight: "150px", overflowY: "auto" }}>
+                                        <label className="ios-label">Artículos a enviar ({pedidoSeleccionado.items?.length || 0})</label>
+                                        <div style={{ maxHeight: "200px", overflowY: "auto" }}>
                                             <table className="table table-borderless mini-table w-100 mb-0">
                                                 <tbody style={{borderTop: "1.5px solid #e5e5ea"}}>
                                                     {(pedidoSeleccionado.items || []).map((item, idx) => (
                                                         <tr key={idx} style={{borderBottom: "1px solid #e5e5ea"}}>
-                                                            <td className="fw-semibold text-dark">Prod #{item.productId}</td>
-                                                            <td className="text-muted text-center">x{item.quantity}</td>
-                                                            <td className="text-end fw-bold text-dark">{formatearPrecio(item.subTotal)}</td>
+                                                            <td className="fw-semibold text-dark" style={{maxWidth: '120px', whiteSpace: 'normal', lineHeight: '1.2'}}>
+                                                                {nombresProductos[item.productId] || `Prod #${item.productId}`}
+                                                                <div className="text-muted mt-1" style={{fontSize: '9px'}}>ID: {item.productId}</div>
+                                                            </td>
+                                                            <td className="text-muted text-center align-middle">x{item.quantity}</td>
+                                                            <td className="text-end fw-bold text-dark align-middle">
+                                                                {/* Usamos unitPrice para evitar el NaN, o price si así lo guardaste */}
+                                                                {formatearPrecio((item.unitPrice || item.price) * item.quantity)}
+                                                            </td>
                                                         </tr>
                                                     ))}
                                                 </tbody>
@@ -270,9 +294,8 @@ export function PedidosAdmin() {
                                             <select className="ios-input w-100" value={nuevoEstado} onChange={(e) => setNuevoEstado(e.target.value)}>
                                                 <option value="PENDING">PENDING (Pendiente de Pago)</option>
                                                 <option value="PAID">PAID (Pagado / En Preparación)</option>
-                                                <option value="SHIPPED">SHIPPED (Enviado)</option>
+                                                <option value="SHIPPED">SHIPPED (Enviado / En camino)</option>
                                                 <option value="DELIVERED">DELIVERED (Entregado)</option>
-                                                <option value="COMPLETED">COMPLETED (Completado)</option>
                                                 <option value="CANCELED">CANCELED (Cancelado)</option>
                                             </select>
                                         </div>
@@ -354,7 +377,7 @@ export function PedidosAdmin() {
                      style={{ border: '3px solid #1d1d1f', borderRadius: '18px', boxShadow: '0 10px 30px rgba(0,0,0,0.08)' }}>
                     <div className="d-flex p-2">
                         <div className="toast-body fw-bold text-dark" style={{ fontSize: "12px" }}>
-                            {toast.tipo === 'success' ? <i className="fas fa-check me-2"></i> : <i className="fas fa-exclamation-triangle me-2"></i>}
+                            {toast.tipo === 'success' ? <i className="fas fa-check me-2"></i> : <i className="fas fa-exclamation-triangle text-danger me-2"></i>}
                             {toast.mensaje}
                         </div>
                         <button type="button" className="btn-close me-2 m-auto" onClick={() => setToast({ ...toast, mostrar: false })}></button>
