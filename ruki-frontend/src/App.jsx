@@ -17,6 +17,8 @@ import { CheckoutPage } from './page/Cliente/CheckoutPage.jsx'
 import { PagoExitosoPage } from './page/Cliente/PagoExitosoPage.jsx'
 import { PublicRoute } from './security/PublicRoute.jsx'
 import { PerfilPage } from './page/Cliente/PerfilPage.jsx'
+import { ProductoDetallePage } from './page/Cliente/ProductoDetallePage.jsx'
+import { MisPedidosPage } from './page/Cliente/MisPedidosPage.jsx'
 
 
 function App() {
@@ -31,6 +33,8 @@ function App() {
         <Route path="/faq" element={<PaginaFAQCliente />} />
         <Route path="/sale" element={<PaginaSaleCliente />} />
         <Route path="/mi-perfil" element={<PerfilPage />} />
+        <Route path="/producto/:id" element={<ProductoDetallePage />} />
+        <Route path="/mis-pedidos" element={<MisPedidosPage />} />
 
         <Route path="/login" element={
           <PublicRoute>
