@@ -113,7 +113,7 @@ function Header() {
       `}</style>
 
       <header className="ruki-header">
-        {/* Parte superior: Logo y links de acceso */}
+
         <Navbar bg="dark" variant="dark" className="py-3 ruki-top-navbar" style={{ fontFamily: "'Inter', sans-serif" }}>
           <Container fluid className="ruki-topbar d-flex justify-content-between align-items-center px-4 px-lg-5">
             <div className="ruki-topbar-side"></div> 
@@ -123,6 +123,7 @@ function Header() {
             </Navbar.Brand>
             
             <div className="ruki-topbar-side d-flex justify-content-end align-items-center gap-3">
+
               {/* LÓGICA DE SESIÓN VISUAL */}
               {isAuthenticated ? (
                 <Dropdown align="end">
@@ -137,6 +138,10 @@ function Header() {
                   <Dropdown.Menu className="ios-dropdown-menu">
                     <Dropdown.Item as={Link} to="/mi-perfil" className="py-2 ios-dropdown-item">
                       <i className="fas fa-user-circle me-2" style={{ color: '#86868b' }}></i> Mi Perfil
+                    </Dropdown.Item>
+
+                    <Dropdown.Item as={Link} to="/mis-pedidos" className="py-2 ios-dropdown-item">
+                      <i className="fas fa-box me-2" style={{ color: '#86868b' }}></i> Mis Pedidos
                     </Dropdown.Item>
                     
                     <Dropdown.Divider style={{ borderColor: '#e5e5ea', margin: '4px 0' }} />
@@ -156,7 +161,7 @@ function Header() {
                 <Nav.Link as={Link} to="/login" className="small p-0 text-white fw-medium">Log in/Join</Nav.Link>
               )}
               
-              {/* BOTÓN DEL CARRITO INTELIGENTE */}
+              {/* BOTÓN DEL CARRITO */}
               <div style={{ cursor: 'pointer', position: 'relative', padding: '4px' }} onClick={handleShow}>
                 <span className="cart-icon fs-5">🛒</span>
                 {cartCount > 0 && (
@@ -170,8 +175,7 @@ function Header() {
           </Container>
         </Navbar>
 
-        {/* Parte inferior: Navegación principal */}
-        <Navbar bg="secondary" variant="dark" className="py-2 border-top border-dark ruki-bottom-navbar" style={{ fontFamily: "'Inter', sans-serif" }}>
+        <Navbar bg="white" className="py-2 border-top border-dark ruki-bottom-navbar" style={{ fontFamily: "'Inter', sans-serif" }}>
           <Container fluid className="px-4 px-lg-5">
             <Nav className="mx-auto gap-5">
               <NavLink to="/new-arrivals" className={({ isActive }) => `nav-link fw-bold small ${isActive ? 'nav-active' : ''}`}>NEW ARRIVALS</NavLink>
