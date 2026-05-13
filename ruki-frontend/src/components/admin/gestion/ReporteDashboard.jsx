@@ -4,27 +4,35 @@ import { motion, AnimatePresence } from "framer-motion";
 import { obtenerProductosActivos } from "../../../services/ProductoService";
 import { obtenerUsuarios } from "../../../services/UsuarioService";
 import { obtenerPedidoPorId, obtenerTodosLosPedidos } from "../../../services/PedidoService"; 
-import './ReporteDashboard.css'; // <-- NUEVO ARCHIVO DE ESTILOS
+import './ReporteDashboard.css'; 
 
-// --- FUNCIONES UTILITARIAS (Mantenidas intactas) ---
+/*
+    Funciones auxiliares para 
+    normalizar datos de pedidos     
+*/
 function normalizeStatus(value) {
     return String(value ?? "").split('"').join("").split("'").join("").trim().toUpperCase();
 }
+
 function toNumber(value) {
     const num = Number(value);
     return Number.isFinite(num) ? num : 0;
 }
+
 function getOrderDate(order) {
     return order?.fechaPedido || order?.createdAt || null;
 }
+
 function getOrderTotal(order) {
     return toNumber(order?.montoTotal ?? order?.totalAmount ?? 0);
 }
+
 function getOrderItems(order) {
     if (Array.isArray(order?.detalles)) return order.detalles;
     if (Array.isArray(order?.items)) return order.items;
     return [];
 }
+
 function getLineTotal(detail, quantity) {
     const subtotal = Number(detail?.subTotal);
     if (Number.isFinite(subtotal)) return subtotal;
@@ -35,7 +43,10 @@ function getLineTotal(detail, quantity) {
     return 0;
 }
 
-// --- VARIANTES DE ANIMACIÓN ---
+/*
+    Variantes para las animaciónes 
+    para el reporte de dashboard
+*/
 const containerVariants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
@@ -140,7 +151,8 @@ export function ReporteDashboard() {
 
     return (
         <div className="admin-dashboard-wrapper">
-            {/* LUCES AMBIENTALES DARK MODE */}
+
+            {/* LUCES AMBIENTALES */}
             <div className="admin-ambient-blob admin-blob-1"></div>
             <div className="admin-ambient-blob admin-blob-2"></div>
             <div className="admin-ambient-blob admin-blob-3"></div>
@@ -172,7 +184,7 @@ export function ReporteDashboard() {
 
                 <motion.div variants={containerVariants} initial="hidden" animate="visible">
                     
-                    {/* KPIs SECUNDARIOS (3 columnas) */}
+                    {/* KPIs SECUNDARIOS */}
                     <div className="row g-4 mb-4">
                         <motion.div className="col-12 col-md-4" variants={cardVariants}>
                             <motion.div whileHover={{ y: -5 }} className="admin-card-glass h-100 d-flex flex-column justify-content-between">
@@ -227,7 +239,7 @@ export function ReporteDashboard() {
                         </motion.div>
                     </div>
 
-                    {/* KPIs PRINCIPALES (2 columnas) */}
+                    {/* KPIs PRINCIPALES */}
                     <div className="row g-4 mb-4">
                         <motion.div className="col-12 col-md-6" variants={cardVariants}>
                             <motion.div whileHover={{ scale: 1.02 }} className="admin-card-glass p-4 h-100 feature-card-1">
@@ -261,7 +273,7 @@ export function ReporteDashboard() {
                         </motion.div>
                     </div>
 
-                    {/* SECCIÓN INFERIOR: TABLA Y BUSCADOR */}
+                    {/* SECCIÓN INFERIOR CON LA TABLA Y UN BUSCADOR */}
                     <div className="row g-4 mb-4">
                         <motion.div className="col-lg-7" variants={cardVariants}>
                             <div className="admin-card-glass h-100 d-flex flex-column">

@@ -1,17 +1,14 @@
-// Importaciones
 import '../../App.css'
 
-import NavbarNew from '../../components/usuario/newarrivals/NavabarNew'
+import NavbarUsuario from '../../components/usuario/navbar/NavabarUsuarios'
 import FooterUsuario from '../../components/usuario/footer/FooterUsuario'
 import NewArriivals from '../../components/usuario/newarrivals/NewArriivals'
 
-/*-------------------------------------------------*/
 
-// Vista de la pagina de nuevos productos del cliente usando los componentes
 export function PaginaNuevosCliente() {
 	return (
 		<>
-			<NavbarNew />
+			<NavbarUsuario />
 			<NewArriivals />
 			<FooterUsuario />
 		</>

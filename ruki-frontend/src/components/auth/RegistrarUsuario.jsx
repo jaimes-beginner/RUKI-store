@@ -24,7 +24,6 @@ export function RegistrarUsuario() {
     const [mensaje, setMensaje] = useState(null);
     const [loading, setLoading] = useState(false);
 
-    // LÓGICA: VALIDACIÓN CENTRALIZADA
     const validarCampo = (name, value, formState) => {
         let errorMsg = "";
         
@@ -136,7 +135,8 @@ export function RegistrarUsuario() {
 
     return (
         <div className="register-main-wrapper">
-            {/* LUCES AMBIENTALES FIJAS */}
+
+            {/* LUCES AMBIENTALES */}
             <div className="register-ambient-blob register-blob-1"></div>
             <div className="register-ambient-blob register-blob-2"></div>
 

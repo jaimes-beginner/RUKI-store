@@ -1,16 +1,36 @@
 import { useState, useEffect } from "react";
 import { obtenerTodosLosPedidos, actualizarEstadoPedido } from "../../../services/PedidoService"; 
 import { obtenerProductoPorId } from "../../../services/ProductoService";
+import { motion, AnimatePresence } from "framer-motion";
+import './PedidosAdmin.css'; 
+
+/*
+    Variantes para las animaciónes 
+    de los pedidos
+*/
+const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+};
+const cardVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
+};
 
 export function PedidosAdmin() {
     const [pedidos, setPedidos] = useState([]);
     const [loading, setLoading] = useState(false);
     const [toast, setToast] = useState({ mostrar: false, mensaje: "", tipo: "success" });
     
-    // Diccionario para los nombres de los productos
+    /*
+        Diccionario para los nombre de los productos
+    */
     const [nombresProductos, setNombresProductos] = useState({});
 
-    // Estado para el pedido que el admin seleccione para ver detalles
+    /*
+        Estado para el pedido que el admin 
+        seleccione para ver detalles
+    */
     const [pedidoSeleccionado, setPedidoSeleccionado] = useState(null);
     const [nuevoEstado, setNuevoEstado] = useState("");
 
@@ -24,7 +44,9 @@ export function PedidosAdmin() {
             const ordenados = (Array.isArray(data) ? data : []).sort((a, b) => b.id - a.id);
             setPedidos(ordenados);
 
-            // MAGIA: Extraer IDs y buscar nombres para el Admin
+            /*
+                Extraer IDs y buscar nombres para el Admin
+            */
             const idsUnicos = new Set();
             ordenados.forEach(pedido => {
                 pedido.items?.forEach(item => idsUnicos.add(item.productId));
@@ -89,302 +111,216 @@ export function PedidosAdmin() {
     const renderBadgeEstado = (statusStr) => {
         const s = String(statusStr).toUpperCase();
         if (s === 'COMPLETED' || s === 'DELIVERED' || s === 'PAID' || s === 'SHIPPED') {
-            return <span className="ios-badge badge-ok">{s}</span>;
+            return <span className="ord-badge badge-ok">{s}</span>;
         }
         if (s === 'CANCELED' || s === 'CANCELLED') {
-            return <span className="ios-badge badge-out">CANCELADO</span>;
+            return <span className="ord-badge badge-out">CANCELADO</span>;
         }
-        return <span className="ios-badge badge-low">{s}</span>;
+        return <span className="ord-badge badge-low">{s}</span>;
     };
 
     return (
-        <div className="container mt-2 position-relative" style={{ fontFamily: "'-apple-system', BlinkMacSystemFont, 'Inter', sans-serif" }}>
-            
-            <style>{`
-                @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        <div className="orders-premium-wrapper">
 
-                body { background-color: #f5f5f7 !important; font-family: 'Inter', sans-serif !important; }
+            {/* LUCES AMBIENTALES */}
+            <div className="ord-ambient-blob ord-blob-1"></div>
+            <div className="ord-ambient-blob ord-blob-2"></div>
+
+            <div className="container py-4 position-relative" style={{ zIndex: 1 }}>
                 
-                .ios-card {
-                    background: #ffffff;
-                    border: 2px solid #e5e5ea;
-                    border-radius: 16px;
-                    transition: all 0.2s ease;
-                }
-                .ios-card:hover {
-                    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.03);
-                }
-                .ios-header {
-                    border-bottom: 1.5px solid #e5e5ea;
-                    padding: 12px 16px;
-                    font-weight: 700;
-                    color: #1d1d1f;
-                    font-size: 14px;
-                    letter-spacing: -0.01em;
-                }
-                .ios-label {
-                    font-size: 11px;
-                    font-weight: 700;
-                    color: #86868b;
-                    text-transform: uppercase;
-                    letter-spacing: 0.04em;
-                    margin-bottom: 4px;
-                }
-                .ios-input {
-                    font-family: 'Inter', sans-serif !important;
-                    font-size: 12px !important;
-                    background: #fbfbfd;
-                    border: 1.5px solid #d2d2d7;
-                    border-radius: 10px;
-                    color: #1d1d1f;
-                    padding: 8px 12px;
-                    transition: all 0.2s;
-                }
-                .ios-input:focus {
-                    background: #ffffff;
-                    border-color: #1d1d1f;
-                    outline: none;
-                    box-shadow: 0 0 0 3px rgba(0,0,0,0.05);
-                }
-                .ios-btn {
-                    font-family: 'Inter', sans-serif !important;
-                    font-size: 12px;
-                    font-weight: 600;
-                    border-radius: 10px;
-                    padding: 10px;
-                    border: 1.5px solid #1d1d1f;
-                    transition: all 0.2s;
-                }
-                .ios-btn-dark { background: #1d1d1f; color: #ffffff; }
-                .ios-btn-dark:hover { background: #000000; color: #ffffff; }
+                <motion.header 
+                    className="ord-page-header-glass"
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                >
+                    <h1 className="ord-title">Gestión de Pedidos</h1>
+                    <p className="ord-subtitle">Supervisa la logística y despachos de <strong>RUKI</strong>.</p>
+                </motion.header>
                 
-                .ios-btn-icon {
-                    background: #fbfbfd;
-                    color: #1d1d1f;
-                    border: 1.5px solid #e5e5ea;
-                    border-radius: 8px;
-                    width: 28px;
-                    height: 28px;
-                    display: inline-flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 11px;
-                    transition: all 0.2s;
-                    cursor: pointer;
-                }
-                .ios-btn-icon:hover {
-                    background: #1d1d1f;
-                    color: #ffffff;
-                    border-color: #1d1d1f;
-                }
-                
-                .ios-table-wrapper {
-                    border: 1.5px solid #e5e5ea;
-                    border-radius: 12px;
-                    max-height: 520px; 
-                    overflow-y: auto;
-                    overflow-x: auto;
-                    background: #ffffff;
-                }
-                
-                .ios-table-wrapper::-webkit-scrollbar { width: 6px; height: 6px; }
-                .ios-table-wrapper::-webkit-scrollbar-track { background: transparent; margin: 4px; }
-                .ios-table-wrapper::-webkit-scrollbar-thumb { background-color: #d2d2d7; border-radius: 10px; }
-                .ios-table-wrapper::-webkit-scrollbar-thumb:hover { background-color: #86868b; }
-
-                .ios-table { margin-bottom: 0; font-size: 12px; min-width: 500px; }
-                .ios-table th {
-                    position: sticky; top: 0; z-index: 2;
-                    background: #fbfbfd; color: #86868b; font-weight: 600;
-                    text-transform: uppercase; letter-spacing: 0.04em;
-                    border-bottom: 1.5px solid #e5e5ea !important; padding: 10px 16px; white-space: nowrap; 
-                }
-                .ios-table td {
-                    vertical-align: middle; border-bottom: 1px solid #e5e5ea;
-                    padding: 10px 16px; color: #1d1d1f; white-space: nowrap; 
-                }
-                .ios-table tr:last-child td { border-bottom: none; }
-                
-                .ios-badge {
-                    font-family: 'Inter', sans-serif !important;
-                    font-size: 10px; font-weight: 700; padding: 4px 8px;
-                    border-radius: 6px; border: 1.5px solid; display: inline-block;
-                }
-                .badge-ok { border-color: #1d1d1f; color: #1d1d1f; }
-                .badge-low { border-color: #86868b; color: #86868b; }
-                .badge-out { border-color: #1d1d1f; background: #1d1d1f; color: #ffffff; }
-
-                /* Estilo especial para la mini tabla de items del pedido */
-                .mini-table td, .mini-table th {
-                    padding: 8px 0;
-                    font-size: 11px;
-                }
-            `}</style>
-
-            <div className="mb-5 border-bottom border-2 pb-4" style={{ borderColor: "#e5e5ea" }}>
-                <h1 className="fw-bolder text-dark mb-1" style={{ letterSpacing: "-0.04em", fontSize: "2.5rem" }}>Gestión de Pedidos</h1>
-                <p className="text-secondary fw-medium mb-0" style={{ color: "#86868b" }}>Recopilación y logística de <strong>pedidos</strong></p>
-            </div>
-
-            <div className="row g-4">
-                {/* PANEL DE DETALLE Y EDICIÓN DE ESTADO */}
-                <div className="col-md-4">
-                    <div className="ios-card h-100">
-                        <div className="ios-header d-flex justify-content-between align-items-center">
-                            <div>
-                                <i className="fas fa-box-open me-2"></i> Detalle del Pedido
-                            </div>
-                            {pedidoSeleccionado && (
-                                <span className="badge bg-dark text-white rounded-pill" style={{fontSize: "9px"}}>#{pedidoSeleccionado.id}</span>
-                            )}
-                        </div>
-                        <div className="card-body p-3">
-                            {!pedidoSeleccionado ? (
-                                <div className="text-center py-5">
-                                    <i className="fas fa-hand-pointer fs-1 text-muted opacity-25 mb-3"></i>
-                                    <p className="fw-bold text-dark mb-1" style={{fontSize: "12px"}}>Ningún pedido seleccionado</p>
-                                    <p className="text-muted" style={{fontSize: "11px"}}>Haz clic en el icono del ojo en la tabla para ver y gestionar los detalles aquí.</p>
-                                </div>
-                            ) : (
-                                <div>
-                                    {/* Resumen del Cliente y Fecha */}
-                                    <div className="mb-4 pb-3 border-bottom" style={{borderColor: "#e5e5ea"}}>
-                                        <div className="d-flex justify-content-between mb-2">
-                                            <span className="ios-label mb-0">Fecha</span>
-                                            <span className="fw-bold text-dark" style={{fontSize: "11px"}}>{formatearFecha(pedidoSeleccionado.createdAt)}</span>
-                                        </div>
-                                        <div className="d-flex justify-content-between mb-2">
-                                            <span className="ios-label mb-0">ID Cliente</span>
-                                            <span className="fw-bold text-dark" style={{fontSize: "11px"}}>Usuario #{pedidoSeleccionado.userId}</span>
-                                        </div>
-                                        <div className="d-flex justify-content-between">
-                                            <span className="ios-label mb-0">Total Pagado</span>
-                                            <span className="fw-bold text-dark" style={{fontSize: "14px"}}>{formatearPrecio(pedidoSeleccionado.totalAmount)}</span>
-                                        </div>
-                                    </div>
-
-                                    {/* Lista de Ítems (Mini tabla con NOMBRES REALES) */}
-                                    <div className="mb-4">
-                                        <label className="ios-label">Artículos a enviar ({pedidoSeleccionado.items?.length || 0})</label>
-                                        <div style={{ maxHeight: "200px", overflowY: "auto" }}>
-                                            <table className="table table-borderless mini-table w-100 mb-0">
-                                                <tbody style={{borderTop: "1.5px solid #e5e5ea"}}>
-                                                    {(pedidoSeleccionado.items || []).map((item, idx) => (
-                                                        <tr key={idx} style={{borderBottom: "1px solid #e5e5ea"}}>
-                                                            <td className="fw-semibold text-dark" style={{maxWidth: '120px', whiteSpace: 'normal', lineHeight: '1.2'}}>
-                                                                {nombresProductos[item.productId] || `Prod #${item.productId}`}
-                                                                <div className="text-muted mt-1" style={{fontSize: '9px'}}>ID: {item.productId}</div>
-                                                            </td>
-                                                            <td className="text-muted text-center align-middle">x{item.quantity}</td>
-                                                            <td className="text-end fw-bold text-dark align-middle">
-                                                                {/* Usamos unitPrice para evitar el NaN, o price si así lo guardaste */}
-                                                                {formatearPrecio((item.unitPrice || item.price) * item.quantity)}
-                                                            </td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-
-                                    {/* Formulario de Cambio de Estado */}
-                                    <form onSubmit={handleActualizarEstado}>
-                                        <div className="mb-3">
-                                            <label className="ios-label">Actualizar Estado Logístico</label>
-                                            <select className="ios-input w-100" value={nuevoEstado} onChange={(e) => setNuevoEstado(e.target.value)}>
-                                                <option value="PENDING">PENDING (Pendiente de Pago)</option>
-                                                <option value="PAID">PAID (Pagado / En Preparación)</option>
-                                                <option value="SHIPPED">SHIPPED (Enviado / En camino)</option>
-                                                <option value="DELIVERED">DELIVERED (Entregado)</option>
-                                                <option value="CANCELED">CANCELED (Cancelado)</option>
-                                            </select>
-                                        </div>
-                                        <button type="submit" className="ios-btn ios-btn-dark w-100" disabled={loading}>
-                                            {loading ? <><i className="fas fa-spinner fa-spin me-2"></i>ACTUALIZANDO...</> : "GUARDAR CAMBIO DE ESTADO"}
-                                        </button>
-                                    </form>
-                                </div>
-                            )}
-                        </div>
-                    </div>
+                <div className="ord-toast-container">
+                    <AnimatePresence>
+                        {toast.mostrar && (
+                            <motion.div 
+                                initial={{ opacity: 0, scale: 0.9, y: -20 }} 
+                                animate={{ opacity: 1, scale: 1, y: 0 }} 
+                                exit={{ opacity: 0, scale: 0.9, y: -20 }}
+                                className={`ord-toast-glass ${toast.tipo === "danger" ? "error" : "success"}`}
+                            >
+                                <i className={`fas ${toast.tipo === "danger" ? "fa-exclamation-triangle" : "fa-check-circle"} me-2 fs-5`}></i>
+                                {toast.mensaje}
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </div>
 
-                {/* TABLA DE TODOS LOS PEDIDOS */}
-                <div className="col-md-8">
-                    <div className="ios-card h-100 d-flex flex-column">
-                        <div className="ios-header d-flex justify-content-between align-items-center">
-                            <span>Historial General</span>
-                            <span className="ios-badge badge-low" style={{ border: "none", background: "#f5f5f7" }}>
-                                {pedidos.length} ÓRDENES
-                            </span>
-                        </div>
-                        <div className="card-body p-3 flex-grow-1">
+                <motion.div className="row g-4" variants={containerVariants} initial="hidden" animate="visible">
+                    
+                    {/* PANEL IZQUIERDO CON EL DETALLE Y EDICIÓN */}
+                    <motion.div className="col-lg-4" variants={cardVariants}>
+                        <div className="ord-card-glass">
+                            <div className="ord-card-header d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i className="fas fa-box-open me-2 text-primary"></i> 
+                                    Detalle del Pedido
+                                </div>
+                                {pedidoSeleccionado && (
+                                    <span className="ord-badge badge-dark">#{pedidoSeleccionado.id}</span>
+                                )}
+                            </div>
                             
-                            <div className="ios-table-wrapper">
-                                <table className="table table-borderless ios-table">
+                            <div className="p-4">
+                                {!pedidoSeleccionado ? (
+                                    <div className="text-center py-5">
+
+                                        {/* SVG NATIVO DE UN MOUSE */}
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="text-muted opacity-50 mb-3">
+                                            <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"></path>
+                                            <path d="M13 13l6 6"></path>
+                                        </svg>
+                                        <p className="fw-bold text-dark mb-1" style={{fontSize: "13px"}}>Ningún pedido seleccionado</p>
+                                        <p className="ord-helper-text mx-auto" style={{maxWidth: "200px"}}>Haz clic en el icono del ojo en la tabla para revisar sus detalles.</p>
+                                    </div>
+                                ) : (
+                                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                                        
+                                        {/* RESUMEN DEL CLIENTE CON SU FECHA */}
+                                        <div className="mb-4 pb-3 border-bottom-subtle">
+                                            <div className="d-flex justify-content-between mb-2 align-items-center">
+                                                <span className="ord-label mb-0">Fecha de Orden</span>
+                                                <span className="fw-bold text-dark" style={{fontSize: "12px"}}>{formatearFecha(pedidoSeleccionado.createdAt)}</span>
+                                            </div>
+                                            <div className="d-flex justify-content-between mb-2 align-items-center">
+                                                <span className="ord-label mb-0">ID Cliente</span>
+                                                <span className="fw-bold text-dark" style={{fontSize: "12px"}}>Usuario #{pedidoSeleccionado.userId}</span>
+                                            </div>
+                                            <div className="d-flex justify-content-between mt-3 align-items-center">
+                                                <span className="ord-label mb-0">Total Recaudado</span>
+                                                <span className="fw-bold text-primary" style={{fontSize: "18px"}}>{formatearPrecio(pedidoSeleccionado.totalAmount)}</span>
+                                            </div>
+                                        </div>
+
+                                        {/* LISTA DE PRODUCTOS/ITEMS EN FOMRA DE UNA MINI-TABLA */}
+                                        <div className="mb-4">
+                                            <label className="ord-label mb-2">Artículos a enviar ({pedidoSeleccionado.items?.length || 0})</label>
+                                            <div className="ord-mini-table-scroll">
+                                                <table className="table table-borderless w-100 mb-0">
+                                                    <tbody>
+                                                        {(pedidoSeleccionado.items || []).map((item, idx) => (
+                                                            <tr key={idx} className="border-bottom-subtle">
+                                                                <td className="ps-0 py-2 fw-semibold text-dark" style={{fontSize: '12px', maxWidth: '140px'}}>
+                                                                    <div className="text-truncate">{nombresProductos[item.productId] || `Prod #${item.productId}`}</div>
+                                                                    <div className="ord-helper-text mt-1">ID: {item.productId}</div>
+                                                                </td>
+                                                                <td className="text-muted text-center align-middle py-2" style={{fontSize: '12px'}}>
+                                                                    x{item.quantity}
+                                                                </td>
+                                                                <td className="text-end pe-0 fw-bold text-dark align-middle py-2" style={{fontSize: '13px'}}>
+                                                                    {formatearPrecio((item.unitPrice || item.price) * item.quantity)}
+                                                                </td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+
+                                        {/* FORMULARIO DE CAMBIO DE ESTADO */}
+                                        <form onSubmit={handleActualizarEstado}>
+                                            <div className="ord-input-group mb-4">
+                                                <label>Actualizar Estado Logístico</label>
+                                                <div className="ord-input-wrapper">
+                                                    <i className="fas fa-truck input-icon z-2"></i>
+                                                    <select className="ord-input-glass ord-select-glass w-100" value={nuevoEstado} onChange={(e) => setNuevoEstado(e.target.value)}>
+                                                        <option value="PENDING">PENDING (Pendiente de Pago)</option>
+                                                        <option value="PAID">PAID (Pagado / Preparando)</option>
+                                                        <option value="SHIPPED">SHIPPED (Enviado / En camino)</option>
+                                                        <option value="DELIVERED">DELIVERED (Entregado)</option>
+                                                        <option value="CANCELED">CANCELED (Cancelado)</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <motion.button whileTap={{ scale: 0.95 }} type="submit" className="ord-btn-primary w-100" disabled={loading}>
+                                                {loading ? <><i className="fas fa-spinner fa-spin me-2"></i>ACTUALIZANDO...</> : "Guardar Cambio de Estado"}
+                                            </motion.button>
+                                        </form>
+                                    </motion.div>
+                                )}
+                            </div>
+                        </div>
+                    </motion.div>
+
+                    {/* PANEL DERECHO CON LA TABLA DE DATOS */}
+                    <motion.div className="col-lg-8" variants={cardVariants}>
+                        <div className="ord-card-glass h-100 d-flex flex-column">
+                            <div className="ord-card-header d-flex justify-content-between align-items-center">
+                                <div><i className="fas fa-list-ul me-2 text-secondary"></i> Historial General</div>
+                                <span className="ord-badge badge-neutral">{pedidos.length} ÓRDENES</span>
+                            </div>
+                            
+                            <div className="ord-table-container flex-grow-1">
+                                <table className="ord-table">
                                     <thead>
                                         <tr>
-                                            <th>ID Orden</th>
+                                            <th className="ps-4">ID Orden</th>
                                             <th>Fecha</th>
                                             <th>Monto</th>
                                             <th>Estado</th>
-                                            <th className="text-end">Gestión</th>
+                                            <th className="text-end pe-4">Gestión</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {pedidos.map(p => (
-                                            <tr key={p.id} style={{ backgroundColor: pedidoSeleccionado?.id === p.id ? '#f5f5f7' : 'transparent' }}>
-                                                <td>
-                                                    <div className="fw-bold text-dark">#{p.id}</div>
-                                                    <div style={{ fontSize: "10px", color: "#86868b", fontWeight: "600" }}>User #{p.userId}</div>
-                                                </td>
-                                                <td className="fw-semibold text-muted">
-                                                    {formatearFecha(p.createdAt)}
-                                                </td>
-                                                <td className="fw-bold text-dark">
-                                                    {formatearPrecio(p.totalAmount)}
-                                                </td>
-                                                <td>
-                                                    {renderBadgeEstado(p.status || p.estado)}
-                                                </td>
-                                                <td className="text-end">
-                                                    <button type="button" className="ios-btn-icon" title="Ver detalles y gestionar" onClick={() => handleVerDetalle(p)}>
-                                                        <i className="fas fa-eye"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        ))}
+                                        <AnimatePresence>
+                                            {pedidos.map(p => (
+                                                <motion.tr 
+                                                    key={p.id} 
+                                                    layout
+                                                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                                                    className={pedidoSeleccionado?.id === p.id ? 'active-row' : ''}
+                                                >
+                                                    <td className="ps-4">
+                                                        <div className="ord-item-name">#{p.id}</div>
+                                                        <div className="ord-item-id">User #{p.userId}</div>
+                                                    </td>
+                                                    <td className="ord-text-muted">{formatearFecha(p.createdAt)}</td>
+                                                    <td className="ord-item-price">{formatearPrecio(p.totalAmount)}</td>
+                                                    <td>{renderBadgeEstado(p.status || p.estado)}</td>
+                                                    <td className="text-end pe-4">
+                                                        {/* BOTÓN VER (SVG NATIVO ANTIBLOQUEOS) */}
+                                                        <motion.button 
+                                                            whileHover={{ scale: 1.1 }} 
+                                                            whileTap={{ scale: 0.9 }} 
+                                                            className="ord-action-btn view" 
+                                                            onClick={() => handleVerDetalle(p)}
+                                                            title="Ver detalles"
+                                                        >
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                                                <circle cx="12" cy="12" r="3"></circle>
+                                                            </svg>
+                                                        </motion.button>
+                                                    </td>
+                                                </motion.tr>
+                                            ))}
+                                        </AnimatePresence>
                                         {pedidos.length === 0 && (
                                             <tr>
-                                                <td colSpan="5" className="text-center py-5 text-muted fw-bold">
-                                                    No hay pedidos en el sistema.
+                                                <td colSpan="5" className="text-center py-5">
+                                                    <div className="ord-empty-state">
+                                                        <i className="fas fa-clipboard-list mb-3"></i>
+                                                        <p>No hay pedidos registrados en el sistema.</p>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         )}
                                     </tbody>
                                 </table>
                             </div>
-                            
                         </div>
-                    </div>
-                </div>
-            </div>
+                    </motion.div>
 
-            {/* TOAST FLOTANTE */}
-            <div className="toast-container position-fixed bottom-0 end-0 p-4" style={{ zIndex: 1050 }}>
-                <div className={`toast align-items-center bg-white ${toast.mostrar ? 'show' : 'hide'}`} 
-                     role="alert" aria-live="assertive" aria-atomic="true" 
-                     style={{ border: '3px solid #1d1d1f', borderRadius: '18px', boxShadow: '0 10px 30px rgba(0,0,0,0.08)' }}>
-                    <div className="d-flex p-2">
-                        <div className="toast-body fw-bold text-dark" style={{ fontSize: "12px" }}>
-                            {toast.tipo === 'success' ? <i className="fas fa-check me-2"></i> : <i className="fas fa-exclamation-triangle text-danger me-2"></i>}
-                            {toast.mensaje}
-                        </div>
-                        <button type="button" className="btn-close me-2 m-auto" onClick={() => setToast({ ...toast, mostrar: false })}></button>
-                    </div>
-                </div>
+                </motion.div>
             </div>
-
         </div>
     );
 }

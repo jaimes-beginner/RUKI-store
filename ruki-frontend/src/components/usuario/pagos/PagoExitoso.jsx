@@ -11,11 +11,18 @@ export function PagoExitoso() {
     const orderId = searchParams.get("orderId"); 
 
     useEffect(() => {
-        // Vaciamos el carrito local porque la compra ya se hizo
+        
+        /*
+            Vaciamos el carrito local 
+            porque la compra ya se hizo
+        */
         clearCart();
     }, [clearCart]);
 
-    // Variantes de animación para framer-motion
+    /*
+        Variantes de animación 
+        para framer-motion
+    */
     const containerVariants = {
         hidden: { opacity: 0, scale: 0.95 },
         visible: { 
@@ -48,10 +55,14 @@ export function PagoExitoso() {
                 animate="visible"
             >
                 <motion.div className="success-icon-wrapper mx-auto mb-4" variants={checkmarkVariants}>
-                    <i className="fas fa-check"></i>
+
+                    {/* SVG NATIVO PARA EL CHECK DE EXITO */}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
                 </motion.div>
                 
-                <motion.h2 className="fw-bolder mb-3" variants={itemVariants}>
+                <motion.h2 className="fw-bolder text-dark mb-3" variants={itemVariants}>
                     ¡Pago Exitoso!
                 </motion.h2>
                 

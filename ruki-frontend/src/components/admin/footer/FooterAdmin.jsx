@@ -1,18 +1,21 @@
 // Importaciones
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import './FooterAdmin.css'; // <-- NUEVO ARCHIVO DE ESTILOS
+import './FooterAdmin.css'; 
 
-// Componente para la barra inferior del panel de administración
+/*
+  Componente para la barra inferior 
+  del panel de administrador
+*/
 export function FooterAdmin() {
-  const currentYear = new Date().getFullYear(); // Automatizamos el año (2026)
+  const currentYear = new Date().getFullYear();
 
   return (
     <footer className="admin-footer-glass pt-5 pb-4 mt-5">
       <div className="container-fluid px-4">
         <div className="row justify-content-between">
 
-          {/* Información de la tienda */}
+          {/* INFORMACIÓN DE LA TIENDA */}
           <div className="col-md-5 mb-4">
             <h5 className="admin-footer-title">
               <i className="fas fa-shield-alt me-2 text-danger"></i>
@@ -33,7 +36,7 @@ export function FooterAdmin() {
             </div>
           </div>
 
-          {/* Enlaces rapidos */}
+          {/* ENLACES RAPIDOS */}
           <div className="col-md-3 mb-4 ms-auto text-md-end">
             <h5 className="admin-footer-title">ENLACES RÁPIDOS</h5>
             <ul className="list-unstyled d-flex flex-column gap-2 mt-3">
@@ -55,7 +58,7 @@ export function FooterAdmin() {
 
         <div className="admin-footer-divider my-4"></div>
 
-        {/* Copyright */}
+        {/* COPYRIGHT */}
         <div className="row align-items-center">
           <div className="col-md-6 text-center text-md-start">
             <p className="admin-footer-bottom-text mb-0">

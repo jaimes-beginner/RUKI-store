@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
-import "./LoginUsuario.css"; // <-- NUEVO ARCHIVO DE ESTILOS
+import "./LoginUsuario.css"; 
 
 const REGEX_CORREO = /^[\w.-]+@(gmail\.com|ruki\.com|test\.com)$/i;
 const REGEX_CONTRASENA = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
@@ -82,6 +82,7 @@ export function LoginUsuario() {
 
     return (
         <div className="login-main-wrapper">
+
             {/* LUCES AMBIENTALES DE FONDO */}
             <div className="login-ambient-blob login-blob-1"></div>
             <div className="login-ambient-blob login-blob-2"></div>
@@ -95,7 +96,7 @@ export function LoginUsuario() {
                     transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
                 >
                     <div className="text-center mb-4">
-                        {/* Pequeño logo o icono flotante */}
+                        {/* ICONO/LOGO FLOTANTE */}
                         <div className="login-icon-glass mx-auto mb-3">
                             <i className="fas fa-user-lock"></i>
                         </div>

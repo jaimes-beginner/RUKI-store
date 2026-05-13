@@ -1,9 +1,13 @@
 import { useState, useEffect } from "react";
 import { obtenerCategoriasActivas, crearProducto, obtenerProductosActivos, eliminarProducto, actualizarProducto } from "../../../services/ProductoService";
 import { motion, AnimatePresence } from "framer-motion";
+import { supabase } from '../../../config/SupabaseConfig';
 import './InventarioAdmin.css';
 
-// --- VARIANTES DE ANIMACIÓN ---
+/*
+    Variantes para las animaciónes 
+    de inventario
+*/
 const containerVariants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
@@ -18,7 +22,6 @@ export function InventarioAdmin() {
     const [productos, setProductos] = useState([]);
     const [mensaje, setMensaje] = useState("");
     const [loading, setLoading] = useState(false);
-
     const [editingId, setEditingId] = useState(null);
 
     const [formulario, setFormulario] = useState({
@@ -49,11 +52,7 @@ export function InventarioAdmin() {
         setLoading(true);
         
         try {
-            const arrayImagenes = formulario.imageUrls
-                .split(",")
-                .map(img => img.trim())
-                .filter(img => img !== "");
-
+            const arrayImagenes = formulario.imageUrls.split(",").map(img => img.trim()).filter(img => img !== "");
             const payload = {};
             if (formulario.name.trim() !== "") payload.name = formulario.name;
             if (formulario.description.trim() !== "") payload.description = formulario.description;
@@ -67,30 +66,29 @@ export function InventarioAdmin() {
                 setMensaje(`¡Producto #${editingId} actualizado con éxito!`);
             } else {
                 await crearProducto(payload);
-                setMensaje("¡Producto creado con éxito!");
+                setMensaje("¡Producto creado exitosamente!");
             }
             
             cancelarEdicion();
             cargarDatos();
-            
         } catch (error) {
             setMensaje("Error: " + error.message);
         } finally {
             setLoading(false);
-            setTimeout(() => setMensaje(""), 3000);
+            setTimeout(() => setMensaje(""), 3500);
         }
     };
 
     const handleEliminar = async (id, nombreProducto) => {
-        if (!window.confirm(`¿Estás seguro de que deseas eliminar "${nombreProducto}"?`)) return;
+        if (!window.confirm(`¿Estás seguro de eliminar permanentemente "${nombreProducto}"?`)) return;
         try {
             await eliminarProducto(id);
-            setMensaje(`Producto #${id} eliminado correctamente.`);
+            setMensaje(`Producto #${id} eliminado del sistema.`);
             cargarDatos();
         } catch (error) {
             setMensaje("Error al eliminar: " + error.message);
         } finally {
-            setTimeout(() => setMensaje(""), 3000);
+            setTimeout(() => setMensaje(""), 3500);
         }
     };
 
@@ -107,33 +105,88 @@ export function InventarioAdmin() {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
+    const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    try {
+        setLoading(true);
+        
+        /*
+            Creamos un nombre único para la imagen 
+            para que no se sobrescriban
+        */
+        const fileName = `${Date.now()}-${file.name}`;
+        
+        /*
+            Subimos el archivo al bucket llamado 
+            'productos' que está en nuestro supabase
+        */
+        const { data, error } = await supabase.storage
+            .from('productos') 
+            .upload(fileName, file);
+
+        if (error) throw error;
+
+        /*
+            Obtnener la URL pública de la 
+            imagen recién subida
+        */
+        const { data: { publicUrl } } = supabase.storage
+            .from('productos')
+            .getPublicUrl(fileName);
+
+        /*
+            Actualizamos el formulario, añadiendo la nueva URL 
+            al campo imageUrls. Si ya hay URLs, las separamos por coma
+        */
+        setFormulario(prev => ({
+            ...prev,
+            imageUrls: prev.imageUrls ? `${prev.imageUrls}, ${publicUrl}` : publicUrl
+        }));
+
+        setMensaje("Imagen subida con éxito");
+    } catch (error) {
+        setMensaje("Error al subir imagen: " + error.message);
+    } finally {
+        setLoading(false);
+    }
+};
+
     const cancelarEdicion = () => {
         setEditingId(null);
         setFormulario({ name: "", description: "", basePrice: "", stock: "", categoryId: "", imageUrls: "" });
     };
 
     return (
-        <div className="admin-inventory-wrapper">
-            <div className="container px-4 px-md-5 py-4 position-relative" style={{ zIndex: 1 }}>
+        <div className="inventory-premium-wrapper">
+
+            {/* LUCES AMBIENTALES */}
+            <div className="inv-ambient-blob inv-blob-1"></div>
+            <div className="inv-ambient-blob inv-blob-2"></div>
+
+            <div className="container py-4 position-relative" style={{ zIndex: 1 }}>
                 
-                {/* ENCABEZADO */}
-                <motion.div 
-                    className="admin-dashboard-header"
-                    initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
+                <motion.header 
+                    className="inv-page-header-glass"
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
                 >
-                    <h1 className="admin-title">Gestión de Inventario</h1>
-                    <p className="admin-subtitle">Actualiza, crea y administra el <strong>catálogo de productos</strong>.</p>
-                </motion.div>
+                    <h1 className="inv-title">Inventario Maestro</h1>
+                    <p className="inv-subtitle">Gestiona tu catálogo de productos con la precisión de <strong>RUKI</strong>.</p>
+                </motion.header>
                 
-                {/* ALERTA (TOAST) */}
-                <div className="toast-container-admin">
+                <div className="inv-toast-container">
                     <AnimatePresence>
                         {mensaje && (
                             <motion.div 
-                                initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
-                                className={`admin-alert-glass ${mensaje.includes("Error") ? "error" : "success"} mb-4`}
+                                initial={{ opacity: 0, scale: 0.9, y: -20 }} 
+                                animate={{ opacity: 1, scale: 1, y: 0 }} 
+                                exit={{ opacity: 0, scale: 0.9, y: -20 }}
+                                className={`inv-toast-glass ${mensaje.includes("Error") ? "error" : "success"}`}
                             >
-                                <i className={`fas ${mensaje.includes("Error") ? "fa-exclamation-triangle" : "fa-check-circle"} me-2 fs-6`}></i> 
+                                <i className={`fas ${mensaje.includes("Error") ? "fa-exclamation-triangle" : "fa-check-circle"} me-2 fs-5`}></i>
                                 {mensaje}
                             </motion.div>
                         )}
@@ -142,54 +195,63 @@ export function InventarioAdmin() {
 
                 <motion.div className="row g-4" variants={containerVariants} initial="hidden" animate="visible">
                     
-                    {/* COLUMNA IZQUIERDA: FORMULARIO DINÁMICO */}
+                    {/* PANEL IZQUIERDO DEL FORMULARIO*/}
                     <motion.div className="col-lg-4" variants={cardVariants}>
-                        <div className="admin-card-glass h-100">
-                            <div className="admin-header-glass d-flex justify-content-between align-items-center">
+                        <div className="inv-card-glass">
+                            <div className="inv-card-header d-flex justify-content-between align-items-center">
                                 <div>
-                                    <i className={`fas ${editingId ? 'fa-pen text-primary' : 'fa-plus-circle text-success'} me-2`}></i> 
-                                    {editingId ? "Editar Producto" : "Nuevo Producto"}
+                                    <i className={`fas ${editingId ? 'fa-pen-nib text-primary' : 'fa-magic text-success'} me-2`}></i>
+                                    {editingId ? "Editando Producto" : "Crear Producto"}
                                 </div>
-                                {editingId && (
-                                    <span className="admin-badge badge-dark">ID: {editingId}</span>
-                                )}
+                                {editingId && <span className="inv-badge badge-dark">ID: {editingId}</span>}
                             </div>
-                            <div className="card-body p-4">
+                            
+                            <div className="p-4">
                                 <form onSubmit={handleSubmit}>
-                                    <div className="admin-input-group mb-3">
-                                        <label className="admin-label">Nombre</label>
-                                        <input type="text" name="name" className="admin-input-glass w-100" required 
-                                               value={formulario.name} onChange={handleChange} placeholder="Ej: Playera Básica" />
+                                    <div className="inv-input-group mb-3">
+                                        <label>Nombre del Producto</label>
+                                        <div className="inv-input-wrapper">
+                                            <i className="fas fa-tag input-icon"></i>
+                                            <input type="text" name="name" className="inv-input-glass w-100" required 
+                                                   value={formulario.name} onChange={handleChange} placeholder="Ej: Camiseta Performance" />
+                                        </div>
                                     </div>
                                     
-                                    <div className="admin-input-group mb-3">
-                                        <label className="admin-label">Descripción</label>
-                                        <textarea name="description" className="admin-input-glass w-100" rows="3" 
-                                                  value={formulario.description} onChange={handleChange} placeholder="Detalles técnicos y material..." />
+                                    <div className="inv-input-group mb-3">
+                                        <label>Descripción detallada</label>
+                                        <div className="inv-input-wrapper">
+                                            <i className="fas fa-align-left input-icon" style={{ top: "16px", transform: "none" }}></i>
+                                            <textarea name="description" className="inv-input-glass w-100" rows="3" 
+                                                      value={formulario.description} onChange={handleChange} placeholder="Materiales, uso..." />
+                                        </div>
                                     </div>
 
                                     <div className="row g-3 mb-3">
-                                        <div className="col-6 admin-input-group">
-                                            <label className="admin-label">Precio Base</label>
-                                            <div className="position-relative">
-                                                <span className="input-currency-symbol">$</span>
-                                                <input type="number" name="basePrice" className="admin-input-glass w-100 ps-4" required 
+                                        <div className="col-6 inv-input-group">
+                                            <label>Precio Base</label>
+                                            <div className="inv-input-wrapper">
+                                                <i className="fas fa-dollar-sign input-icon"></i>
+                                                <input type="number" name="basePrice" className="inv-input-glass w-100" required 
                                                        value={formulario.basePrice} onChange={handleChange} />
                                             </div>
                                         </div>
-                                        <div className="col-6 admin-input-group">
-                                            <label className="admin-label">Stock Actual</label>
-                                            <input type="number" name="stock" className="admin-input-glass w-100" required 
-                                                   value={formulario.stock} onChange={handleChange} min="0" />
+                                        <div className="col-6 inv-input-group">
+                                            <label>Stock</label>
+                                            <div className="inv-input-wrapper">
+                                                <i className="fas fa-cubes input-icon"></i>
+                                                <input type="number" name="stock" className="inv-input-glass w-100" required 
+                                                       value={formulario.stock} onChange={handleChange} min="0" />
+                                            </div>
                                         </div>
                                     </div>
 
-                                    <div className="admin-input-group mb-3">
-                                        <label className="admin-label">Categoría</label>
-                                        <div className="position-relative">
-                                            <select name="categoryId" className="admin-select-glass w-100" required 
+                                    <div className="inv-input-group mb-3">
+                                        <label>Clasificación</label>
+                                        <div className="inv-input-wrapper">
+                                            <i className="fas fa-layer-group input-icon z-2"></i>
+                                            <select name="categoryId" className="inv-input-glass inv-select-glass w-100" required 
                                                     value={formulario.categoryId} onChange={handleChange}>
-                                                <option value="" disabled>Selecciona una...</option>
+                                                <option value="" disabled>Selecciona categoría...</option>
                                                 {categorias.map(c => (
                                                     <option key={c.id} value={c.id}>{c.name}</option>
                                                 ))}
@@ -197,21 +259,41 @@ export function InventarioAdmin() {
                                         </div>
                                     </div>
 
-                                    <div className="admin-input-group mb-4">
-                                        <label className="admin-label">Imágenes (URLs)</label>
-                                        <textarea name="imageUrls" className="admin-input-glass w-100" rows="2" 
-                                                  placeholder="https://img1.jpg, https://img2.jpg" 
-                                                  value={formulario.imageUrls} onChange={handleChange} />
-                                        <div className="input-helper-text">Múltiples URLs separadas por coma.</div>
+                                    <div className="inv-input-group mb-4">
+                                        <label>Subir Imágenes de Producto</label>
+                                        <div className="inv-input-wrapper">
+
+                                            {/* INPUT DEL ARCHIVO REAL */}
+                                            <input 
+                                                type="file" 
+                                                accept="image/*" 
+                                                onChange={handleFileUpload}
+                                                className="inv-input-glass w-100"
+                                                style={{ paddingLeft: '16px' }} 
+                                            />
+                                        </div>
+                                        <span className="inv-helper-text mt-2">
+                                            Las URLs aparecerán abajo automáticamente.
+                                        </span>
+
+                                        {/* MANTENEMOS EL TEXTAREA PARA EDICIÓN MANUAL */}
+                                        <textarea 
+                                            name="imageUrls" 
+                                            className="inv-input-glass w-100 mt-2" 
+                                            rows="2" 
+                                            readOnly 
+                                            value={formulario.imageUrls} 
+                                            placeholder="URLs generadas..."
+                                        />
                                     </div>
 
-                                    <motion.button whileTap={{ scale: 0.95 }} type="submit" className="admin-btn-solid w-100" disabled={loading}>
-                                        {loading ? <><i className="fas fa-spinner fa-spin me-2"></i>PROCESANDO</> : (editingId ? "ACTUALIZAR PRODUCTO" : "CREAR PRODUCTO")}
+                                    <motion.button whileTap={{ scale: 0.95 }} type="submit" className="inv-btn-primary w-100" disabled={loading}>
+                                        {loading ? <><i className="fas fa-spinner fa-spin me-2"></i>Sincronizando...</> : (editingId ? "Guardar Cambios" : "Agregar al Catálogo")}
                                     </motion.button>
                                     
                                     {editingId && (
-                                        <motion.button whileTap={{ scale: 0.95 }} type="button" className="admin-btn-outline w-100 mt-2" onClick={cancelarEdicion} disabled={loading}>
-                                            CANCELAR EDICIÓN
+                                        <motion.button whileTap={{ scale: 0.95 }} type="button" className="inv-btn-secondary w-100 mt-2" onClick={cancelarEdicion} disabled={loading}>
+                                            Cancelar Edición
                                         </motion.button>
                                     )}
                                 </form>
@@ -219,88 +301,107 @@ export function InventarioAdmin() {
                         </div>
                     </motion.div>
 
-                    {/* COLUMNA DERECHA: TABLA DE PRODUCTOS */}
+                    {/* PANEL DERECHO, LA TABLA CON LOS DATOS */}
                     <motion.div className="col-lg-8" variants={cardVariants}>
-                        <div className="admin-card-glass h-100 d-flex flex-column">
-                            <div className="admin-header-glass d-flex justify-content-between align-items-center">
-                                <span>Catálogo Actual</span>
-                                <span className="admin-badge badge-neutral">
-                                    {productos.length} ÍTEMS
-                                </span>
+                        <div className="inv-card-glass h-100 d-flex flex-column">
+                            <div className="inv-card-header d-flex justify-content-between align-items-center">
+                                <div><i className="fas fa-database me-2 text-secondary"></i> Base de Datos de Productos</div>
+                                <span className="inv-badge badge-light-blue">{productos.length} REGISTROS</span>
                             </div>
-                            <div className="card-body p-0 flex-grow-1">
-                                <div className="admin-table-wrapper-large">
-                                    <table className="table table-borderless admin-table mb-0">
-                                        <thead>
-                                            <tr>
-                                                <th className="ps-4">Producto</th>
-                                                <th>Categoría</th>
-                                                <th>Precio</th>
-                                                <th>Stock</th>
-                                                <th className="text-end pe-4">Acciones</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
+                            
+                            <div className="inv-table-container flex-grow-1">
+                                <table className="inv-table">
+                                    <thead>
+                                        <tr>
+                                            <th className="ps-4">Producto</th>
+                                            <th>Categoría</th>
+                                            <th>Precio</th>
+                                            <th>Disponibilidad</th>
+                                            <th className="text-end pe-4">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <AnimatePresence>
                                             {productos.map(p => (
-                                                <tr key={p.id} className={`admin-table-row ${editingId === p.id ? 'is-editing' : ''}`}>
+                                                <motion.tr 
+                                                    key={p.id} 
+                                                    layout
+                                                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, backgroundColor: "#ff3b3020" }}
+                                                    className={editingId === p.id ? 'active-row' : ''}
+                                                >
                                                     <td className="ps-4">
-                                                        <div className="d-flex align-items-center">
+                                                        <div className="d-flex align-items-center gap-3">
                                                             {p.imageUrls && p.imageUrls.length > 0 ? (
-                                                                <img src={p.imageUrls[0]} alt={p.name} className="product-mini-thumb" />
+                                                                <img src={p.imageUrls[0]} alt="" className="inv-avatar" />
                                                             ) : (
-                                                                <div className="product-mini-placeholder">
-                                                                    {p.name.charAt(0).toUpperCase()}
-                                                                </div>
+                                                                <div className="inv-avatar-fallback"><i className="fas fa-camera-retro"></i></div>
                                                             )}
                                                             <div>
-                                                                <div className="product-table-name">{p.name}</div>
-                                                                <div className="product-table-id">ID: {p.id}</div>
+                                                                <div className="inv-item-name">{p.name}</div>
+                                                                <div className="inv-item-id">ID: {p.id}</div>
                                                             </div>
                                                         </div>
                                                     </td>
-                                                    <td className="product-table-category">
-                                                        {p.category?.name || "—"}
-                                                    </td>
-                                                    <td className="product-table-price">
-                                                        ${Number(p.basePrice).toLocaleString('es-CL')}
-                                                    </td>
+                                                    <td className="inv-text-muted">{p.category?.name || "Sin Asignar"}</td>
+                                                    <td className="inv-item-price">${Number(p.basePrice).toLocaleString('es-CL')}</td>
                                                     <td>
-                                                        {p.stock > 10 ? (
-                                                            <span className="admin-badge badge-ok">OK ({p.stock})</span>
-                                                        ) : p.stock > 0 ? (
-                                                            <span className="admin-badge badge-low">BAJO ({p.stock})</span>
-                                                        ) : (
-                                                            <span className="admin-badge badge-out parpadeo">AGOTADO</span>
-                                                        )}
+                                                        {p.stock > 10 ? <span className="inv-status-dot ok">Óptimo ({p.stock})</span> : 
+                                                         p.stock > 0 ? <span className="inv-status-dot warning">Bajo ({p.stock})</span> : 
+                                                         <span className="inv-status-dot error blink">Agotado</span>}
                                                     </td>
                                                     <td className="text-end pe-4">
                                                         <div className="d-flex justify-content-end gap-2">
-                                                            <button type="button" className="admin-icon-btn edit" title="Editar Producto" onClick={() => handleEditar(p)}>
-                                                                <i className="fas fa-pen"></i>
-                                                            </button>
-                                                            <button type="button" className="admin-icon-btn delete" title="Eliminar Producto" onClick={() => handleEliminar(p.id, p.name)}>
-                                                                <i className="fas fa-trash"></i>
-                                                            </button>
+                                                            
+                                                            {/* BOTÓN EDITAR CON SVG NATIVO */}
+                                                            <motion.button 
+                                                                whileHover={{ scale: 1.1 }} 
+                                                                whileTap={{ scale: 0.9 }} 
+                                                                className="inv-action-btn edit" 
+                                                                onClick={() => handleEditar(p)}
+                                                                title="Editar"
+                                                            >
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                                                    <path d="M12 20h9"></path>
+                                                                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                                                                </svg>
+                                                            </motion.button>
+                                                            
+                                                            {/* BOTÓN ELIMINAR CON SVG NATIVO */}
+                                                            <motion.button 
+                                                                whileHover={{ scale: 1.1 }} 
+                                                                whileTap={{ scale: 0.9 }} 
+                                                                className="inv-action-btn delete" 
+                                                                onClick={() => handleEliminar(p.id, p.name)}
+                                                                title="Eliminar"
+                                                            >
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                                                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                                                                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                                                                </svg>
+                                                            </motion.button>
                                                         </div>
                                                     </td>
-                                                </tr>
+                                                </motion.tr>
                                             ))}
-                                            {productos.length === 0 && (
-                                                <tr>
-                                                    <td colSpan="5" className="text-center py-5">
-                                                        <div className="empty-state-text">
-                                                            <i className="fas fa-box-open fs-2 mb-2 d-block text-muted"></i>
-                                                            No hay productos registrados en el inventario.
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            )}
-                                        </tbody>
-                                    </table>
-                                </div>
+                                        </AnimatePresence>
+                                        {productos.length === 0 && (
+                                            <tr>
+                                                <td colSpan="5" className="text-center py-5">
+                                                    <div className="inv-empty-state">
+                                                        <i className="fas fa-box-open mb-3"></i>
+                                                        <p>El inventario está vacío actualmente.</p>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </motion.div>
+
                 </motion.div>
             </div>
         </div>
