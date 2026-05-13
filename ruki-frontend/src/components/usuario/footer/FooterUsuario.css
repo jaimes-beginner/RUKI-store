@@ -1,4 +1,3 @@
-/* FUENTE Y CONTENEDOR */
 .ruki-footer-glass {
   width: 100%;
   margin-top: auto;
@@ -7,7 +6,6 @@
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-/* SECCIÓN TOP (FAQ y Mapa) */
 .ruki-footer-top-glass {
   background: rgba(28, 28, 30, 0.6);
   backdrop-filter: blur(20px);
@@ -35,7 +33,7 @@
   background: rgba(255, 255, 255, 0.1);
   width: 54px;
   height: 54px;
-  border-radius: 18px; /* Curva Squicle */
+  border-radius: 18px; 
   display: flex;
   align-items: center;
   justify-content: center;
@@ -46,7 +44,7 @@
 .ruki-top-icon {
   font-size: 26px;
   font-weight: 600;
-  color: #0a84ff; /* Azul neón de iOS Dark Mode */
+  color: #0a84ff; 
 }
 
 .ruki-top-label {
@@ -55,11 +53,10 @@
   letter-spacing: 0.5px;
 }
 
-/* SECCIÓN PRINCIPAL */
 .ruki-footer-main-glass {
   width: 100%;
   padding: 45px 34px;
-  background: #1c1c1e; /* Gris profundo iOS */
+  background: #1c1c1e; 
 }
 
 .ruki-footer-main-inner {
@@ -71,12 +68,11 @@
   margin: 0 auto;
 }
 
-/* TARJETA EXPLORA (Glassmorphism oscuro) */
 .ruki-footer-card-glass {
   background: linear-gradient(145deg, rgba(44, 44, 46, 0.9), rgba(28, 28, 30, 0.9));
   color: #ffffff;
   padding: 24px 28px;
-  border-radius: 24px; /* Bordes generosos */
+  border-radius: 24px; 
   min-width: 340px;
   display: flex;
   align-items: center;
@@ -104,10 +100,9 @@
   margin: 6px 0 0;
   font-size: 14px;
   font-weight: 500;
-  color: #a1a1a6; /* Gris secundario */
+  color: #a1a1a6; 
 }
 
-/* ENLACES */
 .ruki-footer-links {
   display: flex;
   align-items: stretch;
@@ -144,7 +139,7 @@
 }
 
 .ruki-footer-column a:hover {
-  color: #0a84ff; /* Brilla en azul al pasar el mouse */
+  color: #0a84ff; 
 }
 
 .ruki-footer-column:first-of-type {
@@ -155,7 +150,6 @@
   text-align: right;
 }
 
-/* SECCIÓN INFERIOR */
 .ruki-footer-bottom-glass {
   background: #000000;
   color: #86868b;
@@ -170,7 +164,6 @@
   letter-spacing: 0.5px;
 }
 
-/* RESPONSIVE (Móviles) */
 @media (max-width: 1024px) {
   .ruki-footer-main-inner {
     flex-direction: column;

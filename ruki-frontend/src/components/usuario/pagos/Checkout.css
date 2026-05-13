@@ -4,7 +4,6 @@
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-/* Badges y Alertas */
 .secure-badge {
     background-color: #f5f5f7;
     color: #1d1d1f;
@@ -21,7 +20,6 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-/* Tarjetas Principales */
 .checkout-card {
     background-color: #ffffff;
     border: 1px solid #e5e5ea;
@@ -43,7 +41,6 @@
     font-size: 14px;
 }
 
-/* Datos de Contacto */
 .contact-info-box {
     background-color: #fbfbfd;
     border: 1px solid #e5e5ea;
@@ -51,7 +48,6 @@
     border-radius: 12px;
 }
 
-/* Grid de Direcciones (Reemplaza el select) */
 .address-grid {
     display: flex;
     flex-direction: column;
@@ -100,14 +96,12 @@
     border-radius: 50%;
 }
 
-/* Resumen del Pedido */
 .summary-items-container {
     max-height: 40vh;
     overflow-y: auto;
     padding-right: 8px;
 }
 
-/* Personalizar Scrollbar para el resumen */
 .summary-items-container::-webkit-scrollbar {
     width: 6px;
 }
@@ -153,7 +147,6 @@
     backdrop-filter: blur(4px);
 }
 
-/* Botones */
 .checkout-btn-dark {
     background-color: #1d1d1f;
     color: #ffffff;
@@ -180,7 +173,6 @@
     cursor: not-allowed;
 }
 
-/* Estado Vacío */
 .checkout-empty {
     min-height: 50vh;
     display: flex;

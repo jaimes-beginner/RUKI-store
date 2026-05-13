@@ -1,18 +1,13 @@
-/* =========================================
-   BASE Y LAYOUT
-========================================= */
 .ios-home-main {
   position: relative;
   width: 100%;
-  background: #f5f5f7; /* Fondo Apple gris claro */
+  background: #f5f5f7; 
   padding: 32px 0 80px;
   box-sizing: border-box;
-  /* Fuente nativa de iOS y Mac */
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   overflow: hidden;
 }
 
-/* LUCES AMBIENTALES ESTILO SIRI/IOS */
 .ios-ambient-blob {
   position: absolute;
   border-radius: 50%;
@@ -24,14 +19,14 @@
 .blob-1 {
   width: 400px;
   height: 400px;
-  background: rgba(10, 132, 255, 0.3); /* Azul iOS */
+  background: rgba(10, 132, 255, 0.3); 
   top: -100px;
   left: -100px;
 }
 .blob-2 {
   width: 300px;
   height: 300px;
-  background: rgba(255, 55, 95, 0.2); /* Rojo RUKI */
+  background: rgba(255, 55, 95, 0.2); 
   right: -50px;
   top: 30%;
 }
@@ -46,9 +41,6 @@
   box-sizing: border-box;
 }
 
-/* =========================================
-   HERO BANNER
-========================================= */
 .ios-hero-banner {
   position: relative;
   overflow: hidden;
@@ -85,7 +77,6 @@
   gap: 16px;
 }
 
-/* BADGE FLOTANTE DE CRISTAL */
 .ios-hero-badge-glass {
   background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(12px);
@@ -105,7 +96,7 @@
   font-size: clamp(40px, 6vw, 72px);
   font-weight: 800;
   line-height: 1.05;
-  letter-spacing: -0.05em; /* Typografía compacta Apple */
+  letter-spacing: -0.05em; 
 }
 
 .text-gradient {
@@ -121,9 +112,6 @@
   font-weight: 500;
 }
 
-/* =========================================
-   GRILLA DE CATEGORÍAS
-========================================= */
 .ios-category-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -162,7 +150,6 @@
   mix-blend-mode: overlay; /* Hace que el blanco reaccione a los colores de la imagen de fondo */
 }
 
-/* ETIQUETA GLASSMORPHISM INFERIOR */
 .ios-category-label-glass {
   position: absolute;
   bottom: 16px;
@@ -184,9 +171,6 @@
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
-/* =========================================
-   SECCIÓN PRODUCTOS Y CARRUSEL
-========================================= */
 .ios-products-section {
   margin-top: 32px;
 }
@@ -248,7 +232,6 @@
   box-sizing: border-box;
 }
 
-/* LA TARJETA DEL PRODUCTO PREMIUM */
 .ios-product-card {
   background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(20px);
@@ -285,7 +268,6 @@
   transform: scale(1.05);
 }
 
-/* Botón flotante rápido (+) */
 .ios-quick-add-btn {
   position: absolute;
   bottom: 12px;
@@ -327,12 +309,11 @@
 
 .ios-product-price {
   margin: 0;
-  color: #0071e3; /* Azul iOS precio */
+  color: #0071e3; 
   font-size: 15px;
   font-weight: 700;
 }
 
-/* Botones del Carrusel */
 .ios-carousel-btn {
   position: absolute;
   z-index: 10;
@@ -357,7 +338,6 @@
 .ios-carousel-btn.left { left: -16px; }
 .ios-carousel-btn.right { right: -16px; }
 
-/* DOTS */
 .ios-carousel-dots {
   margin-top: 32px;
   display: flex;
@@ -380,9 +360,6 @@
   background: #1d1d1f;
 }
 
-/* =========================================
-   MEDIA QUERIES
-========================================= */
 @media (max-width: 980px) {
   .ios-category-grid { grid-template-columns: repeat(2, 1fr); }
   .ios-product-slide { flex-basis: calc(100% / 2); }
