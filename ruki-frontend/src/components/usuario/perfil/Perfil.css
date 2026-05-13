@@ -1,8 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-/* =========================================
-   BASE Y AMBIENTE
-========================================= */
 .profile-main-wrapper {
     position: relative;
     font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
@@ -11,7 +8,6 @@
     overflow: hidden;
 }
 
-/* Luces Ambientales iOS */
 .profile-ambient-blob {
     position: absolute;
     border-radius: 50%;
@@ -23,28 +19,25 @@
 .profile-blob-1 {
     width: 500px;
     height: 500px;
-    background: rgba(10, 132, 255, 0.25); /* Azul iOS */
+    background: rgba(10, 132, 255, 0.25); 
     top: -100px;
     left: -150px;
 }
 .profile-blob-2 {
     width: 400px;
     height: 400px;
-    background: rgba(52, 199, 89, 0.2); /* Verde iOS */
+    background: rgba(52, 199, 89, 0.2); 
     bottom: -50px;
     right: -100px;
 }
 
-/* =========================================
-   CABECERA
-========================================= */
 .profile-page-header-glass {
     margin-bottom: 24px;
     padding: 24px;
     background: rgba(255, 255, 255, 0.5);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(0, 0, 0, 0.092);
+    border: 1px solid rgba(0, 0, 0, 0.158);
     border-radius: 24px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
 }
@@ -64,9 +57,6 @@
     margin: 0;
 }
 
-/* =========================================
-   TARJETAS GLASSMORPHISM E INNER HAIRLINE
-========================================= */
 .profile-card-glass {
     position: relative;
     background: rgba(255, 255, 255, 0.65);
@@ -74,11 +64,10 @@
     -webkit-backdrop-filter: blur(24px);
     border-radius: 24px;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
-    border: 1px solid rgba(0, 0, 0, 0.092);
+    border: 1px solid rgba(0, 0, 0, 0.158);
     overflow: hidden;
 }
 
-/* Truco de borde interior brillante */
 .profile-card-glass::after {
     content: '';
     position: absolute;
@@ -98,9 +87,6 @@
     background: rgba(255, 255, 255, 0.3);
 }
 
-/* =========================================
-   FORMULARIOS Y TEXTOS
-========================================= */
 .ios-label {
     font-size: 11px;
     font-weight: 700;
@@ -116,7 +102,7 @@
 .ios-input-glass {
     font-family: inherit;
     font-size: 14px;
-    background: rgba(255, 255, 255, 0.5); /* Semi-transparente */
+    background: rgba(255, 255, 255, 0.5); 
     border: 1px solid rgba(0, 0, 0, 0.08);
     border-radius: 12px;
     color: #1d1d1f;
@@ -146,9 +132,6 @@
     font-weight: 600;
 }
 
-/* =========================================
-   BOTONES
-========================================= */
 .ios-btn {
     font-family: inherit;
     font-size: 13px;
@@ -198,9 +181,6 @@
     background: rgba(10, 132, 255, 0.2);
 }
 
-/* =========================================
-   LISTADO DE DIRECCIONES
-========================================= */
 .ios-badge-glass-subtle {
     background: rgba(0, 0, 0, 0.05);
     color: #1d1d1f;
@@ -272,10 +252,6 @@
     border-radius: 8px;
 }
 
-/* =========================================
-   MODAL BOOTSTRAP CUSTOMIZADO (GLASS)
-========================================= */
-/* Reemplazamos el modal blanco plano de Bootstrap */
 .profile-modal-glass {
     background: rgba(250, 250, 252, 0.85) !important;
     backdrop-filter: blur(40px) !important;
@@ -309,9 +285,6 @@
     background: rgba(0,0,0,0.1);
 }
 
-/* =========================================
-   TOAST NOTIFICACIÓN
-========================================= */
 .profile-ios-toast-glass {
     background: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(20px);

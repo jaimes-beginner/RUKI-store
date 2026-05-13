@@ -1,8 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-/* =========================================
-   CONTENEDOR Y AMBIENTE
-========================================= */
 .login-main-wrapper {
     position: relative;
     width: 100%;
@@ -15,7 +12,6 @@
     padding: 40px 15px;
 }
 
-/* Luces Ambientales Fijas (Cero bugs de blur) */
 .login-ambient-blob {
     position: fixed;
     border-radius: 50%;
@@ -29,21 +25,18 @@
 .login-blob-1 {
     width: 500px;
     height: 500px;
-    background: rgba(10, 132, 255, 0.3); /* Azul iOS */
+    background: rgba(10, 132, 255, 0.3); 
     top: -100px;
     left: -150px;
 }
 .login-blob-2 {
     width: 400px;
     height: 400px;
-    background: rgba(94, 92, 230, 0.2); /* Índigo iOS */
+    background: rgba(94, 92, 230, 0.2); 
     bottom: -100px;
     right: -100px;
 }
 
-/* =========================================
-   TARJETA DE LOGIN GLASSMORPHISM
-========================================= */
 .ios-login-card-glass {
     position: relative;
     background: rgba(255, 255, 255, 0.7);
@@ -55,7 +48,6 @@
     border: none;
 }
 
-/* Inner Hairline */
 .ios-login-card-glass::after {
     content: '';
     position: absolute;
@@ -65,7 +57,6 @@
     pointer-events: none;
 }
 
-/* Ícono Flotante */
 .login-icon-glass {
     width: 64px;
     height: 64px;
@@ -95,9 +86,6 @@
     margin: 0;
 }
 
-/* =========================================
-   ALERTAS Y MENSAJES
-========================================= */
 .ios-alert-glass {
     display: flex;
     align-items: center;
@@ -119,9 +107,6 @@
     color: #28a745;
 }
 
-/* =========================================
-   FORMULARIOS E INPUTS
-========================================= */
 .ios-input-group label {
     font-size: 11px;
     font-weight: 800;
@@ -169,10 +154,9 @@
 
 .ios-input-field:focus + .input-icon,
 .ios-input-wrapper:focus-within .input-icon {
-    color: #0a84ff; /* El ícono se pinta de azul al escribir */
+    color: #0a84ff; 
 }
 
-/* Estados de Validación (Verde y Rojo) */
 .ios-input-field.is-invalid {
     border-color: #ff3b30 !important;
     background: rgba(255, 59, 48, 0.05) !important;
@@ -197,9 +181,6 @@
     padding-left: 4px;
 }
 
-/* =========================================
-   BOTONES Y ENLACES
-========================================= */
 .ios-btn-login {
     background: #1d1d1f;
     color: white;
@@ -238,7 +219,6 @@
     background: rgba(0, 0, 0, 0.05);
 }
 
-/* Pie de la tarjeta */
 .login-footer {
     margin-top: 32px;
     padding-top: 24px;
@@ -263,7 +243,6 @@
     opacity: 0.7;
 }
 
-/* Responsivo */
 @media (max-width: 480px) {
     .ios-login-card-glass {
         padding: 32px 24px;

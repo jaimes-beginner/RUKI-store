@@ -1,8 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-/* =========================================
-   BASE Y AMBIENTE
-========================================= */
 .orders-main-glass-wrapper {
     position: relative;
     min-height: 100vh;
@@ -28,20 +25,18 @@
 .orders-container-glass {
     position: relative;
     z-index: 0;
-    max-width: 800px; /* Un poco más ancho para acomodar el buscador */
+    max-width: 800px; 
     margin: 0 auto;
 }
 
-/* =========================================
-   CABECERA
-========================================= */
+
 .orders-page-header-glass {
     margin-bottom: 24px;
     padding: 24px;
     background: rgba(255, 255, 255, 0.5);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(0, 0, 0, 0.092);
+    border: 1px solid rgba(0, 0, 0, 0.158);
     border-radius: 24px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
 }
@@ -61,9 +56,6 @@
     margin: 0;
 }
 
-/* =========================================
-   PANEL DE FILTROS FRONTEND
-========================================= */
 .orders-filters-glass {
     display: flex;
     flex-wrap: wrap;
@@ -79,7 +71,6 @@
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
 }
 
-/* Buscador */
 .orders-search-wrapper {
     position: relative;
     flex-grow: 1;
@@ -116,7 +107,6 @@
     box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.15);
 }
 
-/* Píldoras */
 .orders-filter-pills {
     display: flex;
     gap: 8px;
@@ -149,9 +139,6 @@
     box-shadow: 0 4px 10px rgba(0,0,0,0.15);
 }
 
-/* =========================================
-   ESTADO VACÍO
-========================================= */
 .orders-empty-state-glass {
     text-align: center;
     padding: 60px 20px;
@@ -178,9 +165,6 @@
     color: #d2d2d7;
 }
 
-/* =========================================
-   TARJETAS DE PEDIDO EXPANDIBLES (ACORDEÓN)
-========================================= */
 .orders-list-glass {
     display: flex;
     flex-direction: column;
@@ -198,8 +182,6 @@
     border: 1px solid rgba(0, 0, 0, 0.092);
 }
 
-
-/* Encabezado (Click para expandir) */
 .order-header-glass {
     padding: 16px 20px;
     display: flex;
@@ -229,7 +211,6 @@
 .order-id-label { display: block; font-size: 11px; font-weight: 800; color: #86868b; letter-spacing: 0.05em; margin-bottom: 2px; }
 .order-total-price { font-size: 1.2rem; font-weight: 800; color: #1d1d1f; margin: 0; letter-spacing: -0.02em; }
 
-/* Cuerpo Expandible */
 .order-body-expandable {
     overflow: hidden;
 }
@@ -243,7 +224,6 @@
 
 .order-section-title { font-size: 11px; font-weight: 800; color: #86868b; letter-spacing: 0.06em; margin-bottom: 12px; }
 
-/* Lista de Productos Interna */
 .order-items-list-glass {
     background: rgba(255, 255, 255, 0.5);
     border: 1px solid rgba(0, 0, 0, 0.05);
@@ -265,7 +245,6 @@
 .item-price { font-size: 14px; font-weight: 800; color: #1d1d1f; }
 .item-price small { color: #86868b; font-weight: 600; font-size: 11px; }
 
-/* Botón de Cancelar Cristalino */
 .order-actions-glass { display: flex; justify-content: flex-end; }
 .btn-cancel-glass {
     background: rgba(255, 59, 48, 0.1);
@@ -280,7 +259,6 @@
 }
 .btn-cancel-glass:hover { background: #ff3b30; color: #ffffff; box-shadow: 0 4px 12px rgba(255, 59, 48, 0.3); }
 
-/* Etiquetas de Estado Base */
 .order-status-badge { font-size: 10px; font-weight: 800; letter-spacing: 0.06em; padding: 6px 12px; border-radius: 12px; text-transform: uppercase; }
 .badge-paid { background: rgba(52, 199, 89, 0.15); color: #34c759; }
 .badge-pending { background: rgba(255, 149, 0, 0.15); color: #ff9500; }
@@ -292,11 +270,9 @@
 .text-shipped { color: #0a84ff; }
 .text-cancelled { color: #ff3b30; }
 
-/* Pantallas de Carga */
 .orders-loading-screen, .orders-auth-warning { text-align: center; margin-top: 5rem; color: #1d1d1f; font-weight: 700; }
 .orders-alert-error-glass { background: rgba(255, 59, 48, 0.1); border: 1px solid rgba(255, 59, 48, 0.2); color: #ff3b30; border-radius: 16px; padding: 16px; font-weight: 600; font-size: 14px; margin-bottom: 24px; backdrop-filter: blur(10px); }
 
-/* Responsive */
 @media (max-width: 768px) {
     .orders-filters-glass { flex-direction: column; align-items: stretch; }
     .orders-search-wrapper { width: 100%; }

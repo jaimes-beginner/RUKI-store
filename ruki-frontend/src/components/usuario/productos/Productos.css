@@ -1,351 +1,307 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
-/* =========================================
-   BASE Y AMBIENTE
-========================================= */
-.ios-products-page {
-    font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
-    background-color: #f5f5f7;
+.productos-wrapper {
+    background-color: #fcfcfd; 
     min-height: 100vh;
-    overflow: hidden; /* Para las luces */
-}
-
-.ios-ambient-blob {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(100px);
-    z-index: 0;
-    opacity: 0.35;
-    pointer-events: none;
-}
-.catalog-blob-1 {
-    width: 400px;
-    height: 400px;
-    background: rgba(10, 132, 255, 0.4); /* Azul Apple */
-    top: 5%;
-    left: -100px;
-}
-.catalog-blob-2 {
-    width: 500px;
-    height: 500px;
-    background: rgba(255, 45, 85, 0.2); /* Rosa Apple */
-    bottom: 10%;
-    right: -150px;
-}
-
-/* =========================================
-   TEXTOS Y CABECERAS
-========================================= */
-.ios-loading h3, .ios-error h3 {
-    font-weight: 700;
-    letter-spacing: -0.02em;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     color: #1d1d1f;
-    margin-top: 16px;
 }
 
-.ios-page-header-glass {
-    margin-bottom: 24px;
-    padding: 24px;
-    background: rgba(255, 255, 255, 0.5);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(0, 0, 0, 0.092);
-    border-radius: 24px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
+.productos-wrapper .prod-hero-section {
+    width: 100%;
+    padding: 60px 20px;
+    background: linear-gradient(180deg, #f5f5f7 0%, #fcfcfd 100%);
+    text-align: center;
+    margin-bottom: 40px;
+    border-bottom: 1px solid rgba(0,0,0,0.03);
 }
 
-.ios-page-header-glass h2 {
-    font-weight: 800;
-    color: #1d1d1f;
+.productos-wrapper .prod-hero-title {
+    font-size: clamp(32px, 5vw, 48px);
+    font-weight: 900;
     letter-spacing: -0.04em;
-    font-size: clamp(28px, 4vw, 36px);
-    margin: 0 0 4px 0;
-}
-
-.ios-page-header-glass p {
-    color: #86868b;
-    font-weight: 500;
-    font-size: 16px;
-    margin: 0;
-}
-
-/* =========================================
-   PANEL DE FILTROS (GLASSMORPHISM)
-========================================= */
-.ios-filter-panel-glass {
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid rgba(0, 0, 0, 0.092);
-    border-radius: 24px;
-    padding: 24px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
-    position: sticky;
-    top: 100px; /* Para que quede pegado al hacer scroll */
-}
-
-.ios-filter-title {
-    font-size: 13px;
-    font-weight: 800;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: #86868b;
-    margin-bottom: 20px;
-}
-
-.ios-filter-subtitle {
-    font-size: 15px;
-    font-weight: 700;
     color: #1d1d1f;
     margin-bottom: 12px;
-    letter-spacing: -0.01em;
 }
 
-/* =========================================
-   BOTONES
-========================================= */
-.ios-btn {
-    font-family: inherit;
+.productos-wrapper .prod-hero-subtitle {
+    font-size: clamp(14px, 2vw, 16px);
+    color: #86868b;
+    font-weight: 500;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.productos-wrapper .prod-filter-sidebar {
+    position: sticky;
+    top: 100px; 
+}
+
+.productos-wrapper .prod-filter-header {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e5e5ea;
+}
+
+.productos-wrapper .prod-filter-title {
     font-size: 13px;
     font-weight: 700;
-    border-radius: 12px;
-    padding: 10px 16px;
-    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-    letter-spacing: 0.02em;
-    cursor: pointer;
-    border: none;
+    text-transform: uppercase;
+    color: #86868b;
+    letter-spacing: 0.05em;
+    margin-bottom: 12px;
 }
 
-.ios-btn-dark {
-    background: #1d1d1f;
-    color: #ffffff;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+.productos-wrapper .prod-size-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
-.ios-btn-dark:hover {
-    background: #000000;
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-}
-
-.ios-btn-outline {
-    background: rgba(255, 255, 255, 0.8);
-    color: #1d1d1f;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.ios-btn-outline:hover {
+.productos-wrapper .prod-size-btn {
+    border: 1px solid #d2d2d7;
     background: #ffffff;
+    color: #1d1d1f;
+    min-width: 44px;
+    height: 44px;
+    border-radius: 12px; 
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.productos-wrapper .prod-size-btn:hover,
+.productos-wrapper .prod-size-btn:focus {
+    border-color: #1d1d1f;
+    box-shadow: 0 0 0 1px #1d1d1f;
+}
+
+.productos-wrapper .prod-filter-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.productos-wrapper .prod-filter-list button {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 14px;
+    color: #86868b;
+    font-weight: 500;
+    cursor: pointer;
+    transition: color 0.2s;
+    text-align: left;
+}
+
+.productos-wrapper .prod-filter-list button:hover {
+    color: #1d1d1f;
+}
+
+.productos-wrapper .prod-filter-list button.active {
+    color: #1d1d1f;
+    font-weight: 700;
+}
+
+.productos-wrapper .prod-sort-select {
+    padding: 8px 32px 8px 16px;
+    border-radius: 20px;
+    border: 1px solid #d2d2d7;
+    background-color: #ffffff;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1d1d1f;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2386868b'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    outline: none;
+}
+
+.productos-wrapper .prod-sort-select:focus {
     border-color: #1d1d1f;
 }
 
-.ios-btn-ghost {
-    background: transparent;
-    border: none;
-    text-align: left;
-    padding: 8px 12px;
-    border-radius: 8px;
-    color: #86868b;
-    font-weight: 600;
-    font-size: 14px;
-    transition: all 0.2s;
-}
-
-.ios-btn-ghost:hover, .ios-btn-ghost.active {
-    background: rgba(0, 0, 0, 0.05);
-    color: #1d1d1f;
-}
-
-.ios-btn-disabled {
-    background: rgba(0, 0, 0, 0.05);
-    color: #a1a1a6;
-    cursor: not-allowed;
-}
-
-/* =========================================
-   GRILLA Y TARJETAS DE PRODUCTO (GLASS)
-========================================= */
-.ios-product-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 24px;
-}
-
-.ios-card-glass {
-    background: rgba(255, 255, 255, 0.65);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(0, 0, 0, 0.092);
-    border-radius: 24px;
-    padding: 12px;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
-    position: relative;
-    cursor: pointer;
-}
-
-/* EL TRUCO DEL INNER HAIRLINE PARA LA TARJETA */
-.ios-card-glass::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: 24px;
-    border: 1px solid rgba(255, 255, 255, 0.8);
-    pointer-events: none;
-}
-
-.ios-card-img-wrap {
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    border-radius: 16px;
+.productos-wrapper .prod-card {
+    background: #ffffff;
+    border-radius: 20px;
     overflow: hidden;
-    background: linear-gradient(to bottom right, #f5f5f7, #e5e5ea);
-    position: relative;
-    margin-bottom: 16px;
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    height: 100%;
+    border: 1px solid rgba(0, 0, 0, 0.116);
 }
 
-.ios-card-img-wrap img {
+.productos-wrapper .prod-card:hover {
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
+    transform: translateY(-4px);
+}
+
+.productos-wrapper .prod-image-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    background-color: #f5f5f7;
+    overflow: hidden;
+}
+
+.productos-wrapper .prod-main-img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
-.ios-card-glass:hover .ios-card-img-wrap img {
-    transform: scale(1.05);
+/* Etiquetas (Badges) */
+.productos-wrapper .prod-badge-container {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 2;
 }
 
-.ios-card-content {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-    padding: 0 8px 8px;
-}
-
-.ios-card-title {
-    font-size: 15px;
+.productos-wrapper .prod-card-badge {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    font-size: 10px;
     font-weight: 800;
+    padding: 6px 10px;
+    border-radius: 8px;
+    letter-spacing: 0.05em;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.productos-wrapper .prod-card-badge.warning { color: #ff9500; }
+.productos-wrapper .prod-card-badge.error { color: #ff3b30; }
+
+.productos-wrapper .prod-card-info {
+    padding: 16px;
+}
+
+.productos-wrapper .prod-product-title {
+    font-size: 15px;
+    font-weight: 700;
     color: #1d1d1f;
-    margin: 0 0 6px 0;
-    letter-spacing: -0.02em;
+    margin: 0 0 4px;
     line-height: 1.2;
 }
 
-.ios-card-desc {
+.productos-wrapper .prod-product-desc {
     display: -webkit-box;
     -webkit-line-clamp: 2; 
     -webkit-box-orient: vertical;
     overflow: hidden;
-    font-size: 13px;
+    font-size: 12px;
     color: #86868b;
     line-height: 1.4;
     margin-bottom: 12px;
-    min-height: 36px;
+    min-height: 34px;
 }
 
-.ios-card-price {
-    font-size: 17px;
+.productos-wrapper .prod-product-price {
+    font-size: 16px;
     font-weight: 800;
-    color: #0a84ff; /* Azul Apple */
-    margin-bottom: 14px;
+    color: #1d1d1f;
+    margin: 0;
 }
 
-/* =========================================
-   MINIATURAS (THUMBNAILS)
-========================================= */
-.ios-card-thumbs {
+.productos-wrapper .prod-thumbs {
     display: flex;
-    gap: 8px;
-    margin-bottom: 14px;
+    gap: 6px;
+    margin-bottom: 12px;
 }
 
-.ios-thumb-btn {
+.productos-wrapper .prod-thumb-btn {
     width: 36px;
     height: 36px;
-    border: 2px solid transparent;
-    border-radius: 10px;
-    padding: 0;
-    background: transparent;
-    transition: all 0.2s;
+    border: 1px solid #e5e5ea;
+    background: #ffffff;
+    padding: 2px;
+    border-radius: 8px;
     cursor: pointer;
-    overflow: hidden;
+    transition: all 0.2s ease;
 }
 
-.ios-thumb-btn img {
+.productos-wrapper .prod-thumb-btn img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    border-radius: 6px;
+    border-radius: 4px;
 }
 
-.ios-thumb-btn.is-active {
-    border-color: #0a84ff;
-    transform: scale(1.05);
-    box-shadow: 0 2px 8px rgba(10, 132, 255, 0.3);
+.productos-wrapper .prod-thumb-btn:hover {
+    border-color: #a1a1a6;
 }
 
-/* =========================================
-   BADGES Y TOAST
-========================================= */
-.ios-badge-container {
-    position: absolute;
-    top: 12px;
-    left: 12px;
-    z-index: 10;
+.productos-wrapper .prod-thumb-btn.is-active {
+    border-color: #1d1d1f;
+    box-shadow: 0 0 0 1px #1d1d1f;
 }
 
-.ios-badge {
-    font-size: 10px;
-    font-weight: 800;
-    padding: 6px 12px;
-    border-radius: 100px;
-    letter-spacing: 0.05em;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+.productos-wrapper .prod-btn-primary {
+    width: 100%;
+    background: #1d1d1f;
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    padding: 12px;
+    font-weight: 700;
+    font-size: 12px;
+    transition: all 0.2s;
 }
 
-.ios-badge-sale { background: rgba(255, 59, 48, 0.9); color: #ffffff; }
-.ios-badge-soldout { background: rgba(29, 29, 31, 0.9); color: #ffffff; }
+.productos-wrapper .prod-btn-primary:hover:not(.disabled) {
+    background: #000000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
 
-.ios-empty-state {
+.productos-wrapper .prod-btn-primary.disabled {
+    background: #f5f5f7;
+    color: #a1a1a6;
+    cursor: not-allowed;
+}
+
+.productos-wrapper .prod-empty-state {
     text-align: center;
-    padding: 80px 20px;
-    background: rgba(255, 255, 255, 0.5);
-    backdrop-filter: blur(10px);
-    border-radius: 24px;
-    border: 1px dashed rgba(0, 0, 0, 0.2);
+    padding: 60px 20px;
+    background: #ffffff;
+    border-radius: 20px;
+    border: 1px dashed #d2d2d7;
     color: #86868b;
     font-weight: 600;
 }
 
-.ios-toast {
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.8);
-    border-radius: 20px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
-    padding: 12px 20px;
-    transform: translateY(100px);
-    opacity: 0;
-    transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+.productos-wrapper .prod-toast-container { 
+    position: fixed; 
+    bottom: 24px; 
+    right: 24px; 
+    z-index: 1100; 
 }
 
-.ios-toast.show { transform: translateY(0); opacity: 1; }
-.ios-toast-body { display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 14px; color: #1d1d1f; }
-.ios-toast-icon { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; color: white; }
-.ios-toast-icon.success { background: #34c759; }
-.ios-toast-icon.error { background: #ff3b30; }
+.productos-wrapper .prod-toast {
+    padding: 14px 24px; 
+    border-radius: 100px; 
+    font-size: 14px; 
+    font-weight: 700; 
+    display: flex; 
+    align-items: center; 
+    background: #1d1d1f; 
+    color: #ffffff;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2); 
+}
 
-/* =========================================
-   RESPONSIVO
-========================================= */
-@media (max-width: 768px) {
-    .ios-product-grid { grid-template-columns: repeat(2, minmax(150px, 1fr)); gap: 16px; }
-    .ios-card-glass { padding: 8px; border-radius: 20px; }
-    .ios-card-title { font-size: 14px; }
-    .ios-card-desc { display: none; }
-    .ios-btn { padding: 10px; font-size: 12px; }
-    .ios-filter-panel-glass { position: static; margin-bottom: 24px; }
+.productos-wrapper .prod-toast.success { border-bottom: 3px solid #34c759; }
+.productos-wrapper .prod-toast.error { border-bottom: 3px solid #ff3b30; }
+
+@media (max-width: 991px) {
+    .productos-wrapper .prod-hero-section { padding: 40px 16px; }
+    .productos-wrapper .prod-toast-container { right: 16px; left: 16px; display: flex; justify-content: center; bottom: 16px;}
 }

@@ -1,29 +1,28 @@
 .success-page-wrapper {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    min-height: calc(100vh - 120px); /* Ajusta según el tamaño de tu header */
+    min-height: calc(100vh - 120px); 
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 20px;
-    background-color: #fbfbfd; /* Fondo un poco más claro para que resalte la tarjeta */
+    background-color: #fbfbfd; 
 }
 
 .success-card {
     background-color: #ffffff;
-    border: 1px solid #e5e5ea;
+    border: 1px solid #00000028;
     border-radius: 24px;
     padding: 40px 20px;
     max-width: 480px;
     width: 100%;
     text-align: center;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.02);
 }
 
-/* El círculo verde con la palomita */
 .success-icon-wrapper {
     width: 80px;
     height: 80px;
-    background-color: #34c759; /* Verde estilo iOS */
+    background-color: #34c759;
     color: white;
     border-radius: 50%;
     display: flex;
@@ -33,7 +32,6 @@
     box-shadow: 0 8px 24px rgba(52, 199, 89, 0.3);
 }
 
-/* La caja del número de orden tipo recibo */
 .order-receipt-box {
     background-color: #f5f5f7;
     border: 1px dashed #d2d2d7;
@@ -55,10 +53,9 @@
     font-weight: 800;
     color: #1d1d1f;
     margin: 0;
-    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; /* Fuente monoespaciada para el ID */
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
 }
 
-/* Reutilizando estilos del checkout por si no están globales */
 .checkout-btn-dark {
     background-color: #1d1d1f;
     color: #ffffff;

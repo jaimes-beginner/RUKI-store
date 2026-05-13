@@ -1,19 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-/* =========================================
-   CONTENEDOR Y AMBIENTE
-========================================= */
 .register-main-wrapper {
     position: relative;
     width: 100%;
     min-height: 85vh;
-    background-color: #f5f5f7; /* Gris Apple */
+    background-color: #f5f5f7; 
     font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
     overflow: hidden;
     padding: 40px 15px;
 }
 
-/* Luces Ambientales Fijas (Cero bugs de blur) */
 .register-ambient-blob {
     position: fixed;
     border-radius: 50%;
@@ -24,25 +20,21 @@
     transform: translateZ(0);
     will-change: transform;
 }
-/* Colores diferentes al login para dar identidad */
 .register-blob-1 {
     width: 600px;
     height: 600px;
-    background: rgba(52, 199, 89, 0.25); /* Verde iOS */
+    background: rgba(52, 199, 89, 0.25); 
     top: -150px;
     right: -200px;
 }
 .register-blob-2 {
     width: 500px;
     height: 500px;
-    background: rgba(10, 132, 255, 0.2); /* Azul iOS */
+    background: rgba(10, 132, 255, 0.2); 
     bottom: -150px;
     left: -100px;
 }
 
-/* =========================================
-   TARJETA DE REGISTRO GLASSMORPHISM
-========================================= */
 .ios-register-card-glass {
     position: relative;
     background: rgba(255, 255, 255, 0.7);
@@ -54,7 +46,6 @@
     border: none;
 }
 
-/* Inner Hairline */
 .ios-register-card-glass::after {
     content: '';
     position: absolute;
@@ -64,7 +55,6 @@
     pointer-events: none;
 }
 
-/* Ícono Flotante */
 .register-icon-glass {
     width: 64px;
     height: 64px;
@@ -94,9 +84,6 @@
     margin: 0;
 }
 
-/* =========================================
-   ALERTAS Y MENSAJES
-========================================= */
 .ios-alert-glass {
     display: flex;
     align-items: center;
@@ -118,9 +105,6 @@
     color: #28a745;
 }
 
-/* =========================================
-   FORMULARIOS E INPUTS
-========================================= */
 .ios-input-group label {
     font-size: 11px;
     font-weight: 800;
@@ -143,28 +127,26 @@
     color: #a1a1a6;
     font-size: 14px;
     transition: color 0.3s;
-    pointer-events: none; /* Evita que el click en el icono bloquee el input */
+    pointer-events: none;
 }
 
-/* Estilos compartidos para Inputs y Selects */
 .ios-input-field,
 .ios-select-field {
     width: 100%;
     background: rgba(255, 255, 255, 0.6);
     border: 1px solid rgba(0, 0, 0, 0.08);
     border-radius: 14px;
-    padding: 14px 16px 14px 44px; /* Espacio para el ícono */
+    padding: 14px 16px 14px 44px; 
     font-family: inherit;
     font-size: 14px;
     font-weight: 500;
     color: #1d1d1f;
     transition: all 0.3s ease;
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
-    appearance: none; /* Quita el estilo nativo de los selects en móviles */
+    appearance: none; 
 }
 
 .ios-select-field {
-    /* Flecha personalizada para los select */
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2386868b'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 12px center;
@@ -193,7 +175,6 @@
     background-image: none;
 }
 
-/* Estados de Validación (Verde y Rojo) */
 .ios-input-field.is-invalid, .ios-select-field.is-invalid {
     border-color: #ff3b30 !important;
     background: rgba(255, 59, 48, 0.05) !important;
@@ -218,9 +199,6 @@
     padding-left: 4px;
 }
 
-/* =========================================
-   BOTONES Y ENLACES
-========================================= */
 .ios-btn-register {
     background: #1d1d1f;
     color: white;
@@ -260,7 +238,6 @@
     border-color: #1d1d1f;
 }
 
-/* Pie de la tarjeta */
 .register-footer {
     margin-top: 32px;
     padding-top: 24px;
@@ -285,16 +262,12 @@
     opacity: 0.7;
 }
 
-/* Responsivo */
 @media (max-width: 768px) {
     .ios-register-card-glass {
         padding: 32px 24px;
         border-radius: 24px;
     }
     .register-title { font-size: 26px; }
-    
-    /* Los inputs en móvil ocupan todo el ancho, Bootstap lo hace con .row, 
-       pero ajustamos el espaciado para que no se vea amontonado */
     .row.g-3 > div {
         margin-bottom: 12px;
     }

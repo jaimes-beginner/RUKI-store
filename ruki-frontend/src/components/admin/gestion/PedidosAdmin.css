@@ -1,0 +1,141 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+.orders-premium-wrapper {
+    position: relative;
+    min-height: 100vh;
+    background-color: #f5f5f7;
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+    padding-bottom: 60px;
+    overflow: hidden;
+}
+
+.orders-premium-wrapper .ord-ambient-blob {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(100px);
+    z-index: 0;
+    opacity: 0.25;
+    pointer-events: none;
+    transform: translateZ(0);
+}
+.orders-premium-wrapper .ord-blob-1 { width: 500px; height: 500px; background: rgba(255, 149, 0, 0.25); top: -100px; left: -150px; } /* Naranja Logística */
+.orders-premium-wrapper .ord-blob-2 { width: 400px; height: 400px; background: rgba(10, 132, 255, 0.3); bottom: -100px; right: -100px; } /* Azul */
+
+.orders-premium-wrapper .ord-page-header-glass {
+    margin-bottom: 24px;
+    padding: 24px;
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 24px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
+}
+.orders-premium-wrapper .ord-title { font-weight: 800; color: #1d1d1f; font-size: clamp(28px, 4vw, 36px); margin-bottom: 4px; margin-top: -3px;letter-spacing: -0.04em; }
+.orders-premium-wrapper .ord-subtitle { color: #86868b; font-weight: 500; font-size: 16px; margin: 0; }
+
+.orders-premium-wrapper .ord-card-glass {
+    position: relative;
+    background: rgba(255, 255, 255, 0.65);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-radius: 24px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    overflow: hidden;
+}
+.orders-premium-wrapper .ord-card-glass::after {
+    content: ''; position: absolute; inset: 0; border-radius: 24px;  pointer-events: none;
+}
+.orders-premium-wrapper .ord-card-header {
+    padding: 16px 24px; font-weight: 700; color: #1d1d1f; font-size: 15px; border-bottom: 1px solid rgba(0, 0, 0, 0.05); background: rgba(255, 255, 255, 0.3);
+}
+
+.orders-premium-wrapper .ord-input-group label,
+.orders-premium-wrapper .ord-label {
+    display: block; font-size: 11px; font-weight: 800; color: #86868b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;
+}
+.orders-premium-wrapper .ord-input-wrapper { position: relative; }
+.orders-premium-wrapper .input-icon {
+    position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #a1a1a6; font-size: 14px; transition: color 0.3s; pointer-events: none;
+}
+.orders-premium-wrapper .ord-input-glass {
+    background: rgba(255, 255, 255, 0.7); border: 1px solid rgba(0, 0, 0, 0.06); border-radius: 14px; color: #1d1d1f;
+    padding: 12px 16px 12px 44px; /* Espacio para el icono */
+    font-size: 13px; font-weight: 600; transition: all 0.3s ease; box-shadow: inset 0 2px 4px rgba(0,0,0,0.01); width: 100%;
+}
+.orders-premium-wrapper .ord-input-glass:focus {
+    background: #ffffff; border-color: #0a84ff; outline: none; box-shadow: 0 0 0 4px rgba(10, 132, 255, 0.15);
+}
+.orders-premium-wrapper .ord-select-glass {
+    appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2386868b'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 14px center; background-size: 18px; cursor: pointer;
+}
+.orders-premium-wrapper .ord-helper-text { font-size: 10px; font-weight: 500; color: #86868b; display: block; }
+.orders-premium-wrapper .border-bottom-subtle { border-bottom: 1px solid rgba(0,0,0,0.06); }
+
+.orders-premium-wrapper .ord-mini-table-scroll { max-height: 180px; overflow-y: auto; padding-right: 4px; }
+.orders-premium-wrapper .ord-mini-table-scroll::-webkit-scrollbar { width: 4px; }
+.orders-premium-wrapper .ord-mini-table-scroll::-webkit-scrollbar-thumb { background-color: rgba(0,0,0,0.15); border-radius: 10px; }
+
+.orders-premium-wrapper .ord-btn-primary {
+    background: #1d1d1f; color: #ffffff; border: none; border-radius: 14px; padding: 14px; font-weight: 700; font-size: 13px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: all 0.2s;
+}
+.orders-premium-wrapper .ord-btn-primary:hover:not(:disabled) { background: #000000; box-shadow: 0 6px 16px rgba(0,0,0,0.15); }
+.orders-premium-wrapper .ord-btn-primary:disabled { background: #d2d2d7; box-shadow: none; cursor: not-allowed; }
+
+.orders-premium-wrapper .ord-table-container { max-height: 700px; overflow-y: auto; overflow-x: auto; }
+.orders-premium-wrapper .ord-table-container::-webkit-scrollbar { width: 8px; height: 8px; }
+.orders-premium-wrapper .ord-table-container::-webkit-scrollbar-track { background: transparent; }
+.orders-premium-wrapper .ord-table-container::-webkit-scrollbar-thumb { background-color: rgba(0,0,0,0.15); border-radius: 10px; }
+
+.orders-premium-wrapper .ord-table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 550px; }
+.orders-premium-wrapper .ord-table th {
+    position: sticky; top: 0; z-index: 2; background: rgba(250, 250, 252, 0.95); backdrop-filter: blur(10px);
+    color: #86868b; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;
+    padding: 14px 16px; border-bottom: 1px solid rgba(0,0,0,0.06); text-align: left;
+}
+.orders-premium-wrapper .ord-table td { padding: 16px; border-bottom: 1px solid rgba(0,0,0,0.03); vertical-align: middle; }
+.orders-premium-wrapper .ord-table tr:hover td { background: rgba(255,255,255,0.4); }
+.orders-premium-wrapper .ord-table tr.active-row td { background: rgba(10, 132, 255, 0.05); }
+
+.orders-premium-wrapper .ord-item-name { font-weight: 700; color: #1d1d1f; font-size: 14px; }
+.orders-premium-wrapper .ord-item-id { font-size: 11px; color: #86868b; font-weight: 600; margin-top: 2px; }
+.orders-premium-wrapper .ord-text-muted { color: #86868b; font-size: 13px; font-weight: 500; }
+.orders-premium-wrapper .ord-item-price { font-weight: 800; color: #1d1d1f; font-size: 14px; }
+
+.orders-premium-wrapper .ord-badge { font-size: 10px; font-weight: 800; padding: 4px 10px; border-radius: 8px; letter-spacing: 0.05em; display: inline-block;}
+.orders-premium-wrapper .badge-neutral { background: rgba(0,0,0,0.05); color: #1d1d1f; }
+.orders-premium-wrapper .badge-dark { background: #1d1d1f; color: #ffffff; }
+
+.orders-premium-wrapper .badge-ok { background: rgba(52, 199, 89, 0.15); color: #28a745; border: 1px solid rgba(52, 199, 89, 0.2); }
+.orders-premium-wrapper .badge-low { background: rgba(255, 149, 0, 0.15); color: #ff9500; border: 1px solid rgba(255, 149, 0, 0.2); }
+.orders-premium-wrapper .badge-out { background: rgba(255, 59, 48, 0.1); color: #ff3b30; border: 1px solid rgba(255, 59, 48, 0.2); }
+
+.orders-premium-wrapper .ord-action-btn {
+    width: 38px; height: 38px; border-radius: 14px; border: 1px solid transparent;
+    display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
+    backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); transition: all 0.2s ease; box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+}
+
+.orders-premium-wrapper .ord-action-btn.view {
+    background: rgba(10, 132, 255, 0.12); color: #007aff; border-color: rgba(10, 132, 255, 0.2);
+}
+.orders-premium-wrapper .ord-action-btn.view:hover {
+    background: #007aff; color: #ffffff; box-shadow: 0 4px 12px rgba(10, 132, 255, 0.3); border-color: #007aff;
+}
+
+.orders-premium-wrapper .ord-empty-state { text-align: center; color: #86868b; font-weight: 600; font-size: 14px; }
+.orders-premium-wrapper .ord-empty-state i { font-size: 3rem; color: #d2d2d7; }
+
+.orders-premium-wrapper .ord-toast-container { position: fixed; top: 24px; right: 24px; z-index: 1100; }
+.orders-premium-wrapper .ord-toast-glass {
+    padding: 14px 24px; border-radius: 16px; font-size: 14px; font-weight: 600; display: flex; align-items: center; 
+    background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); box-shadow: 0 16px 40px rgba(0,0,0,0.12); border: 1px solid rgba(255,255,255,0.9);
+}
+.orders-premium-wrapper .ord-toast-glass.success { color: #28a745; border-left: 4px solid #28a745; }
+.orders-premium-wrapper .ord-toast-glass.error { color: #ff3b30; border-left: 4px solid #ff3b30; }
+
+@media (max-width: 992px) {
+    .orders-premium-wrapper .ord-toast-container { right: 16px; left: 16px; display: flex; justify-content: center; }
+}

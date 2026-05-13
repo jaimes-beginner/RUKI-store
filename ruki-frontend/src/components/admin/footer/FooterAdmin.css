@@ -1,27 +1,21 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-/* =========================================
-   CONTENEDOR PRINCIPAL (SMOKED GLASS)
-========================================= */
 .admin-footer-glass {
     position: relative;
-    background: rgba(28, 28, 30, 0.85); /* Gris carbón semi-transparente */
+    background: rgba(28, 28, 30, 0.85); 
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
-    border-top: 1px solid rgba(255, 255, 255, 0.08); /* Hairline superior */
+    border-top: 1px solid rgba(255, 255, 255, 0.08); 
     color: #f5f5f7;
     font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
     z-index: 10;
 }
 
-/* =========================================
-   TEXTOS Y CABECERAS
-========================================= */
 .admin-footer-title {
     font-size: 12px;
     font-weight: 800;
     letter-spacing: 0.1em;
-    color: #86868b; /* Gris secundario Apple */
+    color: #86868b; 
     margin-bottom: 16px;
 }
 
@@ -43,9 +37,6 @@
     color: #86868b;
 }
 
-/* =========================================
-   REDES SOCIALES (BOTONES FLOTANTES)
-========================================= */
 .admin-social-icon {
     display: inline-flex;
     align-items: center;
@@ -68,9 +59,6 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-/* =========================================
-   ENLACES
-========================================= */
 .admin-footer-link {
     color: #a1a1a6;
     text-decoration: none;
@@ -82,18 +70,15 @@
 
 .admin-footer-link:hover {
     color: #ffffff;
-    transform: translateX(-4px); /* Pequeño desplazamiento hacia la izquierda en pantallas md-end */
+    transform: translateX(-4px); 
 }
 
 @media (max-width: 768px) {
     .admin-footer-link:hover {
-        transform: translateX(4px); /* Hacia la derecha en móviles (alineación izq) */
+        transform: translateX(4px); 
     }
 }
 
-/* =========================================
-   SEPARADOR Y BOTTOM
-========================================= */
 .admin-footer-divider {
     height: 1px;
     background: rgba(255, 255, 255, 0.08);
