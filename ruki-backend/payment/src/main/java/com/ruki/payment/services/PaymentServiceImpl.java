@@ -105,18 +105,31 @@ public class PaymentServiceImpl implements PaymentService {
                     .orElseThrow(() -> new RuntimeException("Pago fantasma: Sesión no encontrada en BD"));
 
             if (record.getStatus() == PaymentStatus.SUCCESS) {
+
+                /*
+                    Si por alguna razón el pago ya estaba en SUCCESS  localmente
+                    pero pedidos no se enteró, entonces forzamos la llamada de nuevo
+                    antes de salir
+                */
+                log.info("Reintentando aviso a Pedidos para la Orden #{}", record.getOrderId());
+                orderClient.updateOrderStatus(record.getOrderId(), "PAID");
                 return; 
             }
 
             log.info("¡Pago APROBADO por Stripe para la Orden #{}!", record.getOrderId());
             
-            record.setStatus(PaymentStatus.SUCCESS);
-            paymentRepository.save(record);
-
             /*
-                Avisamos al servicio de los pedidos que libere el pedido
+                Avisamos al servicio de pedidos, si esto falla entonces
+                no se guardará como SUCCESS
             */
             orderClient.updateOrderStatus(record.getOrderId(), "PAID");
+
+            /*
+                Si pedios responde bien, recién ahí guardaremos 
+                el éxito en el servicio de Pagos
+            */
+            record.setStatus(PaymentStatus.SUCCESS);
+            paymentRepository.save(record);
 
         } catch (Exception e) {
             log.error("Error al procesar el pago de Stripe", e);
