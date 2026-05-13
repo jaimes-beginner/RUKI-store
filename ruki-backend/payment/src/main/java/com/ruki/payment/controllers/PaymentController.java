@@ -1,10 +1,10 @@
 package com.ruki.payment.controllers;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ruki.payment.services.PaymentService;
 import com.stripe.exception.SignatureVerificationException;
 import com.stripe.model.Event;
-import com.stripe.model.EventDataObjectDeserializer;
-import com.stripe.model.checkout.Session;
 import com.stripe.net.Webhook;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -56,7 +56,7 @@ public class PaymentController {
         Event event;
         try {
             event = Webhook.constructEvent(payload, sigHeader, endpointSecret);
-            log.info("CORRECTO | Webhook recibido y firma validada. Tipo de evento: {}", event.getType());
+            log.info("CORRECTO | Webhook recibido y firma validada.");
         } catch (SignatureVerificationException e) {
             log.error("ERROR | Firma de Webhook inválida.");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid signature");
@@ -66,30 +66,31 @@ public class PaymentController {
         }
 
         if ("checkout.session.completed".equals(event.getType())) {
-            log.info("ATENCIÓN | Procesando checkout.session.completed...");
-            EventDataObjectDeserializer dataObjectDeserializer = event.getDataObjectDeserializer();
-            
-            if (dataObjectDeserializer.getObject().isPresent()) {
-                Session session = (Session) dataObjectDeserializer.getObject().get();
-                String sessionId = session.getId();
+            try {
+                /*
+                    TRUCO DE ARQUITECTO: Bypass al SDK de Stripe. 
+                    Leemos el JSON crudo directamente para evitar el choque de versiones.
+                */
+                String rawJson = event.getDataObjectDeserializer().getRawJson();
+                JsonNode sessionNode = new ObjectMapper().readTree(rawJson);
                 
-                log.info("CORRECTO | Sesión extraída correctamente. ID: {}", sessionId);
+                String sessionId = sessionNode.get("id").asText();
+                String orderIdStr = sessionNode.path("metadata").path("orderId").asText(null);
                 
-                if (session.getMetadata() != null && session.getMetadata().containsKey("orderId")) {
-                    Long orderId = Long.parseLong(session.getMetadata().get("orderId"));
-                    log.info("CORRECTO | Llamando a confirmPaymentFromWebhook para la orden: {}", orderId);
+                if (orderIdStr != null) {
+                    Long orderId = Long.parseLong(orderIdStr);
+                    log.info("JSON parseado a la fuerza. Validando pago de la Orden: {}", orderId);
+                    
                     paymentService.confirmPaymentFromWebhook(sessionId, orderId);
                 } else {
-                    log.error(" ERROR | La sesión no tiene el 'orderId' en los metadatos.");
+                    log.error("ERROR | La sesión de Stripe no tiene el 'orderId' en los metadatos.");
                 }
-            } else {
-                log.error("ERROR CRÍTICO | Stripe no pudo deserializar el objeto. Posible choque de versiones de API.");
-                log.error("JSON CRUDO: {}", dataObjectDeserializer.getRawJson());
+            } catch (Exception e) {
+                log.error("ERROR | procesando el JSON manualmente", e);
             }
-        } else {
-            log.info("Ignorando evento que no es checkout.session.completed");
         }
 
         return ResponseEntity.ok("Success");
     }
+
 }
