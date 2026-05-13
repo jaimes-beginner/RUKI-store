@@ -2,11 +2,26 @@ import { useState, useEffect } from 'react';
 import { useCart } from '../../../contexts/CartContext'; 
 import { obtenerProductosActivos } from '../../../services/ProductoService'; 
 import { Link } from 'react-router-dom';
-import '../newarrivals/NewArriivals.css';
+import { motion } from 'framer-motion';
 import './Productos.css';
 
-export default function Productos() {
+// Animaciones base para Framer Motion
+const staggerContainer = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+};
 
+const fadeInUp = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1] } }
+};
+
+const slideInLeft = {
+    hidden: { opacity: 0, x: -30 },
+    visible: { opacity: 1, x: 0, transition: { duration: 0.6, ease: [0.25, 0.1, 0.25, 1] } }
+};
+
+export default function Productos() {
     const { addToCart } = useCart(); 
     const [productosReales, setProductosReales] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -54,229 +69,168 @@ export default function Productos() {
 
     if (loading) {
         return (
-            <main className="new-arrivals-page products-page d-flex justify-content-center align-items-center" style={{minHeight: '60vh'}}>
-                <div className="text-center">
-                    <i className="fas fa-circle-notch fa-spin fa-3x mb-3" style={{color: '#1d1d1f'}}></i>
-                    <h3 style={{fontFamily: "'Inter', sans-serif", fontWeight: '700', letterSpacing: '-0.02em'}}>Cargando catálogo...</h3>
-                </div>
+            <main className="ios-products-page d-flex justify-content-center align-items-center" style={{minHeight: '60vh'}}>
+                <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center ios-loading">
+                    <i className="fas fa-circle-notch fa-spin fa-3x mb-3" style={{ color: '#0a84ff' }}></i>
+                    <h3>Cargando catálogo...</h3>
+                </motion.div>
             </main>
         );
     }
 
     if (error) {
         return (
-            <main className="new-arrivals-page products-page d-flex justify-content-center align-items-center" style={{minHeight: '60vh'}}>
-                <div className="text-center text-danger">
+            <main className="ios-products-page d-flex justify-content-center align-items-center" style={{minHeight: '60vh'}}>
+                <div className="text-center text-danger ios-error">
                     <i className="fas fa-exclamation-triangle fa-3x mb-3"></i>
-                    <h3 style={{fontFamily: "'Inter', sans-serif", fontWeight: '700'}}>{error}</h3>
+                    <h3>{error}</h3>
                 </div>
             </main>
         );
     }
 
     return (
-        <main className="new-arrivals-page products-page position-relative" style={{fontFamily: "'-apple-system', BlinkMacSystemFont, 'Inter', sans-serif", backgroundColor: '#f5f5f7'}}>
-            
-            <style>{`
-                @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        <main className="ios-products-page position-relative">
+            {/* LUCES AMBIENTALES DE FONDO (Matan el vacío) */}
+            <div className="ios-ambient-blob catalog-blob-1"></div>
+            <div className="ios-ambient-blob catalog-blob-2"></div>
 
-                /* LAYOUT ORIGINAL Y FRENAR EL FILTRO */
-                .na-filter {
-                    background: #ffffff;
-                    border: 1.5px solid #e5e5ea;
-                    border-radius: 16px;
-                    padding: 20px;
-                    height: fit-content !important; /* El tamaño justo */
-                    position: sticky !important;    /* Te acompaña al bajar */
-                    top: 20px !important;
-                }
-
-                /* GRILLA ORIGINAL MÁS COMPACTA */
-                .na-grid {
-                    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)) !important;
-                    gap: 16px !important;
-                }
-
-                /* ESTILOS IOS PARA LAS TARJETAS */
-                .ios-card {
-                    background: #ffffff;
-                    border: 1.5px solid #e5e5ea;
-                    border-radius: 16px;
-                    transition: all 0.3s ease;
-                    overflow: hidden;
-                    height: 100%;
-                    display: flex;
-                    flex-direction: column;
-                }
-                .ios-card:hover {
-                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-                    transform: translateY(-2px);
-                    border-color: #d2d2d7;
-                }
-                
-                .ios-btn {
-                    font-family: 'Inter', sans-serif !important;
-                    font-size: 11px;
-                    font-weight: 700;
-                    border-radius: 10px;
-                    padding: 10px;
-                    border: 1.5px solid #1d1d1f;
-                    transition: all 0.2s;
-                    letter-spacing: 0.02em;
-                }
-                .ios-btn-dark { background: #1d1d1f; color: #ffffff; }
-                .ios-btn-dark:hover { background: #000000; color: #ffffff; }
-                .ios-btn-outline { background: #ffffff; color: #1d1d1f; border-color: #d2d2d7;}
-                .ios-btn-outline:hover { background: #f5f5f7; border-color: #1d1d1f;}
-
-                .ios-thumb-btn {
-                    border: 2px solid transparent;
-                    border-radius: 6px;
-                    overflow: hidden;
-                    padding: 0;
-                    background: transparent;
-                    transition: all 0.2s;
-                    width: 28px;
-                    height: 28px;
-                }
-                .ios-thumb-btn.is-active {
-                    border-color: #1d1d1f;
-                    transform: scale(1.05);
-                }
-                .ios-thumb-btn img {
-                    border-radius: 4px;
-                    width: 100%;
-                    height: 100%;
-                    object-fit: cover;
-                }
-
-                /* LÍMITE VERTICAL PARA DESCRIPCIÓN */
-                .product-description-clamp {
-                    display: -webkit-box;
-                    -webkit-line-clamp: 2; 
-                    -webkit-box-orient: vertical;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    font-size: 11px;
-                    color: #86868b;
-                    line-height: 1.3;
-                    min-height: 28px;
-                }
-            `}</style>
-
-            <section className="na-content py-4 container">
-                
-                {/* PANEL DE FILTROS LATERAL */}
-                <aside className="na-filter mb-4 mb-md-0">
-                    <p className="fw-bolder mb-3" style={{ fontSize: '14px', letterSpacing: '0.04em', textTransform: 'uppercase', color: '#86868b' }}>Filtro</p>
-
-                    <div className="na-filter-block">
-                        <p className="fw-bold mb-2 text-dark" style={{fontSize: '13px'}}>Talla</p>
-                        <div className="d-flex flex-wrap gap-2">
-                            <button type="button" className="ios-btn ios-btn-outline py-1 px-3">XS</button>
-                            <button type="button" className="ios-btn ios-btn-outline py-1 px-3">S</button>
-                            <button type="button" className="ios-btn ios-btn-outline py-1 px-3">M</button>
-                            <button type="button" className="ios-btn ios-btn-outline py-1 px-3">L</button>
-                        </div>
-                    </div>
-                </aside>
-
-                {/* ÁREA DE PRODUCTOS */}
-                <div className="na-products">
-                    <div className="mb-4 pb-2 border-bottom" style={{ borderColor: '#e5e5ea' }}>
-                        <h2 className="fw-bolder text-dark mb-1" style={{ letterSpacing: "-0.03em", fontSize: "2rem" }}>Productos</h2>
-                        <p className="text-secondary fw-medium mb-0" style={{ color: "#86868b", fontSize: '14px' }}>Todos tus productos a solo un click.</p>
-                    </div>
-
-                    {productosReales.length === 0 && (
-                        <div className="text-center py-5 text-muted fw-bold ios-card">
-                            <i className="fas fa-box-open fa-3x mb-3" style={{ color: '#d2d2d7' }}></i>
-                            <p>No hay productos disponibles en este momento.</p>
-                        </div>
-                    )}
-
-                    {/* GRILLA */}
-                    <div className="na-grid">
-                        {productosReales.map((product) => (
-                            <article key={product.id} className="na-card ios-card p-2">
-
-                                <div className="na-image-wrap rounded-3 overflow-hidden position-relative mb-2" style={{ background: '#f5f5f7' }}>
-                                   
-                                    <Link to={`/producto/${product.id}`}>
-                                        <img src={getDisplayImage(product)} alt={product.name} style={{ width: '100%', aspectRatio: '4/4', objectFit: 'cover' }} />
-                                    </Link>
-
-                                    {/* BADGES ORIGINALES FLOTANDO */}
-                                    <div className="position-absolute top-0 start-0 p-2" style={{ zIndex: 20 }}>
-                                        {product.stock > 0 && product.stock <= 5 && (
-                                            <span className="na-badge products-badge-sale">¡ÚLTIMOS {product.stock}!</span>
-                                        )}
-                                        {product.stock === 0 && (
-                                            <span className="na-badge" style={{background: '#1d1d1f', color: '#fff'}}>AGOTADO</span>
-                                        )}
-                                    </div>
+            <section className="py-4 container position-relative" style={{ zIndex: 1 }}>
+                <div className="row g-4">
+                    
+                    {/* PANEL DE FILTROS LATERAL (Ahora es de cristal) */}
+                    <motion.aside 
+                        className="col-12 col-md-3"
+                        variants={slideInLeft}
+                        initial="hidden"
+                        animate="visible"
+                    >
+                        <div className="ios-filter-panel-glass">
+                            <p className="ios-filter-title"><i className="fas fa-sliders-h me-2"></i> Filtros</p>
+                            
+                            <div className="ios-filter-block">
+                                <p className="ios-filter-subtitle">Categorías</p>
+                                <div className="d-flex flex-column gap-2 mb-4">
+                                    <button className="ios-btn-ghost active">Todos los productos</button>
+                                    <button className="ios-btn-ghost">New Arrivals</button>
+                                    <button className="ios-btn-ghost">Accesorios</button>
                                 </div>
 
-                                {/* CONTENEDOR COMPACTO DE TEXTOS */}
-                                <div className="d-flex flex-column flex-grow-1 px-1">
-                                    
-                                    <h3 className="fw-bolder text-dark mb-1" style={{ fontSize: '13px', letterSpacing: '-0.01em', lineHeight: '1.2' }}>
-                                        {product.name}
-                                    </h3>
+                                <p className="ios-filter-subtitle">Talla</p>
+                                <div className="d-flex flex-wrap gap-2">
+                                    {['XS', 'S', 'M', 'L', 'XL'].map(talla => (
+                                        <button key={talla} type="button" className="ios-btn ios-btn-outline py-1 px-3">
+                                            {talla}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </motion.aside>
 
-                                    <p className="product-description-clamp mb-2">
-                                        {product.description || "Descripción no disponible para este producto."}
-                                    </p>
+                    {/* ÁREA DE PRODUCTOS */}
+                    <div className="col-12 col-md-9">
+                        <motion.div 
+                            className="ios-page-header-glass"
+                            initial={{ opacity: 0, y: -20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5 }}
+                        >
+                            <h2>Catálogo Performance</h2>
+                            <p>Equipamiento premium a solo un click.</p>
+                        </motion.div>
 
-                                    <p className="fw-bolder mb-2" style={{ color: '#1d1d1f', fontSize: '15px' }}>
-                                        ${Number(product.basePrice).toLocaleString('es-CL')}
-                                    </p>
+                        {productosReales.length === 0 && (
+                            <div className="ios-empty-state">
+                                <i className="fas fa-box-open fa-3x mb-3" style={{ color: '#d2d2d7' }}></i>
+                                <p>No hay productos disponibles en este momento.</p>
+                            </div>
+                        )}
 
-                                    <div className="d-flex gap-1 mb-2">
-                                        {getGallery(product).map((thumb, index) => (
-                                            <button
-                                                key={`${product.id}-${index}`}
-                                                type="button"
-                                                className={`ios-thumb-btn ${getSelectedIndex(product.id) === index ? 'is-active' : ''}`}
-                                                onClick={() => handleSelectImage(product.id, index)}
-                                                aria-label={`Mostrar miniatura ${index + 1}`}
-                                            >
-                                                <img src={thumb} alt="miniatura" />
-                                            </button>
-                                        ))}
+                        {/* GRILLA ANIMADA */}
+                        <motion.div 
+                            className="ios-product-grid"
+                            variants={staggerContainer}
+                            initial="hidden"
+                            animate="visible"
+                        >
+                            {productosReales.map((product) => (
+                                <motion.article key={product.id} className="ios-card-glass" variants={fadeInUp} whileHover={{ y: -6 }}>
+                                    <div className="ios-card-img-wrap">
+                                        <Link to={`/producto/${product.id}`}>
+                                            <img src={getDisplayImage(product)} alt={product.name} />
+                                        </Link>
+
+                                        {/* BADGES FLOTANTES */}
+                                        <div className="ios-badge-container">
+                                            {product.stock > 0 && product.stock <= 5 && (
+                                                <span className="ios-badge ios-badge-sale">¡ÚLTIMOS {product.stock}!</span>
+                                            )}
+                                            {product.stock === 0 && (
+                                                <span className="ios-badge ios-badge-soldout">AGOTADO</span>
+                                            )}
+                                        </div>
                                     </div>
 
-                                    <div style={{ flexGrow: 1 }}></div>
+                                    <div className="ios-card-content">
+                                        <h3 className="ios-card-title">{product.name}</h3>
+                                        <p className="ios-card-desc">
+                                            {product.description || "Descripción no disponible."}
+                                        </p>
+                                        <p className="ios-card-price">
+                                            ${Number(product.basePrice).toLocaleString('es-CL')}
+                                        </p>
 
-                                    <button 
-                                        className={`ios-btn w-100 mt-1 ${product.stock > 0 ? 'ios-btn-dark' : ''}`}
-                                        style={product.stock === 0 ? {
-                                            backgroundColor: '#f5f5f7', color: '#86868b', borderColor: '#e5e5ea', cursor: 'not-allowed'
-                                        } : {}}
-                                        onClick={() => {
-                                            addToCart(product, 1);
-                                            mostrarToast(`¡${product.name} añadido!`, 'success');
-                                        }}
-                                        disabled={product.stock === 0}
-                                    >
-                                        {product.stock === 0 ? 'SIN STOCK' : 'AÑADIR'}
-                                    </button>
-                                </div>
-                            </article>
-                        ))}
+                                        {/* MINIATURAS */}
+                                        <div className="ios-card-thumbs">
+                                            {getGallery(product).map((thumb, index) => (
+                                                <button
+                                                    key={`${product.id}-${index}`}
+                                                    type="button"
+                                                    className={`ios-thumb-btn ${getSelectedIndex(product.id) === index ? 'is-active' : ''}`}
+                                                    onClick={() => handleSelectImage(product.id, index)}
+                                                    aria-label={`Mostrar miniatura ${index + 1}`}
+                                                >
+                                                    <img src={thumb} alt="miniatura" />
+                                                </button>
+                                            ))}
+                                        </div>
+
+                                        <div style={{ flexGrow: 1 }}></div>
+
+                                        <motion.button 
+                                            whileTap={product.stock > 0 ? { scale: 0.95 } : {}}
+                                            className={`ios-btn w-100 mt-2 ${product.stock > 0 ? 'ios-btn-dark' : 'ios-btn-disabled'}`}
+                                            onClick={() => {
+                                                addToCart(product, 1);
+                                                mostrarToast(`¡${product.name} añadido!`, 'success');
+                                            }}
+                                            disabled={product.stock === 0}
+                                        >
+                                            {product.stock === 0 ? (
+                                                <><i className="fas fa-times-circle me-2"></i> SIN STOCK</>
+                                            ) : (
+                                                <><i className="fas fa-shopping-bag me-2"></i> AÑADIR</>
+                                            )}
+                                        </motion.button>
+                                    </div>
+                                </motion.article>
+                            ))}
+                        </motion.div>
                     </div>
                 </div>
             </section>
 
+            {/* TOAST NOTIFICATION PREMIUM */}
             <div className="toast-container position-fixed bottom-0 end-0 p-4" style={{ zIndex: 1050 }}>
-                <div className={`toast align-items-center bg-white ${toast.mostrar ? 'show' : 'hide'}`} 
-                     role="alert" aria-live="assertive" aria-atomic="true" 
-                     style={{ border: '3px solid #1d1d1f', borderRadius: '18px', boxShadow: '0 10px 30px rgba(0,0,0,0.08)' }}>
-                    <div className="d-flex p-2">
-                        <div className="toast-body fw-bold text-dark" style={{ fontSize: "12px" }}>
-                            {toast.tipo === 'success' ? <i className="fas fa-check text-success me-2"></i> : <i className="fas fa-exclamation-triangle text-danger me-2"></i>}
-                            {toast.mensaje}
-                        </div>
+                <div className={`ios-toast ${toast.mostrar ? 'show' : ''}`} role="alert">
+                    <div className="ios-toast-body">
+                        {toast.tipo === 'success' ? (
+                            <div className="ios-toast-icon success"><i className="fas fa-check"></i></div>
+                        ) : (
+                            <div className="ios-toast-icon error"><i className="fas fa-exclamation-triangle"></i></div>
+                        )}
+                        <span>{toast.mensaje}</span>
                     </div>
                 </div>
             </div>

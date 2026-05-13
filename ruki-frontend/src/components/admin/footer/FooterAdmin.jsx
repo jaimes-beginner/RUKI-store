@@ -1,68 +1,72 @@
 // Importaciones
 import { Link } from "react-router-dom";
-
-/*-------------------------------------------------*/
+import { motion } from "framer-motion";
+import './FooterAdmin.css'; // <-- NUEVO ARCHIVO DE ESTILOS
 
 // Componente para la barra inferior del panel de administración
 export function FooterAdmin() {
+  const currentYear = new Date().getFullYear(); // Automatizamos el año (2026)
 
   return (
-    <footer className="bg-dark text-white pt-5 pb-4 mt-5">
-      <div className="container fluid">
+    <footer className="admin-footer-glass pt-5 pb-4 mt-5">
+      <div className="container-fluid px-4">
         <div className="row justify-content-between">
 
-          {/* Información de la ropa de la tienda */}
-          <div className="col-md-4 mb-4">
-            <h5 className="text-uppercase mb-4"><strong>Zona Admin</strong></h5>
-            <p>
+          {/* Información de la tienda */}
+          <div className="col-md-5 mb-4">
+            <h5 className="admin-footer-title">
+              <i className="fas fa-shield-alt me-2 text-danger"></i>
+              ZONA ADMIN RUKI
+            </h5>
+            <p className="admin-footer-text">
               En <strong>RUKI</strong> se forjan atletas, gestionando el éxito desde el estilo.
             </p>
-            <p>
-              <strong>
-                Gestionando la comunidad de Ruki, un WOD a la vez.
-              </strong>
+            <p className="admin-footer-text font-italic">
+              Gestionando la comunidad de Ruki, un WOD a la vez.
             </p>
 
-            <div className="mt-3">
-              <Link to="#" className="text-white me-2"><i className="fab fa-facebook-f"></i></Link>
-              <Link to="#" className="text-white me-2"><i className="fab fa-twitter"></i></Link>
-              <Link to="#" className="text-white me-2"><i className="fab fa-instagram"></i></Link>
-              <Link to="#" className="text-white"><i className="fab fa-linkedin-in"></i></Link>
+            <div className="mt-4 d-flex gap-3">
+              <motion.a whileHover={{ y: -3, scale: 1.1 }} href="#" className="admin-social-icon"><i className="fab fa-facebook-f"></i></motion.a>
+              <motion.a whileHover={{ y: -3, scale: 1.1 }} href="#" className="admin-social-icon"><i className="fab fa-twitter"></i></motion.a>
+              <motion.a whileHover={{ y: -3, scale: 1.1 }} href="#" className="admin-social-icon"><i className="fab fa-instagram"></i></motion.a>
+              <motion.a whileHover={{ y: -3, scale: 1.1 }} href="#" className="admin-social-icon"><i className="fab fa-linkedin-in"></i></motion.a>
             </div>
           </div>
 
           {/* Enlaces rapidos */}
-          <div className="col-md-2 mb-4 ms-auto">
-            <h5 className="text-uppercase mb-4 text-end">Enlaces</h5>
-            <ul className="list-unstyled text-end enlaces-footer-grande">
-              <li className="mb-2">
-                <Link to="/" className="text-white text-decoration-none">Inicio</Link>
+          <div className="col-md-3 mb-4 ms-auto text-md-end">
+            <h5 className="admin-footer-title">ENLACES RÁPIDOS</h5>
+            <ul className="list-unstyled d-flex flex-column gap-2 mt-3">
+              <li>
+                <Link to="/" className="admin-footer-link">Ver Tienda Pública</Link>
               </li>
-              <li className="mb-2">
-                <Link to="/inventario" className="text-white text-decoration-none">Productos</Link>
+              <li>
+                <Link to="/inventario-admin" className="admin-footer-link">Gestión de Productos</Link>
               </li>
-              <li className="mb-2">
-                <Link to="#" className="text-white text-decoration-none disabled-link">Blog</Link>
+              <li>
+                <Link to="#" className="admin-footer-link disabled-link">Blog (Próximamente)</Link>
               </li>
-              <li className="mb-2">
-                <Link to="#" className="text-white text-decoration-none disabled-link">Contacto</Link>
+              <li>
+                <Link to="#" className="admin-footer-link disabled-link">Soporte Técnico</Link>
               </li>
             </ul>
           </div>
         </div>
 
-        <hr className="my-4" />
+        <div className="admin-footer-divider my-4"></div>
 
         {/* Copyright */}
         <div className="row align-items-center">
           <div className="col-md-6 text-center text-md-start">
-            <p className="mb-0">&copy; 2025 RUKI. Panel de Administración. Todos los derechos reservados.</p>
+            <p className="admin-footer-bottom-text mb-0">
+              &copy; {currentYear} RUKI. Panel de Administración. Todos los derechos reservados.
+            </p>
           </div>
-          <div className="col-md-6 text-center text-md-end">
-            <Link to="#" className="text-white text-decoration-none me-3 disabled-link">
+          <div className="col-md-6 text-center text-md-end mt-3 mt-md-0 d-flex justify-content-center justify-content-md-end gap-4">
+            <Link to="#" className="admin-footer-bottom-link disabled-link">
               Política de Privacidad
             </Link>
-            <Link to="#" className="text-white text-decoration-none disabled-link">
+            <Link to="#" className="admin-footer-bottom-link disabled-link">
               Términos de Uso
             </Link>
           </div>
@@ -70,5 +74,4 @@ export function FooterAdmin() {
       </div>
     </footer>
   );
-  
 }

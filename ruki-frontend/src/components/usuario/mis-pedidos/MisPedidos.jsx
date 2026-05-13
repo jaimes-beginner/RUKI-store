@@ -1,64 +1,50 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { obtenerMisPedidos, cancelarMiPedido } from '../../../services/PedidoService'; 
 import { obtenerProductoPorId } from '../../../services/ProductoService';
+import { motion, AnimatePresence } from 'framer-motion';
+import './MisPedidos.css';
 
 export function MisPedidos() {
     const { isAuthenticated } = useAuth();
     const [pedidos, setPedidos] = useState([]);
-
     const [nombresProductos, setNombresProductos] = useState({}); 
     
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    // ESTADOS PARA FILTROS FRONTEND
+    const [filtroEstado, setFiltroEstado] = useState('TODOS');
+    const [busqueda, setBusqueda] = useState('');
+    const [tarjetasExpandidas, setTarjetasExpandidas] = useState({}); // Controla qué pedidos están abiertos
+
     useEffect(() => {
         if (isAuthenticated) cargarPedidos();
         else setLoading(false);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isAuthenticated]);
 
     const cargarPedidos = async () => {
         try {
-            
-            /*
-                Obtenemos las órdenes
-            */
             const data = await obtenerMisPedidos();
             const ordenesOrdenadas = data.sort((a, b) => b.id - a.id);
             setPedidos(ordenesOrdenadas);
 
-            /*
-                Extraemos todos los IDs de productos 
-                únicos que el cliente ha comprado alguna vez
-            */
             const idsUnicos = new Set();
             ordenesOrdenadas.forEach(pedido => {
                 pedido.items.forEach(item => idsUnicos.add(item.productId));
             });
 
-            /*
-                Buscando los nombres de los productos en paralelo
-            */
             const diccionarioNombres = {};
             await Promise.all(Array.from(idsUnicos).map(async (id) => {
                 try {
                     const prod = await obtenerProductoPorId(id);
                     diccionarioNombres[id] = prod.name;
                 } catch (e) {
-
-                    /*
-                        En caso de que el producto haya 
-                        sido eliminado o haya algún error
-                    */
                     diccionarioNombres[id] = "Producto Desconocido"; 
                 }
             }));
-
-            /*
-                Guardamos el diccionario en el estado
-            */
             setNombresProductos(diccionarioNombres);
-
         } catch (err) {
             setError(err.message);
         } finally {
@@ -70,96 +56,211 @@ export function MisPedidos() {
         if (!window.confirm("¿Estás seguro de cancelar este pedido?")) return;
         try {
             await cancelarMiPedido(id);
-
-            /*
-                Recargar para ver el estado CANCELLED
-            */
-            cargarPedidos(); 
+            cargarPedidos();
         } catch (err) {
             alert(err.message);
         }
     };
 
-    const getStatusBadge = (status) => {
-        switch (status) {
-            case 'PAID': return <span className="badge bg-success rounded-pill px-3 py-2" style={{fontSize: '11px', letterSpacing: '0.05em'}}>PAGADO</span>;
-            case 'PENDING': return <span className="badge bg-warning text-dark rounded-pill px-3 py-2" style={{fontSize: '11px', letterSpacing: '0.05em'}}>PENDIENTE</span>;
-            case 'SHIPPED': return <span className="badge bg-primary rounded-pill px-3 py-2" style={{fontSize: '11px', letterSpacing: '0.05em'}}>ENVIADO</span>;
-            case 'CANCELLED': return <span className="badge bg-danger rounded-pill px-3 py-2" style={{fontSize: '11px', letterSpacing: '0.05em'}}>CANCELADO</span>;
-            default: return <span className="badge bg-secondary rounded-pill px-3 py-2" style={{fontSize: '11px', letterSpacing: '0.05em'}}>{status}</span>;
-        }
+    const toggleExpandir = (id) => {
+        setTarjetasExpandidas(prev => ({ ...prev, [id]: !prev[id] }));
     };
 
-    if (loading) return <div className="text-center mt-5"><i className="fas fa-circle-notch fa-spin fa-3x" style={{color: '#1d1d1f'}}></i></div>;
-    if (!isAuthenticated) return <div className="text-center mt-5 fw-bold">Debes iniciar sesión para ver tus pedidos.</div>;
+    // LÓGICA DE FILTRADO (FRONTEND)
+    const pedidosFiltrados = useMemo(() => {
+        return pedidos.filter(pedido => {
+            // Filtro por Estado
+            if (filtroEstado !== 'TODOS' && pedido.status !== filtroEstado) return false;
+            
+            // Búsqueda por ID (ej. si el usuario escribe "17", mostrar la orden 17)
+            if (busqueda.trim() !== '') {
+                return pedido.id.toString().includes(busqueda.trim());
+            }
+            return true;
+        });
+    }, [pedidos, filtroEstado, busqueda]);
+
+    const getStatusConfig = (status) => {
+        const config = {
+            PAID: { text: 'PAGADO', className: 'badge-paid', icon: 'fa-check-circle' },
+            PENDING: { text: 'PENDIENTE', className: 'badge-pending', icon: 'fa-clock' },
+            SHIPPED: { text: 'ENVIADO', className: 'badge-shipped', icon: 'fa-truck' },
+            CANCELLED: { text: 'CANCELADO', className: 'badge-cancelled', icon: 'fa-times-circle' }
+        };
+        return config[status] || { text: status, className: 'badge-default', icon: 'fa-box' };
+    };
+
+    if (loading) {
+        return (
+            <div className="orders-loading-screen">
+                <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}>
+                    <i className="fas fa-circle-notch fa-spin fa-3x" style={{ color: '#0a84ff' }}></i>
+                </motion.div>
+            </div>
+        );
+    }
+
+    if (!isAuthenticated) return <div className="orders-auth-warning">Debes iniciar sesión para ver tus pedidos.</div>;
 
     return (
-        <div style={{ backgroundColor: '#f5f5f7', minHeight: '100vh', padding: '40px 0', fontFamily: "'-apple-system', BlinkMacSystemFont, 'Inter', sans-serif" }}>
-            <div className="container" style={{ maxWidth: '800px' }}>
-                
-                <div className="mb-5 border-bottom border-2 pb-4" style={{ borderColor: "#e5e5ea" }}>
-                    <h1 className="fw-bolder text-dark mb-1" style={{ letterSpacing: "-0.04em", fontSize: "2.5rem" }}>Tus Pedidos</h1>
-                    <p className="text-secondary fw-medium mb-0" style={{ color: "#86868b" }}>Historial de <strong>pedidos</strong> que has <strong>realizado</strong></p>
-                </div>
-                
-                {error && <div className="alert alert-danger rounded-4 border-1">{error}</div>}
+        <div className="orders-main-glass-wrapper">
+            {/* Luces Ambientales */}
+            <div className="orders-ambient-blob blob-1"></div>
+            <div className="orders-ambient-blob blob-2"></div>
 
-                {pedidos.length === 0 ? (
-                    <div className="card border-0 shadow-sm rounded-4 p-5 text-center">
-                        <i className="fas fa-box-open fa-4x mb-3" style={{ color: '#d2d2d7' }}></i>
-                        <h4 className="fw-bolder text-dark">Aún no tienes pedidos</h4>
-                        <p className="text-muted fw-medium">¡Anímate a hacer tu primera compra en RUKI!</p>
-                    </div>
+            <div className="orders-container-glass">
+                
+                {/* CABECERA */}
+                <motion.div 
+                    className="orders-page-header-glass"
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                >
+                    <h1>Historial de Pedidos</h1>
+                    <p>Revisa, filtra y gestiona todas tus compras.</p>
+                </motion.div>
+                
+                {error && <div className="orders-alert-error-glass"><i className="fas fa-exclamation-triangle me-2"></i>{error}</div>}
+
+                {/* PANEL DE FILTROS FRONTEND */}
+                {pedidos.length > 0 && (
+                    <motion.div 
+                        className="orders-filters-glass"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.2 }}
+                    >
+                        {/* Buscador Rápido */}
+                        <div className="orders-search-wrapper">
+                            <i className="fas fa-search search-icon"></i>
+                            <input 
+                                type="text" 
+                                placeholder="Buscar por Orden #" 
+                                className="orders-search-glass"
+                                value={busqueda}
+                                onChange={(e) => setBusqueda(e.target.value)}
+                            />
+                        </div>
+
+                        {/* Píldoras de Estado */}
+                        <div className="orders-filter-pills">
+                            {['TODOS', 'PENDING', 'PAID', 'SHIPPED', 'CANCELLED'].map(estado => (
+                                <motion.button
+                                    key={estado}
+                                    whileTap={{ scale: 0.95 }}
+                                    className={`filter-pill-glass ${filtroEstado === estado ? 'active' : ''}`}
+                                    onClick={() => setFiltroEstado(estado)}
+                                >
+                                    {estado === 'TODOS' ? 'Todos' : getStatusConfig(estado).text}
+                                </motion.button>
+                            ))}
+                        </div>
+                    </motion.div>
+                )}
+
+                {pedidosFiltrados.length === 0 ? (
+                    <motion.div 
+                        className="orders-empty-state-glass"
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                    >
+                        <div className="empty-icon-glass">
+                            <i className="fas fa-box-open fa-2x"></i>
+                        </div>
+                        <h4>{pedidos.length === 0 ? 'Aún no tienes pedidos' : 'No se encontraron resultados'}</h4>
+                        <p>{pedidos.length === 0 ? '¡Anímate a hacer tu primera compra en RUKI!' : 'Intenta con otro número de orden o estado.'}</p>
+                    </motion.div>
                 ) : (
-                    <div className="d-flex flex-column gap-4">
-                        {pedidos.map(pedido => (
-                            <div key={pedido.id} className="card border-2 rounded-4 overflow-hidden" style={{border: '1.5px solid #e5e5ea'}}>
+                    <motion.div className="orders-list-glass" layout>
+                        <AnimatePresence>
+                            {pedidosFiltrados.map(pedido => {
+                                const statusBadge = getStatusConfig(pedido.status);
+                                const isExpanded = tarjetasExpandidas[pedido.id];
 
-                                <div className="card-header bg-white border-bottom-0 pt-4 px-4 d-flex justify-content-between align-items-start">
-                                    <div>
-                                        <span className="text-muted small fw-bolder" style={{letterSpacing: '0.05em'}}>ORDEN #{pedido.id}</span>
-                                        <p className="mb-0 fw-bolder fs-4 text-dark">${Number(pedido.totalAmount).toLocaleString('es-CL')}</p>
-                                    </div>
-                                    <div className="mt-1">{getStatusBadge(pedido.status)}</div>
-                                </div>
-                                
-                                {/* CUERPO DEL PEDIDO */}
-                                <div className="card-body px-4 pb-4">
-                                    <p className="small fw-bolder text-muted mb-2" style={{letterSpacing: '0.02em'}}>PRODUCTOS</p>
-                                    
-                                    <ul className="list-group list-group-flush mb-3 border rounded-3 overflow-hidden">
-                                        {pedido.items.map(item => (
-                                            <li key={item.id} className="list-group-item d-flex justify-content-between align-items-center border-0 border-bottom last-border-0 py-3" style={{ background: '#fbfbfd' }}>
-                                                
-                                                <div className="d-flex align-items-center gap-2">
-                                                    <span className="badge bg-light text-dark border px-2 py-1">{item.quantity}x</span>
-                                                    <span className="fw-semibold text-dark" style={{fontSize: '14px'}}>
-                                                        {nombresProductos[item.productId] || 'Cargando...'}
-                                                    </span>
+                                return (
+                                    <motion.div 
+                                        key={pedido.id} 
+                                        className="order-card-glass"
+                                        layout
+                                        initial={{ opacity: 0, y: 15 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
+                                    >
+                                        {/* CABECERA (ACORDEÓN TRIGGER) */}
+                                        <div className="order-header-glass" onClick={() => toggleExpandir(pedido.id)}>
+                                            <div className="d-flex align-items-center gap-3">
+                                                <div className="order-icon-glass">
+                                                    <i className={`fas ${statusBadge.icon} ${statusBadge.className.replace('badge-', 'text-')}`}></i>
                                                 </div>
-
-                                                <span className="fw-bolder text-dark" style={{fontSize: '14px'}}>
-                                                    ${Number(item.unitPrice).toLocaleString('es-CL')} c/u
+                                                <div>
+                                                    <span className="order-id-label">ORDEN #{pedido.id}</span>
+                                                    <h3 className="order-total-price">
+                                                        ${Number(pedido.totalAmount).toLocaleString('es-CL')}
+                                                    </h3>
+                                                </div>
+                                            </div>
+                                            <div className="d-flex align-items-center gap-3">
+                                                <span className={`order-status-badge ${statusBadge.className}`}>
+                                                    {statusBadge.text}
                                                 </span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                    
-                                    {pedido.status === 'PENDING' && (
-                                        <div className="text-end pt-2">
-                                            <button 
-                                                className="btn btn-sm btn-outline-danger fw-bold rounded-pill px-4 py-2" 
-                                                onClick={() => handleCancelar(pedido.id)}
-                                                style={{fontSize: '12px'}}
-                                            >
-                                                Cancelar Pedido
-                                            </button>
+                                                <motion.i 
+                                                    className="fas fa-chevron-down text-muted"
+                                                    animate={{ rotate: isExpanded ? 180 : 0 }}
+                                                    transition={{ duration: 0.3 }}
+                                                ></motion.i>
+                                            </div>
                                         </div>
-                                    )}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+                                        
+                                        {/* CUERPO DEL PEDIDO (EXPANDIBLE) */}
+                                        <AnimatePresence>
+                                            {isExpanded && (
+                                                <motion.div 
+                                                    initial={{ height: 0, opacity: 0 }}
+                                                    animate={{ height: 'auto', opacity: 1 }}
+                                                    exit={{ height: 0, opacity: 0 }}
+                                                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                                                    className="order-body-expandable"
+                                                >
+                                                    <div className="order-body-glass">
+                                                        <p className="order-section-title">PRODUCTOS ADQUIRIDOS</p>
+                                                        <div className="order-items-list-glass">
+                                                            {pedido.items.map(item => (
+                                                                <div key={item.id} className="order-item-row-glass">
+                                                                    <div className="item-info-group">
+                                                                        <span className="item-quantity-glass">{item.quantity}x</span>
+                                                                        <span className="item-name">{nombresProductos[item.productId] || 'Cargando...'}</span>
+                                                                    </div>
+                                                                    <span className="item-price">
+                                                                        ${Number(item.unitPrice).toLocaleString('es-CL')} <small>c/u</small>
+                                                                    </span>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                        
+                                                        {pedido.status === 'PENDING' && (
+                                                            <div className="order-actions-glass">
+                                                                <motion.button 
+                                                                    whileTap={{ scale: 0.95 }}
+                                                                    className="btn-cancel-glass" 
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation(); // Evita que se cierre el acordeón
+                                                                        handleCancelar(pedido.id);
+                                                                    }}
+                                                                >
+                                                                    Cancelar Pedido
+                                                                </motion.button>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
+                                    </motion.div>
+                                );
+                            })}
+                        </AnimatePresence>
+                    </motion.div>
                 )}
             </div>
         </div>

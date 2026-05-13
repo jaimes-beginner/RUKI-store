@@ -5,9 +5,9 @@ import { PaginaSaleCliente } from './page/Cliente/PaginaSale.jsx'
 import { PaginaProductosCliente } from './page/Cliente/PaginaProductos.jsx'
 import { PaginaBlogCliente } from './page/Cliente/BlogPagina.jsx'
 import { PaginaFAQCliente } from './page/Cliente/FAQPagina.jsx'
-import { CrearUsuarioAdmin } from './page/Admin/CrearUsuarioAdmin.jsx'
+
 import { CrearReporteDashboard } from './page/Admin/CrearReporteDashboard.jsx'
-import { Login } from './page/Login/LoginUsuario.jsx'
+
 import { AdminRoute } from './security/AdminRoute.jsx'
 import { InventarioAdmin } from './components/admin/gestion/InventarioAdmin.jsx'
 import { InventarioAdminPage } from './page/Admin/InventarioAdminPage.jsx'
@@ -19,6 +19,8 @@ import { PublicRoute } from './security/PublicRoute.jsx'
 import { PerfilPage } from './page/Cliente/PerfilPage.jsx'
 import { ProductoDetallePage } from './page/Cliente/ProductoDetallePage.jsx'
 import { MisPedidosPage } from './page/Cliente/MisPedidosPage.jsx'
+import { RegistrarUsuarioPage } from './page/Auth/RegistrarUsuarioPage.jsx'
+import { LoginUsuarioPage } from './page/Auth/LoginUsuarioPage.jsx'
 
 
 function App() {
@@ -36,27 +38,20 @@ function App() {
         <Route path="/producto/:id" element={<ProductoDetallePage />} />
         <Route path="/mis-pedidos" element={<MisPedidosPage />} />
 
+        <Route path="/crear-usuario" element={
+          <PublicRoute>
+            <RegistrarUsuarioPage />
+          </PublicRoute>
+        } />
+
         <Route path="/login" element={
           <PublicRoute>
-            <Login />
+            <LoginUsuarioPage />
           </PublicRoute>
         } />
 
         <Route path="/checkout" element={<CheckoutPage />} />
         <Route path="/pago-exitoso" element={<PagoExitosoPage />} />
-
-        {/* RUTAS PRIVADAS DE ADMINISTRADOR */}
-        <Route path="/admin" element={
-          <AdminRoute>
-            <CrearUsuarioAdmin />
-          </AdminRoute>
-        } />
-
-        <Route path="/admin/crear-usuario" element={
-          <AdminRoute>
-            <CrearUsuarioAdmin />
-          </AdminRoute>
-        } />
 
         <Route path="/admin/reporte-dashboard" element={
           <AdminRoute>
