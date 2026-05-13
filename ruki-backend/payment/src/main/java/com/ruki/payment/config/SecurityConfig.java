@@ -12,7 +12,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -30,11 +29,15 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
 
-                .requestMatchers("/api-ruki/payments/checkout", "/api-ruki/payments/process").permitAll()
+                /* 
+                    Rutas de STRIPE WEBHOOK esto es vital para que 
+                    Stripe nos avise del pago sin necesitar token JWT
+                */
+                .requestMatchers("/api-ruki/payments/checkout", "/api-ruki/payments/process", "/api-ruki/payments/webhook").permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                 /* 
-                    Transbank no tiene JWT, esta 
+                    La pasarela no tiene JWT, esta 
                     ruta debe ser pública
                 */
                 .requestMatchers(HttpMethod.GET, "/api-ruki/payments/callback").permitAll()
