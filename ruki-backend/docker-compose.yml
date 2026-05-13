@@ -4,7 +4,7 @@ services:
 
   # Gateway es el único punto de entrada que tiene que estar público
   gateway-service:
-    build: ./ruki-gateway 
+    build: ./ruki-gateway
     ports:
       - "8000:8000"
     networks:
@@ -65,6 +65,8 @@ services:
       - FRONTEND_URL=${FRONTEND_URL}
       - ORDER_SERVICE_URL=http://pedidos-service:8082
       - PAYMENT_SERVICE_URL=http://pagos-service:8083
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
 
 networks:
   ruki-network:
