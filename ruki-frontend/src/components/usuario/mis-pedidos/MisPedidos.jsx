@@ -13,7 +13,10 @@ export function MisPedidos() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // ESTADOS PARA FILTROS FRONTEND
+    /*
+        Estados creados para los 
+        filtros del frontend
+    */
     const [filtroEstado, setFiltroEstado] = useState('TODOS');
     const [busqueda, setBusqueda] = useState('');
     const [tarjetasExpandidas, setTarjetasExpandidas] = useState({}); // Controla qué pedidos están abiertos
@@ -66,13 +69,21 @@ export function MisPedidos() {
         setTarjetasExpandidas(prev => ({ ...prev, [id]: !prev[id] }));
     };
 
-    // LÓGICA DE FILTRADO (FRONTEND)
+    /*
+        Lógica de filtrado para el frontend
+    */
     const pedidosFiltrados = useMemo(() => {
         return pedidos.filter(pedido => {
-            // Filtro por Estado
+            
+            /*
+                Filtro por Estado
+            */
             if (filtroEstado !== 'TODOS' && pedido.status !== filtroEstado) return false;
             
-            // Búsqueda por ID (ej. si el usuario escribe "17", mostrar la orden 17)
+            /*
+                Búsqueda por ID (ej. si el usuario 
+                escribe "17", mostrar la orden 17)
+            */
             if (busqueda.trim() !== '') {
                 return pedido.id.toString().includes(busqueda.trim());
             }
@@ -104,7 +115,7 @@ export function MisPedidos() {
 
     return (
         <div className="orders-main-glass-wrapper">
-            {/* Luces Ambientales */}
+            {/* LUCES AMBIENTALES */}
             <div className="orders-ambient-blob blob-1"></div>
             <div className="orders-ambient-blob blob-2"></div>
 
@@ -131,7 +142,7 @@ export function MisPedidos() {
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.2 }}
                     >
-                        {/* Buscador Rápido */}
+                        {/* BUSCADOR RAPIDO */}
                         <div className="orders-search-wrapper">
                             <i className="fas fa-search search-icon"></i>
                             <input 
@@ -143,7 +154,7 @@ export function MisPedidos() {
                             />
                         </div>
 
-                        {/* Píldoras de Estado */}
+                        {/* PILDORAS DE ESTADO */}
                         <div className="orders-filter-pills">
                             {['TODOS', 'PENDING', 'PAID', 'SHIPPED', 'CANCELLED'].map(estado => (
                                 <motion.button
@@ -244,7 +255,7 @@ export function MisPedidos() {
                                                                     whileTap={{ scale: 0.95 }}
                                                                     className="btn-cancel-glass" 
                                                                     onClick={(e) => {
-                                                                        e.stopPropagation(); // Evita que se cierre el acordeón
+                                                                        e.stopPropagation(); 
                                                                         handleCancelar(pedido.id);
                                                                     }}
                                                                 >

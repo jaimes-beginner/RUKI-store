@@ -8,15 +8,21 @@ import './Perfil.css';
 export function Perfil() {
     const { usuario } = useAuth();
     
-    // Estados de datos
+    /*
+        Estados de datos
+    */
     const [perfil, setPerfil] = useState(null);
     const [direcciones, setDirecciones] = useState([]);
     
-    // Estados de edición de perfil
+    /*
+        Estados de edición de perfil
+    */
     const [editMode, setEditMode] = useState(false);
     const [formData, setFormData] = useState({ firstName: '', lastName: '', password: '' });
     
-    // Estados de nueva dirección
+    /*
+        Estados de nueva dirección
+    */
     const [showAddressModal, setShowAddressModal] = useState(false);
     const [addressForm, setAddressForm] = useState({
         street: '', city: '', region: '', zipCode: '', referenceInfo: ''
@@ -25,7 +31,9 @@ export function Perfil() {
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState(false);
     
-    // Estado del Toast (Notificaciones)
+    /*
+        Estado del Toast (Notificaciones)
+    */
     const [toast, setToast] = useState({ mostrar: false, mensaje: '', tipo: '' });
 
     const mostrarToast = (mensaje, tipo) => {
@@ -88,7 +96,9 @@ export function Perfil() {
         }
     };
 
-    // Variantes de animación
+    /*
+        Variantes de animación
+    */
     const containerVariants = {
         hidden: { opacity: 0 },
         visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
@@ -116,7 +126,8 @@ export function Perfil() {
 
     return (
         <div className="profile-main-wrapper">
-            {/* LUCES AMBIENTALES ESTILO IOS */}
+
+            {/* LUCES AMBIENTALES */}
             <div className="profile-ambient-blob profile-blob-1"></div>
             <div className="profile-ambient-blob profile-blob-2"></div>
 
@@ -139,7 +150,7 @@ export function Perfil() {
                     initial="hidden"
                     animate="visible"
                 >
-                    {/* COLUMNA IZQUIERDA: INFORMACIÓN PERSONAL */}
+                    {/* COLUMNA IZQUIERDA CON INFORMACIÓN PERSONAL */}
                     <motion.div className="col-md-5" variants={cardVariants}>
                         <div className="profile-card-glass h-100">
                             <div className="profile-header-glass d-flex justify-content-between align-items-center">
@@ -205,7 +216,7 @@ export function Perfil() {
                         </div>
                     </motion.div>
 
-                    {/* COLUMNA DERECHA: DIRECCIONES */}
+                    {/* COLUMNA DERECHA CON LAS DIRECCIONES */}
                     <motion.div className="col-md-7" variants={cardVariants}>
                         <div className="profile-card-glass h-100 d-flex flex-column">
                             <div className="profile-header-glass d-flex justify-content-between align-items-center">

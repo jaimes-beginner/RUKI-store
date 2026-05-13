@@ -6,7 +6,7 @@ function Footer() {
   return (
     <footer className="ruki-footer-glass">
       
-      {/* SECCIÓN SUPERIOR (FAQ y Mapa) */}
+      {/* SECCIÓN SUPERIOR */}
       <div className="ruki-footer-top-glass">
         <motion.a 
           href="/faq" 
@@ -39,7 +39,7 @@ function Footer() {
       <div className="ruki-footer-main-glass">
         <div className="ruki-footer-main-inner">
           
-          {/* Tarjeta con efecto Glass y Físicas */}
+          {/* TARJETA CON EFECTO GLASS */}
           <motion.a 
             href="/noticias" 
             className="ruki-footer-card-glass" 

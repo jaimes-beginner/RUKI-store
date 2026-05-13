@@ -17,7 +17,10 @@ const products = [
     { name: 'Mochila Utility RUKI', price: 22900, image: '/imagenes/wallpaper.jpg' },
 ];
 
-// Animaciones base para Framer Motion
+/*
+    Variantes para las animaciónes 
+    de la pantalla de inicio
+*/
 const fadeInUp = {
     hidden: { opacity: 0, y: 40 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.2, 0.65, 0.3, 0.9] } }
@@ -65,13 +68,14 @@ function PantallaInicio() {
 
     return (
         <main className="ios-home-main">
+
             {/* LUCES AMBIENTALES DE FONDO */}
             <div className="ios-ambient-blob blob-1"></div>
             <div className="ios-ambient-blob blob-2"></div>
 
             <div className="ios-home-main-inner">
                 
-                {/* HERO BANNER - Animación de entrada */}
+                {/* HERO BANNER */}
                 <motion.section 
                     className="ios-hero-banner"
                     initial={{ opacity: 0, y: 20 }}
@@ -122,7 +126,8 @@ function PantallaInicio() {
                             whileTap={{ scale: 0.97 }}
                         >
                             <img src={category.image} alt={category.title} />
-                            {/* Píldora de cristal flotante en lugar de texto plano */}
+                            
+                            {/* PILDORA DE CRISTAL FLOTANTE */}
                             <div className="ios-category-label-glass">
                                 <span>{category.title}</span>
                                 <i className="fas fa-arrow-right"></i>

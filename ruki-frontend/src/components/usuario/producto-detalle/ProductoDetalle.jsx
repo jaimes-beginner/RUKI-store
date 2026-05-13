@@ -37,7 +37,9 @@ export function ProductoDetalle() {
         cargarProducto();
     }, [id]);
 
-    // Variantes de animación
+    /*
+        Variantes de animación
+    */
     const containerVariants = {
         hidden: { opacity: 0 },
         visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.2 } }
@@ -112,7 +114,7 @@ export function ProductoDetalle() {
                         )}
                     </div>
 
-                    {/* COLUMNA DERECHA: INFO Y ACCIONES */}
+                    {/* COLUMNA DERECHA CON LA INFO Y ACCIONES */}
                     <motion.div 
                         className="col-12 col-md-6 col-lg-5 offset-lg-1 d-flex flex-column pt-0 pt-md-3 px-0 px-md-3"
                         variants={containerVariants}
@@ -136,7 +138,7 @@ export function ProductoDetalle() {
                             </p>
                         </motion.div>
 
-                        {/* SECTOR DE ACCIONES (Solo si hay stock) */}
+                        {/* SECTOR DE ACCIONES */}
                         {producto.stock > 0 && (
                             <motion.div className="mb-4" variants={itemVariants}>
                                 <p className="product-qty-label">Selecciona la cantidad:</p>

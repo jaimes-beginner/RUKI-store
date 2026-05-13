@@ -73,7 +73,6 @@ export function Checkout() {
         }
     };
 
-    // Animaciones
     const pageVariants = {
         hidden: { opacity: 0, y: 20 },
         visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
@@ -126,7 +125,8 @@ export function Checkout() {
             </AnimatePresence>
 
             <div className="row gap-4 gap-lg-0">
-                {/* COLUMNA IZQUIERDA: Dirección y Datos */}
+
+                {/* COLUMNA IZQUIERDA */}
                 <div className="col-lg-7 pe-lg-4">
                     <div className="checkout-card mb-4">
                         <div className="d-flex align-items-center mb-4">
@@ -173,7 +173,7 @@ export function Checkout() {
                     </div>
                 </div>
 
-                {/* COLUMNA DERECHA: Resumen del Carrito */}
+                {/* COLUMNA DERECHA */}
                 <div className="col-lg-5">
                     <div className="checkout-card summary-card sticky-top" style={{ top: '140px' }}>
                         <h5 className="fw-bold mb-4">Resumen del Pedido</h5>
