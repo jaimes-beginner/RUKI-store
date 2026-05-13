@@ -54,43 +54,40 @@ public class PaymentController {
             @RequestHeader("Stripe-Signature") String sigHeader) {
 
         Event event;
-
         try {
-            /*
-                Verificamos matemáticamente que la petición 
-                viene de Stripe y no de un hacker
-            */
             event = Webhook.constructEvent(payload, sigHeader, endpointSecret);
+            log.info("CORRECTO | Webhook recibido y firma validada. Tipo de evento: {}", event.getType());
         } catch (SignatureVerificationException e) {
-            log.error("Firma de Webhook inválida. Intento de falsificación detectado.");
+            log.error("ERROR | Firma de Webhook inválida.");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid signature");
         } catch (Exception e) {
-            log.error("Error procesando payload del Webhook.");
+            log.error("ERROR | Error procesando payload del Webhook.");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid payload");
         }
 
-        /*
-            Si el evento nos dice que la sesión de pago 
-            finalizó con éxito
-        */
         if ("checkout.session.completed".equals(event.getType())) {
+            log.info("ATENCIÓN | Procesando checkout.session.completed...");
             EventDataObjectDeserializer dataObjectDeserializer = event.getDataObjectDeserializer();
             
             if (dataObjectDeserializer.getObject().isPresent()) {
                 Session session = (Session) dataObjectDeserializer.getObject().get();
-                
                 String sessionId = session.getId();
                 
-                /*
-                    Recuperamos el ID de la orden que guardamos antes
-                */
-                Long orderId = Long.parseLong(session.getMetadata().get("orderId"));
+                log.info("CORRECTO | Sesión extraída correctamente. ID: {}", sessionId);
                 
-                /*
-                    Confirmamos el pago en la base de datos y notificamos a Pedidos
-                */
-                paymentService.confirmPaymentFromWebhook(sessionId, orderId);
+                if (session.getMetadata() != null && session.getMetadata().containsKey("orderId")) {
+                    Long orderId = Long.parseLong(session.getMetadata().get("orderId"));
+                    log.info("CORRECTO | Llamando a confirmPaymentFromWebhook para la orden: {}", orderId);
+                    paymentService.confirmPaymentFromWebhook(sessionId, orderId);
+                } else {
+                    log.error(" ERROR | La sesión no tiene el 'orderId' en los metadatos.");
+                }
+            } else {
+                log.error("ERROR CRÍTICO | Stripe no pudo deserializar el objeto. Posible choque de versiones de API.");
+                log.error("JSON CRUDO: {}", dataObjectDeserializer.getRawJson());
             }
+        } else {
+            log.info("Ignorando evento que no es checkout.session.completed");
         }
 
         return ResponseEntity.ok("Success");
