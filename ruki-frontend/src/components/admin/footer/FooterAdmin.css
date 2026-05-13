@@ -1,0 +1,126 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+/* =========================================
+   CONTENEDOR PRINCIPAL (SMOKED GLASS)
+========================================= */
+.admin-footer-glass {
+    position: relative;
+    background: rgba(28, 28, 30, 0.85); /* Gris carbón semi-transparente */
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-top: 1px solid rgba(255, 255, 255, 0.08); /* Hairline superior */
+    color: #f5f5f7;
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+    z-index: 10;
+}
+
+/* =========================================
+   TEXTOS Y CABECERAS
+========================================= */
+.admin-footer-title {
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    color: #86868b; /* Gris secundario Apple */
+    margin-bottom: 16px;
+}
+
+.admin-footer-text {
+    font-size: 14px;
+    font-weight: 500;
+    color: #a1a1a6;
+    line-height: 1.6;
+    margin-bottom: 8px;
+}
+
+.admin-footer-text strong {
+    color: #ffffff;
+    font-weight: 700;
+}
+
+.font-italic {
+    font-style: italic;
+    color: #86868b;
+}
+
+/* =========================================
+   REDES SOCIALES (BOTONES FLOTANTES)
+========================================= */
+.admin-social-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 12px; /* Squircle Apple */
+    background: rgba(255, 255, 255, 0.05);
+    color: #d2d2d7;
+    text-decoration: none;
+    font-size: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease;
+}
+
+.admin-social-icon:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* =========================================
+   ENLACES
+========================================= */
+.admin-footer-link {
+    color: #a1a1a6;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    display: inline-block;
+}
+
+.admin-footer-link:hover {
+    color: #ffffff;
+    transform: translateX(-4px); /* Pequeño desplazamiento hacia la izquierda en pantallas md-end */
+}
+
+@media (max-width: 768px) {
+    .admin-footer-link:hover {
+        transform: translateX(4px); /* Hacia la derecha en móviles (alineación izq) */
+    }
+}
+
+/* =========================================
+   SEPARADOR Y BOTTOM
+========================================= */
+.admin-footer-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.08);
+    width: 100%;
+}
+
+.admin-footer-bottom-text {
+    font-size: 12px;
+    font-weight: 500;
+    color: #86868b;
+    letter-spacing: 0.02em;
+}
+
+.admin-footer-bottom-link {
+    font-size: 12px;
+    font-weight: 600;
+    color: #86868b;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.admin-footer-bottom-link:hover {
+    color: #d2d2d7;
+}
+
+.disabled-link {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+}

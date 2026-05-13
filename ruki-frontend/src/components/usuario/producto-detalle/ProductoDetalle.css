@@ -1,0 +1,276 @@
+.product-detail-main {
+    background-color: #ffffff;
+    min-height: 100vh;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Pantallas de Carga y Error */
+.product-loading-screen,
+.product-error-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    text-align: center;
+}
+
+/* Botón Volver */
+.btn-back-subtle {
+    background: none;
+    border: none;
+    color: #86868b;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 0;
+    margin-bottom: 1rem;
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.btn-back-subtle:hover {
+    color: #1d1d1f;
+}
+
+.btn-back-subtle i {
+    font-size: 12px;
+}
+
+/* Contenedor Principal (Tarjeta Móvil/Desktop) */
+.product-card-container {
+    background-color: #ffffff;
+    border: 1px solid #e5e5ea;
+    border-radius: 24px;
+    padding: 24px;
+    margin: 0;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.02);
+}
+
+/* Imágenes */
+.main-image-wrapper {
+    position: relative;
+    background-color: #f5f5f7;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.main-product-image {
+    width: 100%;
+    aspect-ratio: 4/4;
+    object-fit: cover;
+    display: block;
+}
+
+.out-of-stock-badge {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    background-color: rgba(29, 29, 31, 0.85);
+    color: #ffffff;
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+/* Miniaturas */
+.thumbnail-gallery-container {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    scroll-snap-type: x mandatory;
+}
+
+.scrollbar-hidden::-webkit-scrollbar { display: none; }
+.scrollbar-hidden { -ms-overflow-style: none; scrollbar-width: none; }
+
+.thumb-galeria {
+    width: 72px;
+    height: 90px;
+    flex-shrink: 0;
+    border: 2px solid transparent;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    opacity: 0.5;
+    scroll-snap-align: start;
+}
+
+.thumb-galeria img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.thumb-galeria:hover { opacity: 0.8; }
+.thumb-galeria.active {
+    border-color: #1d1d1f;
+    opacity: 1;
+}
+
+/* Textos de la Derecha */
+.product-title {
+    font-weight: 800;
+    color: #1d1d1f;
+    margin-bottom: 8px;
+    letter-spacing: -0.03em;
+    font-size: clamp(1.75rem, 4vw, 2.25rem);
+    line-height: 1.1;
+}
+
+.product-price {
+    font-weight: 700;
+    color: #1d1d1f;
+    margin-bottom: 24px;
+    font-size: clamp(1.25rem, 3vw, 1.5rem);
+}
+
+.product-divider {
+    border-color: #e5e5ea;
+    opacity: 1;
+    margin: 0 0 24px 0;
+}
+
+.product-description {
+    color: #515154;
+    line-height: 1.6;
+    font-size: 15px;
+    margin: 0;
+}
+
+/* Selector de Cantidad Premium */
+.product-qty-label {
+    font-weight: 600;
+    color: #1d1d1f;
+    margin-bottom: 12px;
+    font-size: 13px;
+}
+
+.qty-capsule {
+    display: inline-flex;
+    align-items: center;
+    background-color: #f5f5f7;
+    border-radius: 14px;
+    padding: 4px;
+}
+
+.qty-capsule-btn {
+    background: transparent;
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    color: #1d1d1f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s ease;
+}
+
+.qty-capsule-btn i { font-size: 12px; }
+.qty-capsule-btn:hover:not(:disabled) { background-color: #e5e5ea; }
+.qty-capsule-btn:disabled { color: #d2d2d7; cursor: not-allowed; }
+
+.qty-capsule-value {
+    width: 40px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 15px;
+    color: #1d1d1f;
+}
+
+.stock-warning {
+    font-weight: 500;
+    color: #86868b;
+    font-size: 13px;
+}
+
+/* Botones y Acciones */
+.ios-btn-dark {
+    background: #1d1d1f;
+    color: #ffffff;
+    border-radius: 14px;
+    font-weight: 600;
+    padding: 16px;
+    border: none;
+    transition: all 0.2s ease;
+    letter-spacing: 0.02em;
+    font-size: 1rem;
+}
+
+.ios-btn-dark:hover:not(:disabled) {
+    background: #000000;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+.ios-btn-dark:disabled {
+    background: #f5f5f7;
+    color: #86868b;
+    cursor: not-allowed;
+}
+
+.shipping-info {
+    text-align: center;
+    margin-top: 16px;
+    margin-bottom: 0;
+    font-weight: 500;
+    color: #86868b;
+    font-size: 12px;
+}
+
+/* Toast Notificación Rediseñado */
+.toast-fixed-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 1060;
+    pointer-events: none; /* Para que no bloquee clics detrás si no hay toast */
+}
+
+.ios-toast-notification {
+    background-color: #ffffff;
+    border: 2px solid #1d1d1f;
+    border-radius: 18px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.12);
+    pointer-events: auto; /* Reactivar clics en la tarjeta */
+    max-width: 90vw;
+}
+
+.toast-body-text {
+    font-weight: 600;
+    color: #1d1d1f;
+    font-size: 14px;
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .product-card-container {
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+        padding: 16px 0;
+    }
+    
+    .toast-fixed-container {
+        bottom: 16px;
+        right: 16px;
+        left: 16px;
+        display: flex;
+        justify-content: center;
+    }
+    
+    .ios-toast-notification {
+        width: 100%;
+    }
+}

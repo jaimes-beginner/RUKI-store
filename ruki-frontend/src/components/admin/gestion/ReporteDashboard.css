@@ -1,0 +1,290 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+/* =========================================
+   BASE Y AMBIENTE (LIGHT ADMIN)
+========================================= */
+.admin-dashboard-wrapper {
+    position: relative;
+    min-height: 100vh;
+    background-color: #f5f5f7; /* Gris claro Apple */
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+    overflow: hidden;
+}
+
+/* Luces Ambientales Fijas (Parallax Clara) */
+.admin-ambient-blob {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(120px);
+    z-index: 0;
+    opacity: 0.35;
+    pointer-events: none;
+    transform: translateZ(0);
+    will-change: transform;
+}
+.admin-blob-1 { width: 500px; height: 500px; background: rgba(10, 132, 255, 0.3); top: -100px; left: -100px; } /* Azul suave */
+.admin-blob-2 { width: 600px; height: 600px; background: rgba(52, 199, 89, 0.25); bottom: -200px; right: -100px; } /* Verde suave */
+.admin-blob-3 { width: 300px; height: 300px; background: rgba(255, 45, 85, 0.15); top: 30%; right: 10%; } /* Rosa acento */
+
+/* =========================================
+   CABECERA
+========================================= */
+.admin-dashboard-header {
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.05);
+}
+
+.admin-title {
+    font-weight: 800;
+    color: #1d1d1f;
+    letter-spacing: -0.04em;
+    font-size: clamp(32px, 5vw, 48px);
+    margin-bottom: 4px;
+}
+
+.admin-subtitle {
+    color: #86868b;
+    font-weight: 500;
+    font-size: 16px;
+    margin: 0;
+}
+.admin-subtitle strong { color: #1d1d1f; }
+
+/* =========================================
+   TARJETAS LIGHT GLASS
+========================================= */
+.admin-card-glass {
+    position: relative;
+    background: rgba(255, 255, 255, 0.65); /* Cristal blanco translúcido */
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-radius: 24px;
+    padding: 24px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+    border: none;
+    overflow: hidden;
+}
+
+/* Inner Hairline (Borde de luz) */
+.admin-card-glass::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 24px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    pointer-events: none;
+}
+
+.admin-card-glass.critical-border::after {
+    border: 1px solid rgba(255, 59, 48, 0.4);
+    box-shadow: inset 0 0 20px rgba(255, 59, 48, 0.05);
+}
+
+/* Tarjetas Especiales con Degradado (Mantienen el texto blanco) */
+.feature-card-1 {
+    background: linear-gradient(135deg, rgba(10, 132, 255, 0.85), rgba(94, 92, 230, 0.85));
+    box-shadow: 0 16px 32px rgba(10, 132, 255, 0.2);
+}
+.feature-card-2 {
+    background: linear-gradient(135deg, rgba(52, 199, 89, 0.85), rgba(0, 150, 136, 0.85));
+    box-shadow: 0 16px 32px rgba(52, 199, 89, 0.2);
+}
+
+
+
+/* =========================================
+   TEXTOS Y NÚMEROS KPI
+========================================= */
+.admin-label {
+    font-size: 11px;
+    font-weight: 800;
+    color: #86868b;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.admin-kpi-number {
+    font-size: 3rem;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    color: #1d1d1f;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+.admin-kpi-subtitle {
+    font-size: 12px;
+    font-weight: 600;
+    color: #86868b;
+}
+
+.admin-icon-glass {
+    width: 44px;
+    height: 44px;
+    background: rgba(0, 0, 0, 0.03);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: #1d1d1f;
+}
+
+.critical-icon {
+    background: rgba(255, 59, 48, 0.1);
+    color: #ff3b30;
+    border-color: rgba(255, 59, 48, 0.2);
+}
+
+.admin-icon-large {
+    font-size: 4rem;
+    color: rgba(255, 255, 255, 0.3);
+}
+
+/* OVERRIDE PARA TEXTOS BLANCOS DEL JSX EN MODO CLARO */
+.admin-table td.text-white, 
+.admin-tracker-result .text-white,
+.admin-card-glass:not(.feature-card-1):not(.feature-card-2) .text-white {
+    color: #1d1d1f !important;
+}
+
+/* =========================================
+   BOTONES E INPUTS
+========================================= */
+.admin-btn-glass {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 10px 16px;
+    border-radius: 12px;
+    text-decoration: none;
+    transition: all 0.2s;
+    backdrop-filter: blur(10px);
+}
+.admin-btn-glass:hover {
+    background: rgba(255, 255, 255, 0.4);
+    color: #ffffff;
+}
+
+/* Para tarjetas claras, el botón sólido debe ser negro */
+.admin-card-glass:not(.feature-card-1):not(.feature-card-2) .admin-btn-glass {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.1);
+    color: #1d1d1f;
+}
+.admin-card-glass:not(.feature-card-1):not(.feature-card-2) .admin-btn-glass:hover {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.admin-btn-solid {
+    display: inline-block;
+    background: #1d1d1f;
+    color: #ffffff;
+    border: none;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 12px 20px;
+    border-radius: 12px;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+.admin-btn-solid:hover { background: #000000; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+.admin-btn-solid.btn-danger { background: #ff3b30; color: white; }
+.admin-btn-solid.btn-danger:hover { background: #ff453a; box-shadow: 0 4px 12px rgba(255, 59, 48, 0.3); }
+
+.admin-input-wrapper { position: relative; }
+.admin-input-wrapper .input-icon {
+    position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #a1a1a6; font-size: 14px;
+}
+.admin-input-glass {
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    color: #1d1d1f;
+    padding: 12px 16px 12px 42px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+}
+.admin-input-glass:focus {
+    background: #ffffff;
+    border-color: #0a84ff;
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(10, 132, 255, 0.15);
+}
+
+.admin-link-accent {
+    color: #0a84ff; font-weight: 700; font-size: 11px; text-decoration: none; transition: opacity 0.2s;
+}
+.admin-link-accent:hover { opacity: 0.8; }
+
+/* =========================================
+   TABLAS Y TRACKER
+========================================= */
+.admin-table-wrapper {
+    overflow-x: auto;
+}
+.admin-table th {
+    background: rgba(0, 0, 0, 0.02); color: #86868b; font-size: 11px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid rgba(0,0,0,0.05);
+    padding: 12px 16px; white-space: nowrap;
+}
+.admin-table td {
+    padding: 16px; border-bottom: 1px solid rgba(0,0,0,0.04); vertical-align: middle; white-space: nowrap; color: #1d1d1f;
+}
+.admin-table-row:hover td { background: rgba(0, 0, 0, 0.02); }
+.admin-table tr:last-child td { border-bottom: none; }
+
+.admin-badge {
+    font-size: 10px; font-weight: 800; padding: 4px 10px; border-radius: 8px; letter-spacing: 0.05em;
+}
+.badge-ok { background: rgba(52, 199, 89, 0.15); color: #28a745; border: 1px solid rgba(52, 199, 89, 0.2); }
+.badge-low { background: rgba(255, 149, 0, 0.15); color: #ff9500; border: 1px solid rgba(255, 149, 0, 0.2); }
+.badge-out { background: rgba(255, 59, 48, 0.1); color: #ff3b30; border: 1px solid rgba(255, 59, 48, 0.2); }
+
+/* Tracker Box */
+.admin-tracker-result {
+    background: rgba(255, 255, 255, 0.6); border: 1px solid rgba(0,0,0,0.06); border-radius: 16px; padding: 16px; margin-top: 16px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.03);
+}
+.border-bottom-glass { border-bottom: 1px solid rgba(0,0,0,0.06); }
+.text-accent { color: #0a84ff; }
+.tracker-items-scroll { max-height: 150px; overflow-y: auto; padding-right: 8px; }
+.tracker-items-scroll::-webkit-scrollbar { width: 4px; }
+.tracker-items-scroll::-webkit-scrollbar-thumb { background-color: rgba(0,0,0,0.15); border-radius: 10px; }
+.tracker-item-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(0,0,0,0.04); }
+.tracker-item-name { color: #1d1d1f; font-size: 13px; font-weight: 600; max-width: 160px; }
+.tracker-item-qty { color: #86868b; font-size: 12px; font-weight: 700; }
+.tracker-item-price { color: #1d1d1f; font-size: 13px; font-weight: 800; }
+
+/* =========================================
+   BARRA DE PROGRESO INVENTARIO
+========================================= */
+.admin-progress-bg {
+    width: 100%; height: 8px; background: rgba(0, 0, 0, 0.05); border-radius: 4px; overflow: hidden;
+}
+.admin-progress-fill {
+    height: 100%; background: linear-gradient(90deg, #34c759, #28a745); border-radius: 4px; box-shadow: 0 0 10px rgba(52, 199, 89, 0.3);
+}
+
+/* =========================================
+   ALERTAS
+========================================= */
+.admin-alert-glass {
+    padding: 12px 16px; border-radius: 14px; font-size: 13px; font-weight: 600; display: flex; align-items: center; backdrop-filter: blur(10px);
+}
+.admin-alert-glass.info { background: rgba(10, 132, 255, 0.1); border: 1px solid rgba(10, 132, 255, 0.2); color: #0a84ff; }
+.admin-alert-glass.error { background: rgba(255, 59, 48, 0.1); border: 1px solid rgba(255, 59, 48, 0.2); color: #ff3b30; }
+
+@media (max-width: 768px) {
+    .admin-title { font-size: 28px; }
+    .admin-kpi-number { font-size: 2.5rem; }
+    .admin-card-glass { padding: 20px; }
+    .feature-card-1 .admin-icon-large, .feature-card-2 .admin-icon-large { display: none; }
+}

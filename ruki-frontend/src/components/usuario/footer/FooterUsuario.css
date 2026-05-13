@@ -1,149 +1,150 @@
-.ruki-footer {
+/* FUENTE Y CONTENEDOR */
+.ruki-footer-glass {
   width: 100%;
   margin-top: auto;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: #121212; /* Fondo base ultra oscuro */
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.ruki-footer-top {
-  background: #000000;
-  color: #ffffff;
+/* SECCIÓN TOP (FAQ y Mapa) */
+.ruki-footer-top-glass {
+  background: rgba(28, 28, 30, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   min-height: 96px;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   align-items: center;
   justify-items: center;
-  padding: 8px 24px;
+  padding: 16px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .ruki-top-item {
-  color: inherit;
+  color: #f5f5f7;
   text-decoration: none;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 10px;
+}
+
+.ruki-icon-wrapper {
+  background: rgba(255, 255, 255, 0.1);
+  width: 54px;
+  height: 54px;
+  border-radius: 18px; /* Curva Squicle */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .ruki-top-icon {
-  font-size: 34px;
-  line-height: 1;
-  font-weight: 700;
+  font-size: 26px;
+  font-weight: 600;
+  color: #0a84ff; /* Azul neón de iOS Dark Mode */
 }
 
 .ruki-top-label {
   font-size: 15px;
-  font-weight: 700;
+  font-weight: 600;
+  letter-spacing: 0.5px;
 }
 
-.ruki-footer-main {
-  background: #c9c9c9;
+/* SECCIÓN PRINCIPAL */
+.ruki-footer-main-glass {
   width: 100%;
-  padding: 34px 34px 30px;
+  padding: 45px 34px;
+  background: #1c1c1e; /* Gris profundo iOS */
 }
 
 .ruki-footer-main-inner {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 88px;
+  gap: 80px;
   width: min(1120px, 100%);
   margin: 0 auto;
 }
 
-.ruki-footer-card {
-  background: #2b2b3b;
+/* TARJETA EXPLORA (Glassmorphism oscuro) */
+.ruki-footer-card-glass {
+  background: linear-gradient(145deg, rgba(44, 44, 46, 0.9), rgba(28, 28, 30, 0.9));
   color: #ffffff;
-  padding: 16px 18px;
-  min-width: 300px;
+  padding: 24px 28px;
+  border-radius: 24px; /* Bordes generosos */
+  min-width: 340px;
   display: flex;
   align-items: center;
-  gap: 14px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
-  animation: ruki-card-pulse 3.2s ease-in-out infinite;
-}
-
-/* keep ruki-footer-card as a plain container; no global link behavior */
-
-@keyframes ruki-card-pulse {
-  0%,
-  100% {
-    transform: scale(1);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
-  }
-
-  50% {
-    transform: scale(1.015);
-    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.26);
-  }
+  gap: 18px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  text-decoration: none;
 }
 
 .ruki-footer-logo {
-  width: 86px;
+  width: 80px;
   height: auto;
   display: block;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));
 }
 
 .ruki-card-title {
   margin: 0;
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 800;
-  line-height: 1;
+  letter-spacing: 0.5px;
 }
 
 .ruki-card-subtitle {
-  margin: 8px 0 0;
-  font-size: 16px;
-  font-weight: 800;
-  color: #ffffff;
-  background: transparent;
-  width: auto;
-  height: auto;
-  padding: 0;
-  border-radius: 0;
-  box-shadow: none;
-  display: inline-block;
-  text-decoration: none;
-  transition: color 140ms ease, transform 140ms ease;
+  margin: 6px 0 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: #a1a1a6; /* Gris secundario */
 }
 
-.ruki-card-subtitle:hover,
-.ruki-card-subtitle:focus {
-  color: #e6e6e6;
-  transform: translateY(-2px);
-}
-
+/* ENLACES */
 .ruki-footer-links {
   display: flex;
   align-items: stretch;
-  gap: 32px;
+  gap: 50px;
 }
 
 .ruki-footer-divider {
   width: 1px;
-  background: #2c2a2a;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 1px;
 }
 
 .ruki-footer-column {
-  min-width: 190px;
+  min-width: 160px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
 
 .ruki-footer-column h3 {
-  margin: 0 0 8px;
-  font-size: 15px;
-  font-weight: 900;
-  color: #111111;
+  margin: 0 0 4px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #86868b;
+  letter-spacing: 1.2px;
 }
 
 .ruki-footer-column a {
   text-decoration: none;
-  color: #111111;
+  color: #f5f5f7;
   font-size: 15px;
-  font-weight: 800;
-  line-height: 1;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.ruki-footer-column a:hover {
+  color: #0a84ff; /* Brilla en azul al pasar el mouse */
 }
 
 .ruki-footer-column:first-of-type {
@@ -154,86 +155,50 @@
   text-align: right;
 }
 
-.ruki-footer-column a:hover {
-  text-decoration: underline;
-}
-
-.ruki-footer-bottom {
+/* SECCIÓN INFERIOR */
+.ruki-footer-bottom-glass {
   background: #000000;
-  color: #ffffff;
+  color: #86868b;
   text-align: center;
-  padding: 7px 12px;
+  padding: 16px 20px;
 }
 
-.ruki-footer-bottom p {
+.ruki-footer-bottom-glass p {
   margin: 0;
-  font-size: 11px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
 }
 
+/* RESPONSIVE (Móviles) */
 @media (max-width: 1024px) {
   .ruki-footer-main-inner {
     flex-direction: column;
-    align-items: stretch;
-    gap: 28px;
+    gap: 40px;
   }
-
-  .ruki-footer-card {
-    min-width: 0;
+  .ruki-footer-card-glass {
     width: 100%;
-  }
-
-  .ruki-footer-links {
     justify-content: center;
   }
 }
 
 @media (max-width: 768px) {
-  .ruki-footer-top {
+  .ruki-footer-top-glass {
     grid-template-columns: 1fr;
-    gap: 12px;
-    padding: 14px 12px;
-  }
-
-  .ruki-top-icon {
-    font-size: 28px;
-  }
-
-  .ruki-top-label {
-    font-size: 14px;
-  }
-
-  .ruki-footer-main {
-    padding: 20px 14px;
-  }
-
-  .ruki-footer-links {
-    flex-direction: column;
     gap: 20px;
   }
-
+  .ruki-footer-links {
+    flex-direction: column;
+    gap: 30px;
+    align-items: center;
+    text-align: center;
+  }
+  .ruki-footer-column:first-of-type,
+  .ruki-footer-column:last-of-type {
+    text-align: center;
+  }
   .ruki-footer-divider {
     height: 1px;
-    width: 100%;
-  }
-
-  .ruki-footer-column {
-    min-width: 0;
-  }
-
-  .ruki-footer-column h3 {
-    font-size: 15px;
-  }
-
-  .ruki-footer-column a {
-    font-size: 15px;
-  }
-
-  .ruki-card-title {
-    font-size: 20px;
-  }
-
-  .ruki-card-subtitle {
-    font-size: 15px;
+    width: 80%;
   }
 }

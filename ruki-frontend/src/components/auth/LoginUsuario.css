@@ -1,0 +1,273 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+/* =========================================
+   CONTENEDOR Y AMBIENTE
+========================================= */
+.login-main-wrapper {
+    position: relative;
+    width: 100%;
+    min-height: 80vh;
+    background-color: #f5f5f7; /* Gris Apple */
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    padding: 40px 15px;
+}
+
+/* Luces Ambientales Fijas (Cero bugs de blur) */
+.login-ambient-blob {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(100px);
+    z-index: 0;
+    opacity: 0.35;
+    pointer-events: none;
+    transform: translateZ(0);
+    will-change: transform;
+}
+.login-blob-1 {
+    width: 500px;
+    height: 500px;
+    background: rgba(10, 132, 255, 0.3); /* Azul iOS */
+    top: -100px;
+    left: -150px;
+}
+.login-blob-2 {
+    width: 400px;
+    height: 400px;
+    background: rgba(94, 92, 230, 0.2); /* Índigo iOS */
+    bottom: -100px;
+    right: -100px;
+}
+
+/* =========================================
+   TARJETA DE LOGIN GLASSMORPHISM
+========================================= */
+.ios-login-card-glass {
+    position: relative;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-radius: 32px;
+    padding: 48px 40px;
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.08);
+    border: none;
+}
+
+/* Inner Hairline */
+.ios-login-card-glass::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 32px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    pointer-events: none;
+}
+
+/* Ícono Flotante */
+.login-icon-glass {
+    width: 64px;
+    height: 64px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: #1d1d1f;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.04);
+}
+
+.login-title {
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    color: #1d1d1f;
+    font-size: 32px;
+    margin-bottom: 6px;
+}
+
+.login-subtitle {
+    font-size: 14px;
+    font-weight: 500;
+    color: #86868b;
+    margin: 0;
+}
+
+/* =========================================
+   ALERTAS Y MENSAJES
+========================================= */
+.ios-alert-glass {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 16px;
+    border-radius: 14px;
+    font-size: 13px;
+    font-weight: 700;
+    backdrop-filter: blur(10px);
+}
+.alert-error-glass {
+    background: rgba(255, 59, 48, 0.1);
+    border: 1px solid rgba(255, 59, 48, 0.2);
+    color: #ff3b30;
+}
+.alert-success-glass {
+    background: rgba(52, 199, 89, 0.1);
+    border: 1px solid rgba(52, 199, 89, 0.2);
+    color: #28a745;
+}
+
+/* =========================================
+   FORMULARIOS E INPUTS
+========================================= */
+.ios-input-group label {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #86868b;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.ios-input-wrapper {
+    position: relative;
+}
+
+.input-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #a1a1a6;
+    font-size: 14px;
+    transition: color 0.3s;
+}
+
+.ios-input-field {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 14px;
+    padding: 14px 16px 14px 44px; /* Espacio extra a la izquierda para el ícono */
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    color: #1d1d1f;
+    transition: all 0.3s ease;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.ios-input-field:focus {
+    background: #ffffff;
+    border-color: #0a84ff;
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(10, 132, 255, 0.15);
+}
+
+.ios-input-field:focus + .input-icon,
+.ios-input-wrapper:focus-within .input-icon {
+    color: #0a84ff; /* El ícono se pinta de azul al escribir */
+}
+
+/* Estados de Validación (Verde y Rojo) */
+.ios-input-field.is-invalid {
+    border-color: #ff3b30 !important;
+    background: rgba(255, 59, 48, 0.05) !important;
+}
+.ios-input-field.is-invalid:focus {
+    box-shadow: 0 0 0 4px rgba(255, 59, 48, 0.15) !important;
+}
+
+.ios-input-field.is-valid {
+    border-color: #34c759 !important;
+    background: rgba(52, 199, 89, 0.05) !important;
+}
+.ios-input-field.is-valid:focus {
+    box-shadow: 0 0 0 4px rgba(52, 199, 89, 0.15) !important;
+}
+
+.input-error-text {
+    color: #ff3b30;
+    font-size: 11px;
+    font-weight: 700;
+    margin-top: 6px;
+    padding-left: 4px;
+}
+
+/* =========================================
+   BOTONES Y ENLACES
+========================================= */
+.ios-btn-login {
+    background: #1d1d1f;
+    color: white;
+    border: none;
+    border-radius: 14px;
+    padding: 16px;
+    font-weight: 700;
+    font-size: 15px;
+    transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.ios-btn-login:hover:not(:disabled) {
+    background: #000000;
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+}
+
+.ios-btn-login:disabled {
+    background: #d2d2d7;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+.ios-btn-back {
+    background: transparent;
+    color: #1d1d1f;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 14px;
+    padding: 14px;
+    font-weight: 700;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.ios-btn-back:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+/* Pie de la tarjeta */
+.login-footer {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    text-align: center;
+}
+
+.login-footer small {
+    color: #86868b;
+    font-weight: 500;
+    font-size: 13px;
+}
+
+.login-link {
+    color: #0a84ff;
+    font-weight: 700;
+    text-decoration: none;
+    transition: opacity 0.2s;
+}
+
+.login-link:hover {
+    opacity: 0.7;
+}
+
+/* Responsivo */
+@media (max-width: 480px) {
+    .ios-login-card-glass {
+        padding: 32px 24px;
+        border-radius: 24px;
+    }
+    .login-title { font-size: 26px; }
+}

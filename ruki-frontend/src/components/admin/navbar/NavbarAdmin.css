@@ -1,0 +1,77 @@
+/*
+    Efecto frosted glass
+*/
+.admin-header-glass {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  
+  /* 
+    Fondo casi negro, pero con 80% de opacidad para dejar pasar la luz
+  */
+  background-color: rgba(28, 28, 30, 0.8); 
+
+  /* 
+    El desenfoque de lo que hay detrás
+  */
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+
+  /* 
+    Sombra flotante muy suave
+  */
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+
+  /* 
+    Una línea blanca súper fina abajo para dar relieve
+  */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.3s ease;
+}
+
+/* 
+    Enlaces con transiciones suaves
+*/
+.ruki-nav-link {
+  color: rgba(255, 255, 255, 0.7) !important;
+  font-weight: 500;
+  font-size: 15px;
+  letter-spacing: 0.3px;
+  padding: 8px 16px !important;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.ruki-nav-link:hover {
+  color: #ffffff !important;
+
+  /* 
+    Efecto burbuja al pasar el mouse 
+  */
+  background-color: rgba(255, 255, 255, 0.1); 
+}
+
+.ruki-nav-link.active {
+  color: #ffffff !important;
+  font-weight: 700;
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* 
+    Botón de salir estilo Apple (Squicle)
+*/
+.ruki-btn-logout {
+
+  background-color: rgba(255, 59, 48, 0.15); 
+  color: #ff3b30;
+  border: 1px solid rgba(255, 59, 48, 0.3);
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.ruki-btn-logout:hover {
+  background-color: #ff3b30;
+  color: #ffffff;
+  box-shadow: 0 4px 15px rgba(255, 59, 48, 0.4);
+}
