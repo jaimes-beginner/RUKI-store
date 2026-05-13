@@ -5,13 +5,13 @@ import com.ruki.payment.entities.PaymentRecord;
 import com.ruki.payment.entities.PaymentStatus;
 import com.ruki.payment.repositories.PaymentRecordRepository;
 import com.ruki.payment.requests.OrderResponse;
+import com.stripe.Stripe;
+import com.stripe.model.checkout.Session;
+import com.stripe.param.checkout.SessionCreateParams;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -21,60 +21,106 @@ public class PaymentServiceImpl implements PaymentService {
     private final PaymentRecordRepository paymentRepository;
     private final OrderClient orderClient;
 
-    @Value("${app.payments.base-url}")
-    private String paymentBaseUrl;
+    @Value("${stripe.api.key}")
+    private String stripeApiKey;
+
+    @Value("${app.frontend.url}")
+    private String frontendUrl;
 
     /*
-        Iniciar un pago
+        Iniciar un pago conectando con Stripe
     */
+    @Override
     public String createPayment(Long orderId) {
         OrderResponse order = orderClient.getOrderById(orderId);
+        
+        /*
+            Inicializamos Stripe con tu llave secreta
+        */
+        Stripe.apiKey = stripeApiKey;
 
         try {
-            // 1. Generamos un token único de seguridad para esta transacción
-            String rukiToken = "RUKI-" + UUID.randomUUID().toString();
+            /*
+                Construimos los parámetros de la sesión de Stripe
+            */
+            SessionCreateParams params = SessionCreateParams.builder()
+                    .addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
+                    .setMode(SessionCreateParams.Mode.PAYMENT)
+                    .setSuccessUrl(frontendUrl + "/pago-exitoso?orderId=" + orderId)
+                    .setCancelUrl(frontendUrl + "/checkout?error=cancelado")
+                    .addLineItem(
+                            SessionCreateParams.LineItem.builder()
+                                    .setQuantity(1L)
+                                    .setPriceData(
+                                            SessionCreateParams.LineItem.PriceData.builder()
+                                                    .setCurrency("clp") // Pesos chilenos (no usan decimales en Stripe)
+                                                    .setUnitAmount(order.getTotalAmount().longValue()) 
+                                                    .setProductData(
+                                                            SessionCreateParams.LineItem.PriceData.ProductData.builder()
+                                                                    .setName("Orden #" + orderId + " - RUKI Store")
+                                                                    .build())
+                                                    .build())
+                                    .build())
+                    /*
+                        Guardamos el ID de la orden como metadato oculto
+                    */
+                    .putMetadata("orderId", String.valueOf(orderId))
+                    .build();
 
-            // 2. Guardamos en Base de Datos como PENDIENTE
+            /*
+                Creamos la sesión oficial en los servidores de Stripe
+            */
+            Session session = Session.create(params);
+
+            /*
+                Guardamos en BD usando el ID de la sesión de Stripe como token
+            */
             PaymentRecord record = PaymentRecord.builder()
                     .orderId(orderId)
                     .amount(order.getTotalAmount())
-                    .tokenWs(rukiToken) // Usamos nuestro propio token
+                    .tokenWs(session.getId()) 
                     .status(PaymentStatus.PENDING)
                     .build();
             paymentRepository.save(record);
 
-            log.info("Transacción RukiPay creada. Token: {}", rukiToken);
+            log.info("Sesión de Stripe creada con éxito. SessionID: {}", session.getId());
 
-
-            return paymentBaseUrl + "/api-ruki/payments/checkout?token=" + rukiToken;
+            /*
+                Devolvemos la URL segura de Stripe
+            */
+            return session.getUrl();
+            
         } catch (Exception e) {
-            log.error("❌ Error interno al crear transacción RukiPay", e);
-            throw new RuntimeException("No se pudo iniciar el pago en RukiPay");
+            log.error("Error interno al crear sesión en Stripe", e);
+            throw new RuntimeException("No se pudo iniciar el pago con Stripe");
         }
     }
 
     /*
-     * PASO 2: EL RETORNO (Confirmar Pago)
-     */
-    public PaymentRecord confirmPayment(String token) {
+        Retorno de la confirmación del pago (Vía Webhook)
+    */
+    public void confirmPaymentFromWebhook(String stripeSessionId, Long orderId) {
         try {
-            PaymentRecord record = paymentRepository.findByTokenWs(token)
-                    .orElseThrow(() -> new RuntimeException("Pago fantasma: Token no encontrado en BD"));
+            PaymentRecord record = paymentRepository.findByTokenWs(stripeSessionId)
+                    .orElseThrow(() -> new RuntimeException("Pago fantasma: Sesión no encontrada en BD"));
 
-            log.info("💰 ¡Pago APROBADO en RukiPay para la Orden #{}!", record.getOrderId());
+            if (record.getStatus() == PaymentStatus.SUCCESS) {
+                return; 
+            }
+
+            log.info("¡Pago APROBADO por Stripe para la Orden #{}!", record.getOrderId());
             
-            // Actualizamos nuestra BD de pagos
             record.setStatus(PaymentStatus.SUCCESS);
-            
-            // ¡EL TELÉFONO ROJO! Le avisamos al microservicio de Pedidos que ya pagaron
+            paymentRepository.save(record);
+
+            /*
+                Avisamos al servicio de los pedidos que libere el pedido
+            */
             orderClient.updateOrderStatus(record.getOrderId(), "PAID");
 
-            return paymentRepository.save(record);
-
         } catch (Exception e) {
-            log.error("❌ Error al procesar pago en RukiPay", e);
+            log.error("Error al procesar el pago de Stripe", e);
             throw new RuntimeException("Error al validar el pago");
         }
     }
-    
 }
