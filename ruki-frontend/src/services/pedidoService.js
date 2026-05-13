@@ -27,6 +27,23 @@ export async function crearPedido(orderData) {
 }
 
 /*
+    Función asincrona para iniciar el pago con Stripe
+*/
+export async function iniciarPagoStripe(orderId) {
+    const token = getToken();
+    const response = await fetch(`${API_BASE_URL}/api-ruki/payments/create?orderId=${orderId}`, {
+        method: "POST", headers: {"Authorization": `Bearer ${token}`
+        }
+    });
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Error al conectar con la pasarela de pagos");
+    }
+    
+    return response.json(); 
+}
+
+/*
     Función asincrona para obtener el 
     historial de pedidos del usuario logueado
 */
