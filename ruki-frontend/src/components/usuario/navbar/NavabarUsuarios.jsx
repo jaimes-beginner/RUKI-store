@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Navbar, Nav, Container, Badge, Dropdown } from 'react-bootstrap';
+import { Navbar, Nav, Container, Badge } from 'react-bootstrap';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useCart } from '../../../contexts/CartContext';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -25,7 +25,6 @@ function Header() {
   return (
     <>
       <header className="ruki-header">
-
         {/* BARRA SUPERIOR OSCURA */}
         <Navbar variant="dark" className="py-4 ruki-top-navbar">
           <Container fluid className="ruki-topbar d-flex justify-content-between align-items-center px-4 px-lg-5">
@@ -113,7 +112,6 @@ function Header() {
               
               {/* BOTÓN DEL CARRITO */}
               <div className="ios-cart-btn" onClick={handleShow} style={{ color: '#ffffff', transition: 'opacity 0.2s' }} onMouseOver={(e) => e.currentTarget.style.opacity = '0.7'} onMouseOut={(e) => e.currentTarget.style.opacity = '1'}>
-                {/* SVG Nativo de Bolsa de Compras Premium */}
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
                   <line x1="3" y1="6" x2="21" y2="6"></line>
@@ -151,7 +149,6 @@ function Header() {
       <AnimatePresence>
         {showCart && (
           <>
-
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -178,8 +175,8 @@ function Header() {
               <div className="d-flex flex-column flex-grow-1 p-0 bg-white" style={{ overflow: "hidden" }}>
                 {cart.length === 0 ? (
                   <div className="text-center mt-5 p-4 text-muted">
-                    <div className="ios-empty-cart-icon">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-secondary">
+                    <div className="ios-empty-cart-icon mb-3">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-secondary opacity-50">
                         <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
                         <line x1="3" y1="6" x2="21" y2="6"></line>
                         <path d="M16 10a4 4 0 0 1-8 0"></path>
@@ -193,54 +190,58 @@ function Header() {
                   </div>
                 ) : (
                   <>
-
                     {/* LISTA DE PRODUCTOS ANIMADA */}
                     <div className="flex-grow-1" style={{ overflowY: 'auto', overflowX: 'hidden' }}>
                       <AnimatePresence>
-                        {cart.map(item => (
-                          <motion.div 
-                            key={item.id} 
-                            layout
-                            initial={{ opacity: 0, x: 50 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-                            className="d-flex align-items-center ios-cart-item"
-                          >
-                            {/* IMAGEN */}
-                            <div className="ios-cart-img-wrapper">
-                              <img 
-                                src={item.imageUrls && item.imageUrls[0] ? item.imageUrls[0] : 'https://via.placeholder.com/80'} 
-                                alt={item.name} 
-                                className="ios-cart-img" 
-                              />
-                            </div>
-                            
-                            {/* DETALLES */}
-                            <div className="flex-grow-1">
-                              <h6 className="ios-cart-title fw-bold text-dark mb-1">{item.name}</h6>
-                              <p className="ios-cart-price mb-2 fw-semibold">
-                                ${Number(item.basePrice).toLocaleString('es-CL')}
-                              </p>
-                              
-                              {/* CONTROLES */}
-                              <div className="d-flex align-items-center">
-                                <button className="ios-btn-icon" onClick={() => updateQuantity(item.id, item.quantity - 1)}>-</button>
-                                <span className="ios-cart-qty">{item.quantity}</span>
-                                <button className="ios-btn-icon" onClick={() => updateQuantity(item.id, item.quantity + 1)} disabled={item.quantity >= item.stock}>+</button>
+                        {cart.map(item => {
+                          const maxStock = item.variants?.find(v => v.size === item.selectedSize)?.stock ?? item.stock;
+                          return (
+                            <motion.div 
+                              key={item.uniqueId} 
+                              layout
+                              initial={{ opacity: 0, x: 50 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
+                              className="d-flex align-items-center ios-cart-item"
+                            >
+                              {/* IMAGEN */}
+                              <div className="ios-cart-img-wrapper">
+                                <img 
+                                  src={item.imageUrls && item.imageUrls[0] ? item.imageUrls[0] : 'https://via.placeholder.com/80'} 
+                                  alt={item.name} 
+                                  className="ios-cart-img" 
+                                />
                               </div>
-                            </div>
-                            
-                            {/*  SVG ANTIBLOQUEO */}
-                            <button className="btn btn-link text-danger p-2 ms-2 text-decoration-none" onClick={() => removeFromCart(item.id)}>
-                              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <polyline points="3 6 5 6 21 6"></polyline>
-                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                <line x1="10" y1="11" x2="10" y2="17"></line>
-                                <line x1="14" y1="11" x2="14" y2="17"></line>
-                              </svg>
-                            </button>
-                          </motion.div>
-                        ))}
+                              
+                              {/* DETALLES (Nombre, Talla y Precio Real) */}
+                              <div className="flex-grow-1">
+                                <h6 className="ios-cart-title fw-bold text-dark mb-0">{item.name}</h6>
+                                <small className="text-muted d-block mb-1" style={{fontSize: '0.8rem'}}>Talla: <span className="fw-semibold text-dark">{item.selectedSize}</span></small>
+                                
+                                <p className="ios-cart-price mb-2 fw-semibold text-primary">
+                                  ${(Number(item.precioFinal) || Number(item.cartPrice) || Number(item.basePrice) || 0).toLocaleString('es-CL')}
+                                </p>
+                                
+                                {/* CONTROLES USANDO UNIQUEID */}
+                                <div className="d-flex align-items-center">
+                                  <button className="ios-btn-icon" onClick={() => updateQuantity(item.uniqueId, item.cantidad - 1)}>-</button>
+                                  <span className="ios-cart-qty">{item.cantidad}</span>
+                                  <button className="ios-btn-icon" onClick={() => updateQuantity(item.uniqueId, item.cantidad + 1)} disabled={item.cantidad >= maxStock}>+</button>
+                                </div>
+                              </div>
+                              
+                              {/* SVG ELIMINAR USANDO UNIQUEID */}
+                              <button className="btn btn-link text-danger p-2 ms-2 text-decoration-none" onClick={() => removeFromCart(item.uniqueId)}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                  <polyline points="3 6 5 6 21 6"></polyline>
+                                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                  <line x1="10" y1="11" x2="10" y2="17"></line>
+                                  <line x1="14" y1="11" x2="14" y2="17"></line>
+                                </svg>
+                              </button>
+                            </motion.div>
+                          );
+                        })}
                       </AnimatePresence>
                     </div>
 
@@ -250,7 +251,7 @@ function Header() {
                         <span>Total</span>
                         <span>${cartTotalAmount.toLocaleString('es-CL')}</span>
                       </div>
-                      <motion.button whileTap={{ scale: 0.95 }} className="ios-btn-dark w-100" onClick={irAlCheckout}>
+                      <motion.button whileTap={{ scale: 0.95 }} className="ios-btn-dark w-100 py-3" onClick={irAlCheckout}>
                         FINALIZAR COMPRA
                       </motion.button>
                     </div>

@@ -1,63 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useCart } from '../../../contexts/CartContext'; 
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { obtenerOfertas } from '../../../services/ProductoService';
 import './Sales.css';
-
-/*
-    Mock Data actualizada para funcionar 
-    con el Carrito (precios numéricos y stock)
-*/
-const products = [
-    {
-        id: 1,
-        name: 'Polerón Blackout',
-        oldPrice: 19900,
-        basePrice: 12900, 
-        stock: 8,
-        imageUrls: ['/imagenes/wallpaper.jpg', '/imagenes/walpaper 2.jpg', '/imagenes/fondo.jpeg'],
-    },
-    {
-        id: 2,
-        name: 'Calcetas Burnout',
-        oldPrice: 14900,
-        basePrice: 10900,
-        stock: 15,
-        imageUrls: ['/imagenes/walpaper 2.jpg', '/imagenes/fondo.jpeg'],
-    },
-    {
-        id: 3,
-        name: 'Polera Ruki Ghost',
-        oldPrice: 17900,
-        basePrice: 11900,
-        stock: 3,
-        imageUrls: ['/imagenes/fondo.jpeg', '/imagenes/wallpaper.jpg'],
-    },
-    {
-        id: 4,
-        name: 'Short Endurance',
-        oldPrice: 20900,
-        basePrice: 13900,
-        stock: 20,
-        imageUrls: ['/imagenes/wallpaper.jpg', '/imagenes/walpaper 2.jpg'],
-    },
-    {
-        id: 5,
-        name: 'Jogger Street Fade',
-        oldPrice: 21900,
-        basePrice: 14900,
-        stock: 0,
-        imageUrls: ['/imagenes/walpaper 2.jpg', '/imagenes/fondo.jpeg'],
-    },
-    {
-        id: 6,
-        name: 'Mochila Core Sale',
-        oldPrice: 24900,
-        basePrice: 16900,
-        stock: 5,
-        imageUrls: ['/imagenes/fondo.jpeg', '/imagenes/wallpaper.jpg'],
-    },
-];
 
 const containerVariants = {
     hidden: { opacity: 0 },
@@ -71,15 +17,42 @@ const itemVariants = {
 
 export default function Sales() {
     const { addToCart } = useCart(); 
+
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    
     const [selectedImages, setSelectedImages] = useState({});
     const [toast, setToast] = useState({ mostrar: false, mensaje: '', tipo: '' });
+
+    useEffect(() => {
+        const cargarProductosEnOferta = async () => {
+            try {
+                const data = await obtenerOfertas();
+                setProducts(data);
+            } catch (err) {
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        cargarProductosEnOferta();
+    }, []);
 
     const mostrarToast = (mensaje, tipo) => {
         setToast({ mostrar: true, mensaje, tipo });
         setTimeout(() => setToast(prev => ({ ...prev, mostrar: false })), 3000);
     };
 
-    const getGallery = (product) => [...new Set(product.imageUrls)];
+    // Adaptado para leer imageUrls de Supabase
+    const getGallery = (product) => {
+        if (!product.imageUrls || product.imageUrls.length === 0) {
+            return ['/imagenes/placeholder.jpg'];
+        }
+        return [...new Set(product.imageUrls)];
+    };
+    
     const getSelectedIndex = (productId) => selectedImages[productId] ?? 0;
 
     const handleSelectImage = (productId, imageIndex) => {
@@ -93,9 +66,11 @@ export default function Sales() {
     };
 
     /*
-        Calcular el porcentaje de descuento
+        Calcular el porcentaje de descuento leyendo la DB
+        oldPrice = basePrice, newPrice = salePrice
     */
     const calcularDescuento = (oldPrice, newPrice) => {
+        if (!oldPrice || !newPrice) return 0;
         return Math.round(((oldPrice - newPrice) / oldPrice) * 100);
     };
 
@@ -149,7 +124,9 @@ export default function Sales() {
                     {/* ÁREA DE PRODUCTOS */}
                     <div className="col-lg-9">
                         <div className="d-flex justify-content-between align-items-center mb-4">
-                            <span className="fw-semibold text-secondary" style={{fontSize: '14px'}}>Mostrando {products.length} ofertas</span>
+                            <span className="fw-semibold text-secondary" style={{fontSize: '14px'}}>
+                                Mostrando {products.length} ofertas
+                            </span>
                             <select className="sale-sort-select">
                                 <option>Mayor Descuento</option>
                                 <option>Precio: Menor a Mayor</option>
@@ -157,90 +134,111 @@ export default function Sales() {
                             </select>
                         </div>
 
-                        {/* GRILLA ANIMADA */}
-                        <motion.div 
-                            className="row g-4"
-                            variants={containerVariants}
-                            initial="hidden"
-                            animate="visible"
-                        >
-                            {products.map((product) => (
-                                <motion.div key={product.id} className="col-12 col-sm-6 col-md-4" variants={itemVariants}>
-                                    <article className="sale-card">
-                                        <div className="sale-image-wrap">
-                                            
-                                            {/* BADGES FLOTANTES */}
-                                            <div className="sale-badge-container">
-                                                <span className="sale-card-badge accent">
-                                                    -{calcularDescuento(product.oldPrice, product.basePrice)}%
-                                                </span>
+                        {/* ESTADOS DE CARGA Y ERROR */}
+                        {loading ? (
+                            <div className="text-center py-5">
+                                <div className="spinner-border text-danger" role="status">
+                                    <span className="visually-hidden">Cargando ofertas...</span>
+                                </div>
+                            </div>
+                        ) : error ? (
+                            <div className="alert alert-danger text-center py-4">
+                                <i className="fas fa-exclamation-triangle me-2"></i> {error}
+                            </div>
+                        ) : products.length === 0 ? (
+                            <div className="text-center py-5 text-muted">
+                                <i className="fas fa-tags fa-3x mb-3 text-secondary"></i>
+                                <h4>No hay ofertas activas en este momento</h4>
+                                <p>Vuelve pronto para aprovechar nuestros descuentos por tiempo limitado.</p>
+                            </div>
+                        ) : (
+                            /* GRILLA ANIMADA */
+                            <motion.div 
+                                className="row g-4"
+                                variants={containerVariants}
+                                initial="hidden"
+                                animate="visible"
+                            >
+                                {products.map((product) => (
+                                    <motion.div key={product.id} className="col-12 col-sm-6 col-md-4" variants={itemVariants}>
+                                        <article className="sale-card">
+                                            <div className="sale-image-wrap">
+                                                
+                                                {/* BADGES FLOTANTES */}
+                                                <div className="sale-badge-container">
+                                                    <span className="sale-card-badge accent">
+                                                        -{calcularDescuento(product.basePrice, product.salePrice)}%
+                                                    </span>
+                                                </div>
+
+                                                {/* TRANSICIÓN DE IMÁGENES SUAVE */}
+                                                <Link to={`/producto/${product.id}`}>
+                                                    <AnimatePresence mode="wait">
+                                                        <motion.img 
+                                                            key={getDisplayImage(product)}
+                                                            src={getDisplayImage(product)} 
+                                                            alt={product.name}
+                                                            initial={{ opacity: 0 }}
+                                                            animate={{ opacity: 1 }}
+                                                            exit={{ opacity: 0 }}
+                                                            transition={{ duration: 0.2 }}
+                                                            className="sale-main-img"
+                                                            style={{ objectFit: 'cover', width: '100%', height: '100%' }}
+                                                        />
+                                                    </AnimatePresence>
+                                                </Link>
                                             </div>
 
-                                            {/* TRANSICIÓN DE IMÁGENES SUAVE */}
-                                            <Link to={`/producto/${product.id}`}>
-                                                <AnimatePresence mode="wait">
-                                                    <motion.img 
-                                                        key={getDisplayImage(product)}
-                                                        src={getDisplayImage(product)} 
-                                                        alt={product.name}
-                                                        initial={{ opacity: 0 }}
-                                                        animate={{ opacity: 1 }}
-                                                        exit={{ opacity: 0 }}
-                                                        transition={{ duration: 0.2 }}
-                                                        className="sale-main-img"
-                                                    />
-                                                </AnimatePresence>
-                                            </Link>
-                                        </div>
+                                            <div className="sale-card-info d-flex flex-column h-100">
+                                                
+                                                {/* MINIATURAS */}
+                                                <div className="sale-thumbs">
+                                                    {getGallery(product).length > 1 && getGallery(product).map((thumb, index) => (
+                                                        <button
+                                                            key={`${product.id}-${index}`}
+                                                            type="button"
+                                                            className={`sale-thumb-btn ${getSelectedIndex(product.id) === index ? 'is-active' : ''}`}
+                                                            onMouseEnter={() => handleSelectImage(product.id, index)}
+                                                            onClick={() => handleSelectImage(product.id, index)}
+                                                            aria-label={`Mostrar miniatura ${index + 1}`}
+                                                        >
+                                                            <img src={thumb} alt="miniatura" style={{ objectFit: 'cover' }} />
+                                                        </button>
+                                                    ))}
+                                                </div>
 
-                                        <div className="sale-card-info d-flex flex-column h-100">
-                                            
-                                            {/* MINIATURAS */}
-                                            <div className="sale-thumbs">
-                                                {getGallery(product).map((thumb, index) => (
-                                                    <button
-                                                        key={`${product.id}-${index}`}
-                                                        type="button"
-                                                        className={`sale-thumb-btn ${getSelectedIndex(product.id) === index ? 'is-active' : ''}`}
-                                                        onMouseEnter={() => handleSelectImage(product.id, index)}
-                                                        onClick={() => handleSelectImage(product.id, index)}
-                                                        aria-label={`Mostrar miniatura ${index + 1}`}
-                                                    >
-                                                        <img src={thumb} alt="miniatura" />
-                                                    </button>
-                                                ))}
+                                                <h3 className="sale-product-title">{product.name}</h3>
+                                                
+                                                <div className="sale-price-wrap">
+                                                    <span className="sale-price-old">${Number(product.basePrice).toLocaleString('es-CL')}</span>
+                                                    <span className="sale-price-new">${Number(product.salePrice).toLocaleString('es-CL')}</span>
+                                                </div>
+                                                
+                                                <div style={{ flexGrow: 1 }}></div>
+
+                                                {/* BOTÓN AÑADIR AL CARRITO */}
+                                                <motion.button 
+                                                    whileTap={product.stock > 0 ? { scale: 0.95 } : {}}
+                                                    className={`sale-btn-primary mt-3 ${product.stock === 0 ? 'disabled' : ''}`}
+                                                    onClick={() => {
+                                                        // Tu lógica de carrito
+                                                        addToCart(product, 1);
+                                                        mostrarToast(`¡${product.name} añadido!`, 'success');
+                                                    }}
+                                                    disabled={product.stock === 0}
+                                                >
+                                                    {product.stock === 0 ? (
+                                                        <><i className="fas fa-times-circle me-2"></i> AGOTADO</>
+                                                    ) : (
+                                                        <><i className="fas fa-shopping-bag me-2"></i> AÑADIR APROVECHANDO OFERTA</>
+                                                    )}
+                                                </motion.button>
                                             </div>
-
-                                            <h3 className="sale-product-title">{product.name}</h3>
-                                            
-                                            <div className="sale-price-wrap">
-                                                <span className="sale-price-old">${product.oldPrice.toLocaleString('es-CL')}</span>
-                                                <span className="sale-price-new">${product.basePrice.toLocaleString('es-CL')}</span>
-                                            </div>
-                                            
-                                            <div style={{ flexGrow: 1 }}></div>
-
-                                            {/* BOTÓN AÑADIR AL CARRITO */}
-                                            <motion.button 
-                                                whileTap={product.stock > 0 ? { scale: 0.95 } : {}}
-                                                className={`sale-btn-primary mt-3 ${product.stock === 0 ? 'disabled' : ''}`}
-                                                onClick={() => {
-                                                    addToCart(product, 1);
-                                                    mostrarToast(`¡${product.name} añadido!`, 'success');
-                                                }}
-                                                disabled={product.stock === 0}
-                                            >
-                                                {product.stock === 0 ? (
-                                                    <><i className="fas fa-times-circle me-2"></i> AGOTADO</>
-                                                ) : (
-                                                    <><i className="fas fa-shopping-bag me-2"></i> AÑADIR APROVECHANDO OFERTA</>
-                                                )}
-                                            </motion.button>
-                                        </div>
-                                    </article>
-                                </motion.div>
-                            ))}
-                        </motion.div>
+                                        </article>
+                                    </motion.div>
+                                ))}
+                            </motion.div>
+                        )}
                     </div>
                 </div>
             </div>

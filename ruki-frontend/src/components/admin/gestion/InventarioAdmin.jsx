@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
-import { obtenerCategoriasActivas, crearProducto, obtenerProductosActivos, eliminarProducto, actualizarProducto } from "../../../services/ProductoService";
+import { crearProducto, obtenerProductosActivos, desactivarProducto, actualizarProducto } from "../../../services/ProductoService";
+import { obtenerCategoriasActivas } from "../../../services/ProductoService";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from '../../../config/SupabaseConfig';
 import './InventarioAdmin.css';
 
-/*
-    Variantes para las animaciónes 
-    de inventario
+/* 
+    Variantes para las animaciónes de inventario 
 */
 const containerVariants = {
     hidden: { opacity: 0 },
@@ -24,8 +24,12 @@ export function InventarioAdmin() {
     const [loading, setLoading] = useState(false);
     const [editingId, setEditingId] = useState(null);
 
+    /*
+        Estado actualizado con las nuevas variantes y ofertas
+    */
     const [formulario, setFormulario] = useState({
-        name: "", description: "", basePrice: "", stock: "", categoryId: "", imageUrls: ""
+        name: "", description: "", basePrice: "", categoryId: "", imageUrls: "",
+        isSale: false, salePrice: "", variants: [] 
     });
 
     useEffect(() => {
@@ -44,22 +48,68 @@ export function InventarioAdmin() {
     };
 
     const handleChange = (e) => {
-        setFormulario({ ...formulario, [e.target.name]: e.target.value });
+        const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+        setFormulario({ ...formulario, [e.target.name]: value });
+    };
+
+    /*
+        Lógica para las variantes, las tallas
+    */
+    const handleAddVariant = () => {
+        setFormulario(prev => ({
+            ...prev,
+            variants: [...prev.variants, { size: "", stock: "" }]
+        }));
+    };
+
+    const handleVariantChange = (index, field, value) => {
+        const newVariants = [...formulario.variants];
+        newVariants[index][field] = value;
+        setFormulario({ ...formulario, variants: newVariants });
+    };
+
+    const handleRemoveVariant = (index) => {
+        const newVariants = [...formulario.variants];
+        newVariants.splice(index, 1);
+        setFormulario({ ...formulario, variants: newVariants });
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        if (formulario.variants.length === 0) {
+            setMensaje("Error: Debes añadir al menos una talla al producto.");
+            return;
+        }
+
         setLoading(true);
         
         try {
             const arrayImagenes = formulario.imageUrls.split(",").map(img => img.trim()).filter(img => img !== "");
+            
             const payload = {};
             if (formulario.name.trim() !== "") payload.name = formulario.name;
             if (formulario.description.trim() !== "") payload.description = formulario.description;
             if (String(formulario.basePrice).trim() !== "") payload.basePrice = Number(formulario.basePrice);
-            if (String(formulario.stock).trim() !== "") payload.stock = Number(formulario.stock);
             if (String(formulario.categoryId).trim() !== "") payload.categoryId = Number(formulario.categoryId);
             if (arrayImagenes.length > 0) payload.imageUrls = arrayImagenes;
+            
+            /*
+                Ofertas
+            */
+            payload.sale = formulario.isSale; 
+            payload.isSale = formulario.isSale;
+            if (formulario.isSale && String(formulario.salePrice).trim() !== "") {
+                payload.salePrice = Number(formulario.salePrice);
+            }
+
+            /*
+                Tallas
+            */
+            payload.variants = formulario.variants.map(v => ({
+                size: v.size,
+                stock: Number(v.stock)
+            }));
 
             if (editingId) {
                 await actualizarProducto(editingId, payload);
@@ -82,8 +132,8 @@ export function InventarioAdmin() {
     const handleEliminar = async (id, nombreProducto) => {
         if (!window.confirm(`¿Estás seguro de eliminar permanentemente "${nombreProducto}"?`)) return;
         try {
-            await eliminarProducto(id);
-            setMensaje(`Producto #${id} eliminado del sistema.`);
+            await desactivarProducto(id);
+            setMensaje(`Producto #${id} desactivado del sistema.`);
             cargarDatos();
         } catch (error) {
             setMensaje("Error al eliminar: " + error.message);
@@ -98,70 +148,53 @@ export function InventarioAdmin() {
             name: producto.name || "",
             description: producto.description || "",
             basePrice: producto.basePrice || "",
-            stock: producto.stock || "",
             categoryId: producto.category?.id || "",
-            imageUrls: producto.imageUrls ? producto.imageUrls.join(", ") : ""
+            imageUrls: producto.imageUrls ? producto.imageUrls.join(", ") : "",
+            isSale: producto.sale || false, 
+            salePrice: producto.salePrice || "",
+            variants: producto.variants ? producto.variants.map(v => ({ size: v.size, stock: v.stock })) : []
         });
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     const handleFileUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+        const file = e.target.files[0];
+        if (!file) return;
 
-    try {
-        setLoading(true);
-        
-        /*
-            Creamos un nombre único para la imagen 
-            para que no se sobrescriban
-        */
-        const fileName = `${Date.now()}-${file.name}`;
-        
-        /*
-            Subimos el archivo al bucket llamado 
-            'productos' que está en nuestro supabase
-        */
-        const { data, error } = await supabase.storage
-            .from('productos') 
-            .upload(fileName, file);
+        try {
+            setLoading(true);
+            const fileName = `${Date.now()}-${file.name}`;
+            
+            const { error } = await supabase.storage
+                .from('productos') 
+                .upload(fileName, file);
 
-        if (error) throw error;
+            if (error) throw error;
 
-        /*
-            Obtnener la URL pública de la 
-            imagen recién subida
-        */
-        const { data: { publicUrl } } = supabase.storage
-            .from('productos')
-            .getPublicUrl(fileName);
+            const { data: { publicUrl } } = supabase.storage
+                .from('productos')
+                .getPublicUrl(fileName);
 
-        /*
-            Actualizamos el formulario, añadiendo la nueva URL 
-            al campo imageUrls. Si ya hay URLs, las separamos por coma
-        */
-        setFormulario(prev => ({
-            ...prev,
-            imageUrls: prev.imageUrls ? `${prev.imageUrls}, ${publicUrl}` : publicUrl
-        }));
+            setFormulario(prev => ({
+                ...prev,
+                imageUrls: prev.imageUrls ? `${prev.imageUrls}, ${publicUrl}` : publicUrl
+            }));
 
-        setMensaje("Imagen subida con éxito");
-    } catch (error) {
-        setMensaje("Error al subir imagen: " + error.message);
-    } finally {
-        setLoading(false);
-    }
-};
+            setMensaje("Imagen subida con éxito");
+        } catch (error) {
+            setMensaje("Error al subir imagen: " + error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const cancelarEdicion = () => {
         setEditingId(null);
-        setFormulario({ name: "", description: "", basePrice: "", stock: "", categoryId: "", imageUrls: "" });
+        setFormulario({ name: "", description: "", basePrice: "", categoryId: "", imageUrls: "", isSale: false, salePrice: "", variants: [] });
     };
 
     return (
         <div className="inventory-premium-wrapper">
-
-            {/* LUCES AMBIENTALES */}
             <div className="inv-ambient-blob inv-blob-1"></div>
             <div className="inv-ambient-blob inv-blob-2"></div>
 
@@ -195,7 +228,7 @@ export function InventarioAdmin() {
 
                 <motion.div className="row g-4" variants={containerVariants} initial="hidden" animate="visible">
                     
-                    {/* PANEL IZQUIERDO DEL FORMULARIO*/}
+                    {/* PANEL IZQUIERDO DEL FORMULARIO */}
                     <motion.div className="col-lg-4" variants={cardVariants}>
                         <div className="inv-card-glass">
                             <div className="inv-card-header d-flex justify-content-between align-items-center">
@@ -216,34 +249,6 @@ export function InventarioAdmin() {
                                                    value={formulario.name} onChange={handleChange} placeholder="Ej: Camiseta Performance" />
                                         </div>
                                     </div>
-                                    
-                                    <div className="inv-input-group mb-3">
-                                        <label>Descripción detallada</label>
-                                        <div className="inv-input-wrapper">
-                                            <i className="fas fa-align-left input-icon" style={{ top: "16px", transform: "none" }}></i>
-                                            <textarea name="description" className="inv-input-glass w-100" rows="3" 
-                                                      value={formulario.description} onChange={handleChange} placeholder="Materiales, uso..." />
-                                        </div>
-                                    </div>
-
-                                    <div className="row g-3 mb-3">
-                                        <div className="col-6 inv-input-group">
-                                            <label>Precio Base</label>
-                                            <div className="inv-input-wrapper">
-                                                <i className="fas fa-dollar-sign input-icon"></i>
-                                                <input type="number" name="basePrice" className="inv-input-glass w-100" required 
-                                                       value={formulario.basePrice} onChange={handleChange} />
-                                            </div>
-                                        </div>
-                                        <div className="col-6 inv-input-group">
-                                            <label>Stock</label>
-                                            <div className="inv-input-wrapper">
-                                                <i className="fas fa-cubes input-icon"></i>
-                                                <input type="number" name="stock" className="inv-input-glass w-100" required 
-                                                       value={formulario.stock} onChange={handleChange} min="0" />
-                                            </div>
-                                        </div>
-                                    </div>
 
                                     <div className="inv-input-group mb-3">
                                         <label>Clasificación</label>
@@ -258,37 +263,89 @@ export function InventarioAdmin() {
                                             </select>
                                         </div>
                                     </div>
+                                    
+                                    <div className="row g-3 mb-3">
+                                        <div className="col-6 inv-input-group">
+                                            <label>Precio Base</label>
+                                            <div className="inv-input-wrapper">
+                                                <i className="fas fa-dollar-sign input-icon"></i>
+                                                <input type="number" name="basePrice" className="inv-input-glass w-100" required 
+                                                       value={formulario.basePrice} onChange={handleChange} min="1"/>
+                                            </div>
+                                        </div>
+                                        <div className="col-6 inv-input-group">
+                                            <label className="d-flex align-items-center gap-2">
+                                                <input type="checkbox" name="isSale" checked={formulario.isSale} onChange={handleChange} className="form-check-input mt-0" />
+                                                <span className={formulario.isSale ? "text-danger fw-bold" : ""}>¡En Oferta!</span>
+                                            </label>
+                                            <div className="inv-input-wrapper mt-1">
+                                                <i className="fas fa-tags input-icon text-danger"></i>
+                                                <input type="number" name="salePrice" className="inv-input-glass w-100 border-danger" 
+                                                       value={formulario.salePrice} onChange={handleChange} 
+                                                       placeholder={formulario.isSale ? "Precio rebajado" : "N/A"} 
+                                                       disabled={!formulario.isSale} required={formulario.isSale} min="1"/>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* SECCIÓN DINÁMICA DE TALLAS */}
+                                    <div className="inv-input-group mb-3 p-3 rounded" style={{ backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                                        <div className="d-flex justify-content-between align-items-center mb-2">
+                                            <label className="mb-0 text-info"><i className="fas fa-ruler me-2"></i>Tallas y Stock</label>
+                                            <button type="button" className="btn btn-sm btn-outline-info rounded-pill px-3 py-1" onClick={handleAddVariant} style={{fontSize: '11px'}}>
+                                                <i className="fas fa-plus me-1"></i> Añadir
+                                            </button>
+                                        </div>
+                                        
+                                        <AnimatePresence>
+                                            {formulario.variants.map((v, index) => (
+                                                <motion.div 
+                                                    key={index} 
+                                                    initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, height: 0 }}
+                                                    className="d-flex gap-2 mb-2 align-items-center"
+                                                >
+                                                    <select className="inv-input-glass w-50 p-2" style={{fontSize: '13px', minHeight: '35px'}} value={v.size} onChange={(e) => handleVariantChange(index, 'size', e.target.value)} required>
+                                                        <option value="" disabled>Talla...</option>
+                                                        <option value="XS">XS</option>
+                                                        <option value="S">S</option>
+                                                        <option value="M">M</option>
+                                                        <option value="L">L</option>
+                                                        <option value="XL">XL</option>
+                                                        <option value="XXL">XXL</option>
+                                                        <option value="Única">Única</option>
+                                                    </select>
+                                                    <input type="number" className="inv-input-glass w-50 p-2" style={{fontSize: '13px', minHeight: '35px'}} placeholder="Cant." value={v.stock} onChange={(e) => handleVariantChange(index, 'stock', e.target.value)} min="0" required />
+                                                    <button type="button" className="btn btn-sm btn-danger p-2 d-flex align-items-center justify-content-center" onClick={() => handleRemoveVariant(index)}>
+                                                        <i className="fas fa-times"></i>
+                                                    </button>
+                                                </motion.div>
+                                            ))}
+                                        </AnimatePresence>
+                                        {formulario.variants.length === 0 && (
+                                            <small className="text-muted d-block text-center mt-2" style={{fontSize: '11px'}}>Agrega tallas para activar el producto.</small>
+                                        )}
+                                    </div>
+
+                                    <div className="inv-input-group mb-3">
+                                        <label>Descripción detallada</label>
+                                        <div className="inv-input-wrapper">
+                                            <i className="fas fa-align-left input-icon" style={{ top: "16px", transform: "none" }}></i>
+                                            <textarea name="description" className="inv-input-glass w-100" rows="2" 
+                                                      value={formulario.description} onChange={handleChange} placeholder="Materiales, uso..." />
+                                        </div>
+                                    </div>
 
                                     <div className="inv-input-group mb-4">
                                         <label>Subir Imágenes de Producto</label>
                                         <div className="inv-input-wrapper">
-
-                                            {/* INPUT DEL ARCHIVO REAL */}
-                                            <input 
-                                                type="file" 
-                                                accept="image/*" 
-                                                onChange={handleFileUpload}
-                                                className="inv-input-glass w-100"
-                                                style={{ paddingLeft: '16px' }} 
-                                            />
+                                            <input type="file" accept="image/*" onChange={handleFileUpload} className="inv-input-glass w-100" style={{ paddingLeft: '16px' }} />
                                         </div>
-                                        <span className="inv-helper-text mt-2">
-                                            Las URLs aparecerán abajo automáticamente.
-                                        </span>
-
-                                        {/* MANTENEMOS EL TEXTAREA PARA EDICIÓN MANUAL */}
-                                        <textarea 
-                                            name="imageUrls" 
-                                            className="inv-input-glass w-100 mt-2" 
-                                            rows="2" 
-                                            readOnly 
-                                            value={formulario.imageUrls} 
-                                            placeholder="URLs generadas..."
-                                        />
+                                        <textarea name="imageUrls" className="inv-input-glass w-100 mt-2" rows="1" readOnly 
+                                                  value={formulario.imageUrls} placeholder="Las URLs aparecerán aquí..." style={{fontSize: '11px'}} />
                                     </div>
 
                                     <motion.button whileTap={{ scale: 0.95 }} type="submit" className="inv-btn-primary w-100" disabled={loading}>
-                                        {loading ? <><i className="fas fa-spinner fa-spin me-2"></i>Sincronizando...</> : (editingId ? "Guardar Cambios" : "Agregar al Catálogo")}
+                                        {loading ? <><i className="fas fa-spinner fa-spin me-2"></i>Procesando...</> : (editingId ? "Guardar Cambios" : "Agregar al Catálogo")}
                                     </motion.button>
                                     
                                     {editingId && (
@@ -316,7 +373,7 @@ export function InventarioAdmin() {
                                             <th className="ps-4">Producto</th>
                                             <th>Categoría</th>
                                             <th>Precio</th>
-                                            <th>Disponibilidad</th>
+                                            <th>Stock Total</th>
                                             <th className="text-end pe-4">Acciones</th>
                                         </tr>
                                     </thead>
@@ -338,12 +395,28 @@ export function InventarioAdmin() {
                                                             )}
                                                             <div>
                                                                 <div className="inv-item-name">{p.name}</div>
-                                                                <div className="inv-item-id">ID: {p.id}</div>
+                                                                <div className="inv-item-id">
+                                                                    ID: {p.id} 
+                                                                    {p.variants && p.variants.length > 0 && (
+                                                                        <span className="ms-2 text-info">
+                                                                            ({p.variants.map(v => v.size).join(', ')})
+                                                                        </span>
+                                                                    )}
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </td>
                                                     <td className="inv-text-muted">{p.category?.name || "Sin Asignar"}</td>
-                                                    <td className="inv-item-price">${Number(p.basePrice).toLocaleString('es-CL')}</td>
+                                                    <td>
+                                                        {p.sale || p.isSale ? (
+                                                            <div>
+                                                                <span className="inv-item-price text-danger d-block">${Number(p.salePrice).toLocaleString('es-CL')}</span>
+                                                                <span className="text-decoration-line-through text-muted small">${Number(p.basePrice).toLocaleString('es-CL')}</span>
+                                                            </div>
+                                                        ) : (
+                                                            <span className="inv-item-price">${Number(p.basePrice).toLocaleString('es-CL')}</span>
+                                                        )}
+                                                    </td>
                                                     <td>
                                                         {p.stock > 10 ? <span className="inv-status-dot ok">Óptimo ({p.stock})</span> : 
                                                          p.stock > 0 ? <span className="inv-status-dot warning">Bajo ({p.stock})</span> : 
@@ -352,33 +425,23 @@ export function InventarioAdmin() {
                                                     <td className="text-end pe-4">
                                                         <div className="d-flex justify-content-end gap-2">
                                                             
-                                                            {/* BOTÓN EDITAR CON SVG NATIVO */}
+                                                            {/* BOTÓN EDITAR */}
                                                             <motion.button 
-                                                                whileHover={{ scale: 1.1 }} 
-                                                                whileTap={{ scale: 0.9 }} 
-                                                                className="inv-action-btn edit" 
-                                                                onClick={() => handleEditar(p)}
-                                                                title="Editar"
+                                                                whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} 
+                                                                className="inv-action-btn edit" onClick={() => handleEditar(p)} title="Editar"
                                                             >
                                                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                                                    <path d="M12 20h9"></path>
-                                                                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                                                                    <path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
                                                                 </svg>
                                                             </motion.button>
                                                             
-                                                            {/* BOTÓN ELIMINAR CON SVG NATIVO */}
+                                                            {/* BOTÓN ELIMINAR */}
                                                             <motion.button 
-                                                                whileHover={{ scale: 1.1 }} 
-                                                                whileTap={{ scale: 0.9 }} 
-                                                                className="inv-action-btn delete" 
-                                                                onClick={() => handleEliminar(p.id, p.name)}
-                                                                title="Eliminar"
+                                                                whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} 
+                                                                className="inv-action-btn delete" onClick={() => handleEliminar(p.id, p.name)} title="Eliminar"
                                                             >
                                                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                                                    <polyline points="3 6 5 6 21 6"></polyline>
-                                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                                                    <line x1="10" y1="11" x2="10" y2="17"></line>
-                                                                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                                                                    <polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line>
                                                                 </svg>
                                                             </motion.button>
                                                         </div>

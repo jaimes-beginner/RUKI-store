@@ -11,13 +11,11 @@ export function PagoExitoso() {
     const orderId = searchParams.get("orderId"); 
 
     useEffect(() => {
-        
         /*
-            Vaciamos el carrito local 
-            porque la compra ya se hizo
+            Vaciamos el carrito al cargar la pantalla de éxito
         */
         clearCart();
-    }, [clearCart]);
+    }, []); // IMPORTANTE: [] previene el bucle infinito
 
     /*
         Variantes de animación 
@@ -47,15 +45,19 @@ export function PagoExitoso() {
     };
 
     return (
-        <div className="success-page-wrapper">
+        <main className="success-page-wrapper">
+            
+            {/* LUCES AMBIENTALES DE ÉXITO */}
+            <div className="success-ambient-blob blob-success-left"></div>
+            <div className="success-ambient-blob blob-success-right"></div>
+
             <motion.div 
-                className="success-card shadow-sm"
+                className="success-card"
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible"
             >
                 <motion.div className="success-icon-wrapper mx-auto mb-4" variants={checkmarkVariants}>
-
                     {/* SVG NATIVO PARA EL CHECK DE EXITO */}
                     <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                         <polyline points="20 6 9 17 4 12"></polyline>
@@ -86,6 +88,6 @@ export function PagoExitoso() {
                     </button>
                 </motion.div>
             </motion.div>
-        </div>
+        </main>
     );
 }

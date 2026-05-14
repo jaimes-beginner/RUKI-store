@@ -1,12 +1,10 @@
-import { createContext, useContext, useState, useEffect, useMemo } from "react";
+import { createContext, useContext, useState, useEffect, useMemo, useCallback } from "react";
 
 const CART_KEY = "ruki_cart";
-
 const CartContext = createContext(null);
 
 export function CartProvider({ children }) {
     
-    // 1. Inicializamos el estado leyendo el disco duro del navegador (localStorage)
     const [cart, setCart] = useState(() => {
         try {
             const savedCart = localStorage.getItem(CART_KEY);
@@ -17,72 +15,92 @@ export function CartProvider({ children }) {
         }
     });
 
-    // 2. Efecto Espejo: Cada vez que 'cart' cambie, lo guardamos en localStorage
+    const { clearCart } = useCart();
+
     useEffect(() => {
-        localStorage.setItem(CART_KEY, JSON.stringify(cart));
-    }, [cart]);
+        // Vaciamos el carrito al cargar la pantalla de éxito
+        clearCart();
+        
+    }, []);
 
-    // 3. Acción: Agregar un producto al carrito
-    const addToCart = (product, quantity = 1) => {
-        setCart((prevCart) => {
-            // Buscamos si el producto ya está en el carrito
-            const existingItem = prevCart.find(item => item.id === product.id);
+    const addToCart = (producto, cantidad = 1) => {
+        setCart(prevCart => {
+            // Si el producto viene de la vista rápida, le asignamos 'Única' por defecto
+            const size = producto.selectedSize || 'Única';
+            const uniqueCartId = `${producto.id}-${size}`;
+            
+            const itemExistente = prevCart.find(item => item.uniqueId === uniqueCartId);
 
-            if (existingItem) {
-                // Si existe, validamos que no supere el stock máximo y sumamos
-                const newQuantity = existingItem.quantity + quantity;
-                const finalQuantity = newQuantity > product.stock ? product.stock : newQuantity;
-                
-                return prevCart.map(item =>
-                    item.id === product.id ? { ...item, quantity: finalQuantity } : item
+            if (itemExistente) {
+                return prevCart.map(item => 
+                    item.uniqueId === uniqueCartId 
+                        ? { ...item, cantidad: item.cantidad + cantidad }
+                        : item
                 );
             } else {
-                // Si no existe, lo agregamos como nuevo item
-                // Guardamos todo el objeto producto para poder mostrar su foto y nombre en la interfaz
-                return [...prevCart, { ...product, quantity }];
+                // Cálculo inteligente del precio: Si no trae cartPrice, calculamos si está en oferta o no.
+                const precio = producto.cartPrice !== undefined 
+                    ? producto.cartPrice 
+                    : (producto.sale ? producto.salePrice : producto.basePrice);
+
+                return [...prevCart, { 
+                    ...producto, 
+                    selectedSize: size, // Forzamos a que siempre tenga talla
+                    uniqueId: uniqueCartId, 
+                    cantidad: cantidad,
+                    precioFinal: Number(precio) // Forzamos a que sea un número válido
+                }];
             }
         });
     };
 
-    // 4. Acción: Quitar un producto completamente del carrito
-    const removeFromCart = (productId) => {
-        setCart((prevCart) => prevCart.filter(item => item.id !== productId));
+    const removeFromCart = (uniqueId) => {
+        setCart((prevCart) => prevCart.filter(item => item.uniqueId !== uniqueId));
     };
 
-    // 5. Acción: Actualizar la cantidad de un producto específico (+ o -)
-    const updateQuantity = (productId, newQuantity) => {
-        if (newQuantity < 1) return; // No permitimos cantidades menores a 1 por esta vía
+    const updateQuantity = (uniqueId, newQuantity) => {
+        if (newQuantity < 1) return;
 
         setCart((prevCart) => 
             prevCart.map(item => {
-                if (item.id === productId) {
-                    // Protegemos que no pida más del stock disponible
-                    const safeQuantity = newQuantity > item.stock ? item.stock : newQuantity;
-                    return { ...item, quantity: safeQuantity };
+                if (item.uniqueId === uniqueId) {
+                    const variantStock = item.variants?.find(v => v.size === item.selectedSize)?.stock;
+                    const maxStock = variantStock !== undefined ? variantStock : item.stock;
+                    
+                    const safeQuantity = newQuantity > maxStock ? maxStock : newQuantity;
+                    return { ...item, cantidad: safeQuantity };
                 }
                 return item;
             })
         );
     };
 
-    // 6. Acción: Vaciar el carrito (Se usará después de una compra exitosa)
-    const clearCart = () => {
-        setCart([]);
-    };
+    const clearCart = useCallback(() => {
+        setCart(prevCart => prevCart.length === 0 ? prevCart : []);
+    }, []);
 
-    // 7. Cálculos automáticos usando useMemo para no recalcular si no hay cambios
+    /*
+        Cálculos blindados contra NaN
+    */
     const cartTotals = useMemo(() => {
         return cart.reduce(
             (totals, item) => {
-                totals.count += item.quantity; // Total de items (Ej: 3 poleras)
-                totals.amount += (item.basePrice * item.quantity); // Dinero total
+                
+                /*
+                    Si por algún motivo el precio es 
+                    undefined, usa 0 en vez de dar NaN
+                */
+                const precioSeguro = Number(item.precioFinal) || Number(item.basePrice) || 0;
+                const cantidadSegura = Number(item.cantidad) || 1;
+
+                totals.count += cantidadSegura; 
+                totals.amount += (precioSeguro * cantidadSegura);
                 return totals;
             },
             { count: 0, amount: 0 }
         );
     }, [cart]);
 
-    // Lo que este contexto expone a toda la aplicación
     const value = {
         cart,
         cartCount: cartTotals.count,
@@ -96,7 +114,6 @@ export function CartProvider({ children }) {
     return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
 
-// Hook personalizado para usar el carrito fácilmente en cualquier componente
 export function useCart() {
     const context = useContext(CartContext);
     if (!context) {
