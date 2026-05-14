@@ -6,6 +6,23 @@ spring:
     name: ruki-gateway
   cloud:
     gateway:
+      
+      # ========================================== #
+      # CONFIGURACIÓN MAESTRA DE CORS Y FILTROS
+      # ========================================== #
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_UNIQUE
+      
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: 
+              - "http://localhost:5173" # Origen de tu React (Vite)
+              - "http://localhost:3000" # Origen alternativo (CRA)
+            allowedHeaders: "*"
+            allowedMethods: "*"
+            allowCredentials: true
+
       routes:
         #------------------------------------------------#
         # MICROSERVICIO DE USUARIOS
