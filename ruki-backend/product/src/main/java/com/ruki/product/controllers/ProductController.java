@@ -13,6 +13,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -138,6 +140,61 @@ public class ProductController {
     public ResponseEntity<Void> addStock(@PathVariable Long id, @RequestParam Integer quantity) {
         productService.addStock(id, quantity);
         return ResponseEntity.ok().build();
+    }
+
+    /*
+        Endpoint para obtener los productos recientes 
+        para usarlos en los ARRIVALS
+    */
+    @GetMapping("/new-arrivals")
+    @Operation(
+        summary = "Obtener productos recientes (New Arrivals)", 
+        description = "Devuelve los últimos 12 productos activos ordenados por fecha de creación descendente. (Acceso Público)"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lista de productos recientes obtenida exitosamente")
+    })
+    public ResponseEntity<List<ProductResponse>> getNewArrivals() {
+        return ResponseEntity.ok(productService.getNewArrivals());
+    }
+
+    /*
+        Endpoint para obtener los productos en oferta 
+        para usarlos en los SALE
+    */
+    @GetMapping("/sale")
+    @Operation(
+        summary = "Obtener productos en oferta (Sale)", 
+        description = "Devuelve todos los productos activos que tienen la bandera de oferta activada. (Acceso Público)"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lista de productos en oferta obtenida exitosamente")
+    })
+    public ResponseEntity<List<ProductResponse>> getSaleProducts() {
+        return ResponseEntity.ok(productService.getSaleProducts());
+    }
+
+    /*
+        Endpoint para obtener los productos filtrados dinamicamente 
+        según los parámetros de búsqueda, para usarlos en la búsqueda 
+        avanzada del catálogo
+    */
+    @GetMapping("/filter")
+    @Operation(
+        summary = "Filtrar productos dinámicamente", 
+        description = "Busca productos combinando múltiples filtros opcionales (Categoría, Talla, Precio Mín/Máx, Orden). (Acceso Público)"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lista de productos filtrada exitosamente")
+    })
+    public ResponseEntity<List<ProductResponse>> filterProducts(
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) String size,
+            @RequestParam(required = false) BigDecimal minPrice,
+            @RequestParam(required = false) BigDecimal maxPrice,
+            @RequestParam(required = false, defaultValue = "newest") String sort) {
+        
+        return ResponseEntity.ok(productService.filterProducts(categoryId, size, minPrice, maxPrice, sort));
     }
 
 }
