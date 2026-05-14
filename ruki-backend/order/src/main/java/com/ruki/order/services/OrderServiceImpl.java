@@ -27,8 +27,8 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final ProductClient productClient;
 
-    /* 
-        Crear un nuevo pedido
+    /*
+        Lógica para crear una orden
     */
     @Override
     public Order createOrder(OrderCreate request, Long userId) {
@@ -39,11 +39,6 @@ public class OrderServiceImpl implements OrderService {
         
         BigDecimal totalAmount = BigDecimal.ZERO;
         List<OrderItem> items = new ArrayList<>();
-        
-        /* 
-            LLevaremos un registro de los productos que 
-            ya descontamos en caso de que falle
-        */
         List<OrderItemRequest> processedItems = new ArrayList<>();
 
         try {
@@ -62,35 +57,50 @@ public class OrderServiceImpl implements OrderService {
                         "El producto '" + realProduct.getName() + "' ya no está disponible.");
                 }
 
+                /*
+                    Chequeo global preliminar
+                */
                 if (realProduct.getStock() < itemRequest.getQuantity()) {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
                         "Stock insuficiente para: '" + realProduct.getName() + "'. Quedan " + realProduct.getStock() + ".");
                 }
 
-                /* 
-                    Intentamos descontar el stock del producto
+                /*
+                    Logica del descuento según la talla
                 */
                 try {
-                    productClient.discountStock(realProduct.getId(), itemRequest.getQuantity());
-                    
-                    /* 
-                        Si tiene exito, lo registramos
-                    */
+                    productClient.discountStock(realProduct.getId(), itemRequest.getQuantity(), itemRequest.getSize());
                     processedItems.add(itemRequest);
                 } catch (Exception e) {
                     throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, 
-                        "Fallo de conexión al descontar inventario.");
+                        "Fallo al descontar inventario del producto: " + realProduct.getName() + " (Talla: " + itemRequest.getSize() + ")");
                 }
 
-                BigDecimal itemSubTotal = realProduct.getBasePrice().multiply(new BigDecimal(itemRequest.getQuantity()));
+                /*
+                    Lógica de los precios para saber si están en oferta o no 
+                */
+                BigDecimal finalPrice = (realProduct.isSale() && realProduct.getSalePrice() != null) 
+                                        ? realProduct.getSalePrice() 
+                                        : realProduct.getBasePrice();
+
+                BigDecimal itemSubTotal = finalPrice.multiply(new BigDecimal(itemRequest.getQuantity()));
                 totalAmount = totalAmount.add(itemSubTotal);
 
                 OrderItem orderItem = new OrderItem();
                 orderItem.setOrder(order);
                 orderItem.setProductId(realProduct.getId());
                 orderItem.setQuantity(itemRequest.getQuantity());
-                orderItem.setUnitPrice(realProduct.getBasePrice());
+
+                /*
+                    Cobramos el precio correcto
+                */
+                orderItem.setUnitPrice(finalPrice);
                 orderItem.setSubTotal(itemSubTotal);
+
+                /*
+                    Guardamos la talla para el envío
+                */
+                orderItem.setSize(itemRequest.getSize()); 
 
                 items.add(orderItem);
             }
@@ -101,47 +111,41 @@ public class OrderServiceImpl implements OrderService {
             return orderRepository.save(order);
 
         } catch (Exception e) {
-            /* 
-                Si algo sale mal en el proceso, hacemos 
-                rollback de los stocks descontados
-            */
             log.error("Error creando el pedido. Iniciando Rollback de stock...");
             for (OrderItemRequest processedItem : processedItems) {
                 try {
-                    productClient.addStock(processedItem.getProductId(), processedItem.getQuantity());
-                    log.info("Rollback exitoso: Devueltas {} unidades al producto {}", processedItem.getQuantity(), processedItem.getProductId());
+
+                    /*
+                        Rollback en donde devolvemos a la talla específica
+                    */
+                    productClient.addStock(processedItem.getProductId(), processedItem.getQuantity(), processedItem.getSize());
+                    log.info("Rollback exitoso: Devueltas {} unidades al producto {} (Talla: {})", 
+                            processedItem.getQuantity(), processedItem.getProductId(), processedItem.getSize());
                 } catch (Exception rollbackEx) {
                     log.error("ALERTA CRÍTICA: Falló el rollback para el producto {}", processedItem.getProductId());
                 }
             }
-            
-            /* 
-                Volvemos a lanzar la excepción original 
-                para que el Frontend se entere del error
-            */
             throw e;
         }
     }
 
-    /* 
-        Obtener un pedido por su ID
+    /*
+        Lógica para obtener una orden por su ID
     */
     @Override
     @Transactional(readOnly = true)
     public Order getOrderById(Long orderId, Long currentUserId, boolean isAdmin) {
-        
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pedido no encontrado"));
 
         if (!isAdmin && !order.getUserId().equals(currentUserId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acceso denegado: Este pedido no te pertenece");
         }
-
         return order;
     }
 
-    /* 
-        Obtener los pedidos de un usuario
+    /*
+        Lógica para obtener mis pedidos
     */
     @Override
     @Transactional(readOnly = true)
@@ -149,26 +153,27 @@ public class OrderServiceImpl implements OrderService {
         return orderRepository.findByUserIdOrderByCreatedAtDesc(currentUserId);
     }
 
-    /* 
-        Cancelar un pedido (solo si no está entregado o ya cancelado)
+    /*
+        Lógica para cancelar un pedido
     */
     @Override
     public Order cancelMyOrder(Long orderId, Long currentUserId, boolean isAdmin) {
-        
         Order order = getOrderById(orderId, currentUserId, isAdmin);
-        
         if (order.getStatus() == OrderStatus.DELIVERED || order.getStatus() == OrderStatus.CANCELLED) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "No se puede cancelar un pedido en estado " + order.getStatus());
         }
         
+        for (OrderItem item : order.getItems()) {
+            productClient.addStock(item.getProductId(), item.getQuantity(), item.getSize());
+        }
+        
         order.setStatus(OrderStatus.CANCELLED);
         log.info("AUDITORÍA: El usuario con ID {} CANCELÓ el pedido ID {}", currentUserId, orderId);
-
         return orderRepository.save(order);
     }
 
-    /* 
-        Para el administrador: Obtener todos los pedidos
+    /*
+        Lógica para obtener todas las ordenes (solo admin)
     */
     @Override
     @Transactional(readOnly = true)
@@ -176,29 +181,26 @@ public class OrderServiceImpl implements OrderService {
         return orderRepository.findAll();
     }
 
-    /* 
-        Para el administrador: Cambiar el estado de un pedido
+    /*
+        Lógica para actualizar el estado de un pedido (solo admin)
     */
     @Override
     public Order updateOrderStatusAdmin(Long orderId, OrderStatus newStatus) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pedido no encontrado"));
-        
         order.setStatus(newStatus);
         log.info("AUDITORÍA ADMIN: El estado del pedido ID {} cambió a {}", orderId, newStatus);
-
         return orderRepository.save(order);
     }
 
-    /* 
-        Actualizar el estado de un pedido 
+    /*
+        Lógica para actualizar el estado de de pago de un pedido
     */
     public Order updateStatusFromPayment(Long orderId, String status) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Orden #" + orderId + " no encontrada"));
-
         order.setStatus(OrderStatus.valueOf(status));
         return orderRepository.save(order);
     }
-
+    
 }

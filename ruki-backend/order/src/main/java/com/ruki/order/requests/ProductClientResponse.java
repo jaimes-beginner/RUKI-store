@@ -3,6 +3,8 @@ package com.ruki.order.requests;
 import lombok.Data;
 import java.math.BigDecimal;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /* 
     No necesitamos todos los datos del producto solo 
     necesitamos lo que le importa a una orden de compra;
@@ -17,5 +19,9 @@ public class ProductClientResponse {
     private BigDecimal basePrice;
     private Integer stock;
     private boolean isActive;
+
+    @JsonProperty("isSale")
+    private boolean isSale;
+    private BigDecimal salePrice;
 
 }

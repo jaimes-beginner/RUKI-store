@@ -21,7 +21,8 @@ public class OrderItem {
         Esta clase representa la entidad 'Item' o 'Producto' 
         dentro de una orden/pedido. Aquí se guardan los datos 
         específicos de cada producto que se quiere comprar, como 
-        el ID del producto, la cantidad y el precio unitario
+        el ID del producto, la cantidad, el precio unitario y
+        su talla correspondiente
     */
 
     @Id
@@ -61,5 +62,8 @@ public class OrderItem {
     */
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal subTotal;
+
+    @Column(name = "size", length = 20)
+    private String size;
 
 }

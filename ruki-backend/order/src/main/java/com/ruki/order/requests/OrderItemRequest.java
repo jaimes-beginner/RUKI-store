@@ -26,4 +26,6 @@ public class OrderItemRequest {
     @Positive(message = "La cantidad debe ser mayor a cero")
     private Integer quantity;
 
+    private String size;
+    
 }

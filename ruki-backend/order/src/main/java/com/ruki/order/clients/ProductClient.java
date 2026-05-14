@@ -14,10 +14,9 @@ public interface ProductClient {
     ProductClientResponse getProductById(@PathVariable("id") Long id);
 
     @PutMapping("/api-ruki/products/{id}/discount-stock")
-    void discountStock(@PathVariable("id") Long id, @RequestParam("quantity") Integer quantity);
+    void discountStock(@PathVariable("id") Long id, @RequestParam("quantity") Integer quantity, @RequestParam(value = "size", required = false) String size);
 
     @PutMapping("/api-ruki/products/{id}/add-stock")
-    void addStock(@PathVariable("id") Long id, @RequestParam("quantity") Integer quantity);
+    void addStock(@PathVariable("id") Long id, @RequestParam("quantity") Integer quantity, @RequestParam(value = "size", required = false) String size);
     
 }
-    
