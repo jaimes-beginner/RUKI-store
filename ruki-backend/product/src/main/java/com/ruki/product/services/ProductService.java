@@ -25,11 +25,11 @@ public interface ProductService {
     List<ProductResponse> getProductsByCategory(Long categoryId);
     ProductResponse getProductById(Long id);
     void deactivateProduct(Long id);
-    void discountStock(Long id, Integer quantity);
     ProductResponse updateProduct(Long id, ProductUpdate request);
-    void addStock(Long id, Integer quantity);
+    void addStock(Long id, Integer quantity, String size);
     List<ProductResponse> getNewArrivals();
     List<ProductResponse> getSaleProducts();
     List<ProductResponse> filterProducts(Long categoryId, String size, BigDecimal minPrice, BigDecimal maxPrice, String sort);
+    void discountStock(Long id, Integer quantity, String size);
 
 }

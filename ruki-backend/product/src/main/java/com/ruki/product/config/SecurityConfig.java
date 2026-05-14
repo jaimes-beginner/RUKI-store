@@ -30,23 +30,33 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .cors(cors -> cors.disable())
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
   
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 
-                /* Rutas de Swagger UI liberadas para desarrollo */
-                .requestMatchers(
-                        "/v3/api-docs/**", 
-                        "/swagger-ui/**", 
-                        "/swagger-ui.html"
-                ).permitAll()
+                /* 
+                    Rutas de Swagger UI liberadas para desarrollo 
+                */
+                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                 
+                /* 
+                    Rutas públicas, cualquiera puede ver el catálogo 
+                */
                 .requestMatchers(HttpMethod.GET, "/api-ruki/categories/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api-ruki/products/**").permitAll()
                 
+                /* 
+                    Permitimos a los clientes normales descontar stock 
+                */
+                .requestMatchers(HttpMethod.PUT, "/api-ruki/products/*/discount-stock", "/api-ruki/products/*/add-stock").authenticated()
+                
+                /* 
+                    Rutas de administración, solo para usuarios con ROLE_ADMIN
+                */
                 .requestMatchers(HttpMethod.POST, "/api-ruki/categories/create", "/api-ruki/products/create").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api-ruki/categories/update/**", "/api-ruki/products/update/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/api-ruki/categories/delete/**", "/api-ruki/products/delete/**").hasRole("ADMIN")
                 
                 .anyRequest().authenticated()
@@ -67,4 +77,17 @@ public class SecurityConfig {
         return http.build();
     }
 
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of(allowedOrigin));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        configuration.setAllowCredentials(true);
+        
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+    
 }

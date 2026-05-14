@@ -138,18 +138,41 @@ public class ProductServiceImpl implements ProductService {
         Método para descontar stock de un producto
     */
     @Override
-    public void discountStock(Long id, Integer quantity) {
+    @Transactional
+    public void discountStock(Long id, Integer quantity, String size) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Producto no encontrado"));
-        
+
         if (!product.isActive()) {
-            throw new ResponseStatusException(BAD_REQUEST, "El producto está inactivo");
+            throw new ResponseStatusException(BAD_REQUEST, "El producto no está activo");
         }
 
-        if (product.getStock() < quantity) {
-            throw new ResponseStatusException(BAD_REQUEST, "Stock insuficiente para el producto: " + product.getName());
+        /*
+            Si enviaron una talla, descontamos de la variante específica
+        */
+        if (size != null && !size.isEmpty() && product.getVariants() != null) {
+            ProductVariant variant = product.getVariants().stream()
+                    .filter(v -> v.getSize().equalsIgnoreCase(size))
+                    .findFirst()
+                    .orElseThrow(() -> new ResponseStatusException(BAD_REQUEST, "Talla no encontrada"));
+
+            if (variant.getStock() < quantity) {
+                throw new ResponseStatusException(BAD_REQUEST, "Stock insuficiente en la talla " + size);
+            }
+            variant.setStock(variant.getStock() - quantity);
+        } else {
+            
+            /*
+                Si es un producto sin talla, solo validamos el stock general
+            */
+            if (product.getStock() < quantity) {
+                throw new ResponseStatusException(BAD_REQUEST, "Stock general insuficiente");
+            }
         }
 
+        /*
+            Siempre descontamos el stock general para mantener la compatibilidad
+        */
         product.setStock(product.getStock() - quantity);
         productRepository.save(product);
     }
@@ -234,15 +257,28 @@ public class ProductServiceImpl implements ProductService {
         Método para devolver stock (Rollback de compras fallidas)
     */
     @Override
-    public void addStock(Long id, Integer quantity) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Producto no encontrado"));
-        
-        product.setStock(product.getStock() + quantity);
-        productRepository.save(product);
+    @Transactional
+    public void addStock(Long id, Integer quantity, String size) {
+        Product product = productRepository.findById(id).orElse(null);
+        if (product != null) {
+            
+            /*
+                Si enviaron talla, devolvemos el stock a esa talla
+            */
+            if (size != null && !size.isEmpty() && product.getVariants() != null) {
+                product.getVariants().stream()
+                        .filter(v -> v.getSize().equalsIgnoreCase(size))
+                        .findFirst()
+                        .ifPresent(variant -> variant.setStock(variant.getStock() + quantity));
+            }
+            
+            /*
+                Devolvemos el stock general
+            */
+            product.setStock(product.getStock() + quantity);
+            productRepository.save(product);
+        }
     }
-
-
 
     /*
         Método parar obtener todos los productos 

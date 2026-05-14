@@ -107,8 +107,8 @@ public class ProductController {
             @ApiResponse(responseCode = "400", description = "Stock insuficiente o producto inactivo"),
             @ApiResponse(responseCode = "404", description = "Producto no encontrado")
     })
-    public ResponseEntity<Void> discountStock(@PathVariable Long id, @RequestParam Integer quantity) {
-        productService.discountStock(id, quantity);
+    public ResponseEntity<Void> discountStock(@PathVariable Long id, @RequestParam Integer quantity, @RequestParam(required = false) String size) {
+        productService.discountStock(id, quantity, size);
         return ResponseEntity.ok().build();
     }
 
@@ -137,8 +137,8 @@ public class ProductController {
     @PutMapping("/{id}/add-stock")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Devolver stock", description = "Suma unidades al inventario (usado para rollbacks de pedidos fallidos)")
-    public ResponseEntity<Void> addStock(@PathVariable Long id, @RequestParam Integer quantity) {
-        productService.addStock(id, quantity);
+    public ResponseEntity<Void> addStock(@PathVariable Long id, @RequestParam Integer quantity, @RequestParam(required = false) String size) {
+        productService.addStock(id, quantity, size);
         return ResponseEntity.ok().build();
     }
 
