@@ -22,8 +22,8 @@
 
 .checkout-card {
     background-color: #ffffff;
-    border: 1px solid #e5e5ea;
-    border-radius: 20px; /* Squircle feeling */
+    border: 1px solid #00000023;
+    border-radius: 20px; 
     padding: 24px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
 }
@@ -208,4 +208,99 @@
     .summary-card.sticky-top {
         position: static !important;
     }
+}
+
+
+
+
+
+
+.checkout-main-container {
+    position: relative;
+    overflow: hidden; /* Evita que las luces generen scroll horizontal */
+    min-height: 100vh;
+    background-color: #fcfcfd; /* El fondo limpio que ya teníamos */
+}
+
+.checkout-ambient-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(120px); /* El secreto del efecto "Glow" */
+    z-index: 0; /* Para que quede detrás de las tarjetas */
+    opacity: 0.6;
+    pointer-events: none; /* Evita que las luces bloqueen los clics */
+    animation: floatBlob 12s infinite alternate ease-in-out;
+}
+
+/* Luz izquierda (Cian/Azul) */
+.blob-left {
+    top: 10%;
+    left: -15%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(50, 173, 230, 0.4) 0%, rgba(50, 173, 230, 0) 70%);
+}
+
+/* Luz derecha (Púrpura/Índigo) */
+.blob-right {
+    bottom: 10%;
+    right: -15%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(175, 82, 222, 0.35) 0%, rgba(175, 82, 222, 0) 70%);
+}
+
+/* Animación sutil de respiración/flotación */
+@keyframes floatBlob {
+    0% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(40px, -40px) scale(1.1); }
+    100% { transform: translate(-20px, 40px) scale(0.95); }
+}
+
+/* Asegurarnos que el contenido del checkout esté por encima de las luces */
+.checkout-wrapper {
+    position: relative;
+    z-index: 2;
+}
+
+
+
+
+
+/* ========================================= */
+/* EFECTO GLASSMORPHISM PARA TARJETAS        */
+/* ========================================= */
+
+.checkout-card, 
+.contact-info-box, 
+.address-card {
+    /* Fondo blanco semi-transparente para dejar pasar las luces */
+    background: rgba(255, 255, 255, 0.65) !important; 
+    
+    /* El secreto de la magia: desenfoque del fondo */
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%); /* Soporte para Safari/iOS */
+    
+    /* Borde brillante translúcido (Efecto biselado 3D) */
+    border: 1px solid rgba(0, 0, 0, 0.102) !important; 
+    
+    /* Sombra suave para despegar la tarjeta del fondo */
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04) !important;
+}
+
+/* Efecto especial cuando pasas el mouse por una dirección */
+.address-card:hover {
+    background: rgba(255, 255, 255, 0.85) !important;
+    transform: translateY(-2px);
+}
+
+/* Dirección seleccionada: la hacemos un poco más opaca y con borde oscuro */
+.address-card.selected {
+    background: rgba(255, 255, 255, 0.95) !important;
+    border: 1.5px solid #1d1d1f !important;
+}
+
+/* Limpiar el fondo del contenedor de los items del resumen para que herede el cristal */
+.summary-item {
+    background: transparent !important;
 }

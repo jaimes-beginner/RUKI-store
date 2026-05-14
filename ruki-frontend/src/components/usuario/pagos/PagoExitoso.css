@@ -5,18 +5,72 @@
     align-items: center;
     justify-content: center;
     padding: 20px;
-    background-color: #fbfbfd; 
+    background-color: #fcfcfd; 
+    
+    /* Configuración vital para contener las luces */
+    position: relative;
+    overflow: hidden;
 }
 
+/* ========================================= */
+/* LUCES AMBIENTALES DE ÉXITO (VERDE/AZUL)   */
+/* ========================================= */
+
+.success-ambient-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(120px);
+    z-index: 0;
+    opacity: 0.65;
+    pointer-events: none;
+    animation: floatBlobSuccess 12s infinite alternate ease-in-out;
+}
+
+/* Luz Verde Esmeralda (Éxito) */
+.blob-success-left {
+    top: 15%;
+    left: -10%;
+    width: 450px;
+    height: 450px;
+    background: radial-gradient(circle, rgba(52, 199, 89, 0.4) 0%, rgba(52, 199, 89, 0) 70%);
+}
+
+/* Luz Turquesa (Frescura/Tecnología) */
+.blob-success-right {
+    bottom: 10%;
+    right: -10%;
+    width: 550px;
+    height: 550px;
+    background: radial-gradient(circle, rgba(90, 200, 250, 0.35) 0%, rgba(90, 200, 250, 0) 70%);
+}
+
+@keyframes floatBlobSuccess {
+    0% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(30px, -40px) scale(1.1); }
+    100% { transform: translate(-30px, 20px) scale(0.95); }
+}
+
+/* ========================================= */
+/* TARJETA GLASSMORPHISM                     */
+/* ========================================= */
+
 .success-card {
-    background-color: #ffffff;
-    border: 1px solid #00000028;
+    /* Fondo semi-transparente + desenfoque */
+    background: rgba(255, 255, 255, 0.575) !important;
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid rgba(0, 0, 0, 0.137) !important;
+    
     border-radius: 24px;
     padding: 40px 20px;
     max-width: 480px;
     width: 100%;
     text-align: center;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.02);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.055);
+    
+    /* Aseguramos que el cristal esté por encima de las luces */
+    position: relative;
+    z-index: 2;
 }
 
 .success-icon-wrapper {
@@ -33,8 +87,12 @@
 }
 
 .order-receipt-box {
-    background-color: #f5f5f7;
-    border: 1px dashed #d2d2d7;
+    /* Le damos un toque de cristal sutil a la caja del recibo también */
+    background-color: rgba(245, 245, 247, 0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px dashed rgba(210, 210, 215, 0.8);
+    
     border-radius: 16px;
     padding: 16px 20px;
     max-width: 300px;
@@ -73,7 +131,7 @@
 }
 
 .ios-btn-outline { 
-    background-color: #ffffff; 
+    background-color: rgba(255, 255, 255, 0.5); 
     color: #1d1d1f; 
     font-weight: 600;
     border-radius: 14px;
@@ -82,5 +140,5 @@
 }
 
 .ios-btn-outline:hover { 
-    background-color: #f5f5f7; 
+    background-color: rgba(245, 245, 247, 0.8); 
 }
