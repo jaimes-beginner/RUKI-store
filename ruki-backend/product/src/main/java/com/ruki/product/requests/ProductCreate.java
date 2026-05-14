@@ -38,12 +38,27 @@ public class ProductCreate {
     @Positive(message = "El precio debe ser mayor a cero")
     private BigDecimal basePrice;
 
-    @NotNull(message = "El stock inicial es obligatorio")
     @Min(value = 0, message = "El stock no puede ser negativo")
-    private Integer stock;
+    private Integer stock = 0; 
 
     @NotNull(message = "El ID de la categoría es obligatorio")
     @Positive(message = "El ID de la categoría debe ser mayor a cero")
     private Long categoryId;
+
+    private boolean isSale = false;
+    private BigDecimal salePrice;
+
+    @Data
+    public static class VariantRequest {
+        @NotBlank(message = "La talla es obligatoria")
+        private String size;
+        
+        @Min(value = 0, message = "El stock de la talla no puede ser negativo")
+        private Integer stock;
+    }
+
+    @NotNull(message = "Debe incluir al menos una talla con su stock")
+    @Size(min = 1, message = "Debe haber al menos una talla")
+    private List<VariantRequest> variants;
 
 }
