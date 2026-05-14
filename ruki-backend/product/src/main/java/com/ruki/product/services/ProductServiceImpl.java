@@ -163,7 +163,6 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Producto no encontrado"));
 
-
         if (request.getName() != null) {
             product.setName(request.getName());
         }
@@ -177,9 +176,6 @@ public class ProductServiceImpl implements ProductService {
         if (request.getBasePrice() != null) {
             product.setBasePrice(request.getBasePrice());
         }
-        if (request.getStock() != null) {
-            product.setStock(request.getStock());
-        }
         if (request.getCategoryId() != null) {
             Category category = categoryRepository.findById(request.getCategoryId())
                     .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Categoría no encontrada"));
@@ -188,6 +184,46 @@ public class ProductServiceImpl implements ProductService {
                 throw new ResponseStatusException(BAD_REQUEST, "No se puede asignar un producto a una categoría inactiva");
             }
             product.setCategory(category);
+        }
+        if (request.getIsSale() != null) {
+            product.setSale(request.getIsSale());
+        }
+        if (request.getSalePrice() != null) {
+            product.setSalePrice(request.getSalePrice());
+        }
+
+        /*
+            Lógica para actualizar de tallas y el stock
+        */
+        if (request.getVariants() != null) {
+            
+            /*
+                Limpiamos las tallas viejas (orphanRemoval 
+                las borrará de la DB)
+            */
+            product.getVariants().clear();
+            
+            /*
+                Agregamos las nuevas y recalculamos el stock total
+            */
+            int totalStock = 0;
+            for (ProductCreate.VariantRequest variantReq : request.getVariants()) {
+                ProductVariant variant = new ProductVariant();
+                variant.setSize(variantReq.getSize());
+                variant.setStock(variantReq.getStock());
+                variant.setProduct(product);
+                
+                product.getVariants().add(variant);
+                totalStock += variantReq.getStock();
+            }
+            product.setStock(totalStock);
+        } else if (request.getStock() != null) {
+
+            /*
+                Si no enviaron tallas, pero enviaron stock 
+                general (por si es un producto sin talla)
+            */
+            product.setStock(request.getStock());
         }
 
         Product saved = productRepository.save(product);
