@@ -1,13 +1,10 @@
 import { useState, useEffect } from "react";
 import { obtenerTodosLosPedidos, actualizarEstadoPedido } from "../../../services/PedidoService"; 
 import { obtenerProductoPorId } from "../../../services/ProductoService";
+import { obtenerDireccionesPorUsuario } from "../../../services/UsuarioService"; // IMPORTANTE: Agregamos esto
 import { motion, AnimatePresence } from "framer-motion";
 import './PedidosAdmin.css'; 
 
-/*
-    Variantes para las animaciónes 
-    de los pedidos
-*/
 const containerVariants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
@@ -21,18 +18,11 @@ export function PedidosAdmin() {
     const [pedidos, setPedidos] = useState([]);
     const [loading, setLoading] = useState(false);
     const [toast, setToast] = useState({ mostrar: false, mensaje: "", tipo: "success" });
-    
-    /*
-        Diccionario para los nombre de los productos
-    */
     const [nombresProductos, setNombresProductos] = useState({});
 
-    /*
-        Estado para el pedido que el admin 
-        seleccione para ver detalles
-    */
     const [pedidoSeleccionado, setPedidoSeleccionado] = useState(null);
     const [nuevoEstado, setNuevoEstado] = useState("");
+    const [direccionCompleta, setDireccionCompleta] = useState("Cargando dirección...");
 
     useEffect(() => {
         cargarDatos();
@@ -44,9 +34,6 @@ export function PedidosAdmin() {
             const ordenados = (Array.isArray(data) ? data : []).sort((a, b) => b.id - a.id);
             setPedidos(ordenados);
 
-            /*
-                Extraer IDs y buscar nombres para el Admin
-            */
             const idsUnicos = new Set();
             ordenados.forEach(pedido => {
                 pedido.items?.forEach(item => idsUnicos.add(item.productId));
@@ -58,7 +45,7 @@ export function PedidosAdmin() {
                     const prod = await obtenerProductoPorId(id);
                     diccionarioNombres[id] = prod.name;
                 } catch (e) {
-                    diccionarioNombres[id] = "Producto Eliminado/Desconocido";
+                    diccionarioNombres[id] = "Producto Desconocido";
                 }
             }));
             setNombresProductos(diccionarioNombres);
@@ -74,10 +61,30 @@ export function PedidosAdmin() {
         setTimeout(() => setToast((prev) => ({ ...prev, mostrar: false })), 3500);
     };
 
-    const handleVerDetalle = (pedido) => {
+    /*
+        Buscamos la dirección real del usuario cuando seleccionamos el pedido
+    */
+    const handleVerDetalle = async (pedido) => {
         setPedidoSeleccionado(pedido);
         setNuevoEstado(pedido.status || pedido.estado || "PENDING");
+        setDireccionCompleta("Cargando detalles de envío...");
         window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        if (pedido.shippingAddressId && pedido.userId) {
+            try {
+                const dirs = await obtenerDireccionesPorUsuario(pedido.userId);
+                const dirExacta = dirs.find(d => d.id === pedido.shippingAddressId);
+                if (dirExacta) {
+                    setDireccionCompleta(`${dirExacta.street}, ${dirExacta.city}, ${dirExacta.region} ${dirExacta.zipCode ? `(CP: ${dirExacta.zipCode})` : ''}`);
+                } else {
+                    setDireccionCompleta(`ID Dirección: ${pedido.shippingAddressId} (Fue eliminada o modificada)`);
+                }
+            } catch (error) {
+                setDireccionCompleta("Error al obtener la dirección.");
+            }
+        } else {
+            setDireccionCompleta("Dirección no especificada.");
+        }
     };
 
     const handleActualizarEstado = async (e) => {
@@ -87,7 +94,7 @@ export function PedidosAdmin() {
         setLoading(true);
         try {
             await actualizarEstadoPedido(pedidoSeleccionado.id, nuevoEstado);
-            mostrarToast(`Estado del pedido #${pedidoSeleccionado.id} actualizado a ${nuevoEstado}`);
+            mostrarToast(`Estado de la Orden #${pedidoSeleccionado.id} actualizado a ${nuevoEstado}`);
             
             await cargarDatos();
             setPedidoSeleccionado({ ...pedidoSeleccionado, status: nuevoEstado });
@@ -113,7 +120,7 @@ export function PedidosAdmin() {
         if (s === 'COMPLETED' || s === 'DELIVERED' || s === 'PAID' || s === 'SHIPPED') {
             return <span className="ord-badge badge-ok">{s}</span>;
         }
-        if (s === 'CANCELED' || s === 'CANCELLED') {
+        if (s === 'CANCELLED' || s === 'CANCELED') {
             return <span className="ord-badge badge-out">CANCELADO</span>;
         }
         return <span className="ord-badge badge-low">{s}</span>;
@@ -121,15 +128,10 @@ export function PedidosAdmin() {
 
     return (
         <div className="orders-premium-wrapper">
-
-            {/* LUCES AMBIENTALES */}
-            <div className="ord-ambient-blob ord-blob-1"></div>
-            <div className="ord-ambient-blob ord-blob-2"></div>
-
-            <div className="container py-4 position-relative" style={{ zIndex: 1 }}>
+            <div className="container py-4 position-relative">
                 
                 <motion.header 
-                    className="ord-page-header-glass"
+                    className="ord-page-header"
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
@@ -145,7 +147,7 @@ export function PedidosAdmin() {
                                 initial={{ opacity: 0, scale: 0.9, y: -20 }} 
                                 animate={{ opacity: 1, scale: 1, y: 0 }} 
                                 exit={{ opacity: 0, scale: 0.9, y: -20 }}
-                                className={`ord-toast-glass ${toast.tipo === "danger" ? "error" : "success"}`}
+                                className={`ord-toast ${toast.tipo === "danger" ? "error" : "success"}`}
                             >
                                 <i className={`fas ${toast.tipo === "danger" ? "fa-exclamation-triangle" : "fa-check-circle"} me-2 fs-5`}></i>
                                 {toast.mensaje}
@@ -154,14 +156,14 @@ export function PedidosAdmin() {
                     </AnimatePresence>
                 </div>
 
-                <motion.div className="row g-4" variants={containerVariants} initial="hidden" animate="visible">
+                <motion.div className="row g-4 align-items-start" variants={containerVariants} initial="hidden" animate="visible">
                     
                     {/* PANEL IZQUIERDO CON EL DETALLE Y EDICIÓN */}
                     <motion.div className="col-lg-4" variants={cardVariants}>
-                        <div className="ord-card-glass">
+                        <div className="ord-card">
                             <div className="ord-card-header d-flex justify-content-between align-items-center">
                                 <div>
-                                    <i className="fas fa-box-open me-2 text-primary"></i> 
+                                    <i className="fas fa-box-open me-2 text-dark"></i> 
                                     Detalle del Pedido
                                 </div>
                                 {pedidoSeleccionado && (
@@ -172,19 +174,14 @@ export function PedidosAdmin() {
                             <div className="p-4">
                                 {!pedidoSeleccionado ? (
                                     <div className="text-center py-5">
-
-                                        {/* SVG NATIVO DE UN MOUSE */}
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="text-muted opacity-50 mb-3">
-                                            <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"></path>
-                                            <path d="M13 13l6 6"></path>
-                                        </svg>
+                                        <i className="fas fa-mouse-pointer fa-3x text-muted opacity-25 mb-3"></i>
                                         <p className="fw-bold text-dark mb-1" style={{fontSize: "13px"}}>Ningún pedido seleccionado</p>
                                         <p className="ord-helper-text mx-auto" style={{maxWidth: "200px"}}>Haz clic en el icono del ojo en la tabla para revisar sus detalles.</p>
                                     </div>
                                 ) : (
                                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                                         
-                                        {/* RESUMEN DEL CLIENTE CON SU FECHA */}
+                                        {/* RESUMEN DEL CLIENTE */}
                                         <div className="mb-4 pb-3 border-bottom-subtle">
                                             <div className="d-flex justify-content-between mb-2 align-items-center">
                                                 <span className="ord-label mb-0">Fecha de Orden</span>
@@ -194,13 +191,20 @@ export function PedidosAdmin() {
                                                 <span className="ord-label mb-0">ID Cliente</span>
                                                 <span className="fw-bold text-dark" style={{fontSize: "12px"}}>Usuario #{pedidoSeleccionado.userId}</span>
                                             </div>
+                                            
+                                            {/* DIRECCIÓN TRADUCIDA */}
+                                            <div className="bg-light p-3 rounded-3 border mt-3">
+                                                <span className="ord-label mb-1 text-dark"><i className="fas fa-map-marker-alt me-1 text-secondary"></i> Destino de Envío</span>
+                                                <p className="small mb-0 fw-medium text-dark">{direccionCompleta}</p>
+                                            </div>
+
                                             <div className="d-flex justify-content-between mt-3 align-items-center">
                                                 <span className="ord-label mb-0">Total Recaudado</span>
-                                                <span className="fw-bold text-primary" style={{fontSize: "18px"}}>{formatearPrecio(pedidoSeleccionado.totalAmount)}</span>
+                                                <span className="fw-bold text-dark" style={{fontSize: "18px"}}>{formatearPrecio(pedidoSeleccionado.totalAmount)}</span>
                                             </div>
                                         </div>
 
-                                        {/* LISTA DE PRODUCTOS/ITEMS EN FOMRA DE UNA MINI-TABLA */}
+                                        {/* LISTA DE PRODUCTOS/ITEMS */}
                                         <div className="mb-4">
                                             <label className="ord-label mb-2">Artículos a enviar ({pedidoSeleccionado.items?.length || 0})</label>
                                             <div className="ord-mini-table-scroll">
@@ -208,9 +212,12 @@ export function PedidosAdmin() {
                                                     <tbody>
                                                         {(pedidoSeleccionado.items || []).map((item, idx) => (
                                                             <tr key={idx} className="border-bottom-subtle">
-                                                                <td className="ps-0 py-2 fw-semibold text-dark" style={{fontSize: '12px', maxWidth: '140px'}}>
-                                                                    <div className="text-truncate">{nombresProductos[item.productId] || `Prod #${item.productId}`}</div>
-                                                                    <div className="ord-helper-text mt-1">ID: {item.productId}</div>
+                                                                <td className="ps-0 py-2 fw-semibold text-dark" style={{fontSize: '12px'}}>
+                                                                    <div className="text-truncate" style={{maxWidth: '140px'}}>{nombresProductos[item.productId] || `Prod #${item.productId}`}</div>
+                                                                    <div className="d-flex align-items-center gap-2 mt-1">
+                                                                        <span className="ord-helper-text m-0">ID: {item.productId}</span>
+                                                                        <span className="badge bg-light text-dark border">Talla: {item.size || item.selectedSize || 'Única'}</span>
+                                                                    </div>
                                                                 </td>
                                                                 <td className="text-muted text-center align-middle py-2" style={{fontSize: '12px'}}>
                                                                     x{item.quantity}
@@ -231,12 +238,13 @@ export function PedidosAdmin() {
                                                 <label>Actualizar Estado Logístico</label>
                                                 <div className="ord-input-wrapper">
                                                     <i className="fas fa-truck input-icon z-2"></i>
-                                                    <select className="ord-input-glass ord-select-glass w-100" value={nuevoEstado} onChange={(e) => setNuevoEstado(e.target.value)}>
+                                                    <select className="ord-input ord-select w-100" value={nuevoEstado} onChange={(e) => setNuevoEstado(e.target.value)}>
                                                         <option value="PENDING">PENDING (Pendiente de Pago)</option>
                                                         <option value="PAID">PAID (Pagado / Preparando)</option>
                                                         <option value="SHIPPED">SHIPPED (Enviado / En camino)</option>
                                                         <option value="DELIVERED">DELIVERED (Entregado)</option>
-                                                        <option value="CANCELED">CANCELED (Cancelado)</option>
+                                                        {/* SOLUCIÓN AL BUG 500: Doble "L" en CANCELLED */}
+                                                        <option value="CANCELLED">CANCELLED (Cancelado)</option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -252,10 +260,10 @@ export function PedidosAdmin() {
 
                     {/* PANEL DERECHO CON LA TABLA DE DATOS */}
                     <motion.div className="col-lg-8" variants={cardVariants}>
-                        <div className="ord-card-glass h-100 d-flex flex-column">
+                        <div className="ord-card h-100 d-flex flex-column">
                             <div className="ord-card-header d-flex justify-content-between align-items-center">
                                 <div><i className="fas fa-list-ul me-2 text-secondary"></i> Historial General</div>
-                                <span className="ord-badge badge-neutral">{pedidos.length} ÓRDENES</span>
+                                <span className="ord-badge badge-light-blue">{pedidos.length} ÓRDENES</span>
                             </div>
                             
                             <div className="ord-table-container flex-grow-1">
@@ -286,7 +294,7 @@ export function PedidosAdmin() {
                                                     <td className="ord-item-price">{formatearPrecio(p.totalAmount)}</td>
                                                     <td>{renderBadgeEstado(p.status || p.estado)}</td>
                                                     <td className="text-end pe-4">
-                                                        {/* BOTÓN VER (SVG NATIVO ANTIBLOQUEOS) */}
+                                                        {/* BOTÓN VER (CLEAN) */}
                                                         <motion.button 
                                                             whileHover={{ scale: 1.1 }} 
                                                             whileTap={{ scale: 0.9 }} 
@@ -294,10 +302,7 @@ export function PedidosAdmin() {
                                                             onClick={() => handleVerDetalle(p)}
                                                             title="Ver detalles"
                                                         >
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                                                <circle cx="12" cy="12" r="3"></circle>
-                                                            </svg>
+                                                            <i className="fas fa-eye"></i>
                                                         </motion.button>
                                                     </td>
                                                 </motion.tr>
