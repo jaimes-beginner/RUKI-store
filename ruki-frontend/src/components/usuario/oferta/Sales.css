@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 .sale-wrapper {
-    background-color: #fcfcfd;
+    /* Fondo transparente para las luces ambientales globales */
     min-height: 100vh;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     color: #1d1d1f;
@@ -10,7 +10,7 @@
 .sale-wrapper .sale-hero-section {
     width: 100%;
     padding: 60px 20px;
-    background: linear-gradient(180deg, #fff0f0 0%, #fcfcfd 100%); 
+    background: linear-gradient(180deg, rgba(255, 59, 48, 0.08) 0%, transparent 100%); 
     text-align: center;
     margin-bottom: 40px;
     border-bottom: 1px solid rgba(255, 59, 48, 0.05);
@@ -44,89 +44,43 @@
     margin: 0 auto;
 }
 
+.transition-all {
+    transition: all 0.2s ease !important;
+}
+
+/* ========================================= */
+/* PANEL LATERAL Y CATEGORÍAS                */
+/* ========================================= */
 .sale-wrapper .sale-filter-sidebar {
-    position: sticky;
-    top: 100px;
+    background: rgba(255, 255, 255, 0.65) !important; 
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid rgba(0, 0, 0, 0.15) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
 }
 
-.sale-wrapper .sale-filter-header {
-    font-size: 20px;
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    margin-bottom: 24px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid #e5e5ea;
+.sale-wrapper .sale-scrollable-list {
+    max-height: 220px;
+    overflow-y: auto;
+    padding-right: 8px;
 }
-
-.sale-wrapper .sale-filter-title {
-    font-size: 13px;
-    font-weight: 700;
-    text-transform: uppercase;
-    color: #86868b;
-    letter-spacing: 0.05em;
-    margin-bottom: 12px;
+.sale-wrapper .sale-scrollable-list::-webkit-scrollbar { width: 4px; }
+.sale-wrapper .sale-scrollable-list::-webkit-scrollbar-track { background: transparent; }
+.sale-wrapper .sale-scrollable-list::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 10px;
 }
+.sale-wrapper .sale-scrollable-list::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.3); }
 
-.sale-wrapper .sale-size-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-
-.sale-wrapper .sale-size-btn {
-    border: 1px solid #d2d2d7;
-    background: #ffffff;
-    color: #1d1d1f;
-    min-width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.sale-wrapper .sale-size-btn:hover,
-.sale-wrapper .sale-size-btn:focus {
-    border-color: #1d1d1f;
-    box-shadow: 0 0 0 1px #1d1d1f;
-}
-
-.sale-wrapper .sale-filter-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.sale-wrapper .sale-filter-list button {
-    background: none;
-    border: none;
-    padding: 0;
-    font-size: 14px;
-    color: #86868b;
-    font-weight: 500;
-    cursor: pointer;
-    transition: color 0.2s;
-    text-align: left;
-}
-
-.sale-wrapper .sale-filter-list button:hover {
-    color: #1d1d1f;
-}
-
-.sale-wrapper .sale-filter-list button.active {
-    color: #ff3b30;
-    font-weight: 700;
-}
-
+/* ========================================= */
+/* SELECTOR DE ORDENAMIENTO                  */
+/* ========================================= */
 .sale-wrapper .sale-sort-select {
     padding: 8px 32px 8px 16px;
     border-radius: 20px;
-    border: 1px solid #d2d2d7;
-    background-color: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    background-color: rgba(255, 255, 255, 0.65);
+    backdrop-filter: blur(10px);
     font-size: 13px;
     font-weight: 600;
     color: #1d1d1f;
@@ -138,31 +92,35 @@
     outline: none;
 }
 
-.sale-wrapper .sale-sort-select:focus {
-    border-color: #ff3b30;
-}
+.sale-wrapper .sale-sort-select:focus { border-color: #ff3b30; }
 
+/* ========================================= */
+/* CARDS Y BADGES (GLASSMORPHISM)            */
+/* ========================================= */
 .sale-wrapper .sale-card {
-    background: #ffffff;
+    background: rgba(255, 255, 255, 0.65) !important; 
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid rgba(0, 0, 0, 0.15) !important;
     border-radius: 20px;
     overflow: hidden;
-    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
     height: 100%;
-    border: 1px solid rgba(0, 0, 0, 0.116);
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .sale-wrapper .sale-card:hover {
     box-shadow: 0 12px 30px rgba(255, 59, 48, 0.08);
     transform: translateY(-4px);
-    border-color: rgba(170, 9, 0, 0.336);
+    border-color: rgba(255, 59, 48, 0.3);
 }
 
 .sale-wrapper .sale-image-wrap {
     position: relative;
     width: 100%;
     aspect-ratio: 4 / 5;
-    background-color: #f5f5f7;
+    background-color: transparent;
     overflow: hidden;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .sale-wrapper .sale-main-img {
@@ -180,7 +138,6 @@
 
 .sale-wrapper .sale-card-badge {
     display: inline-block;
-    background: rgba(255, 255, 255, 0.9);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     font-size: 11px;
@@ -189,30 +146,35 @@
     border-radius: 8px;
     letter-spacing: 0.05em;
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    border: 1px solid rgba(0, 0, 0, 0.15);
 }
 
-.sale-wrapper .sale-card-badge.accent { 
-    background: #ff3b30; 
-    color: #ffffff; 
-}
-
-.sale-wrapper .sale-card-info {
-    padding: 16px;
-}
+.sale-wrapper .sale-card-info { padding: 16px; }
 
 .sale-wrapper .sale-product-title {
     font-size: 15px;
     font-weight: 700;
     color: #1d1d1f;
-    margin: 0 0 8px;
+    margin: 0 0 4px;
     line-height: 1.2;
+}
+
+.sale-wrapper .sale-product-desc {
+    display: -webkit-box;
+    -webkit-line-clamp: 2; 
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-size: 12px;
+    color: #86868b;
+    line-height: 1.4;
+    margin-bottom: 12px;
+    min-height: 34px;
 }
 
 .sale-wrapper .sale-price-wrap {
     display: flex;
     align-items: baseline;
     gap: 8px;
-    margin-bottom: 12px;
 }
 
 .sale-wrapper .sale-price-old {
@@ -228,7 +190,9 @@
     color: #ff3b30; 
 }
 
-/* Miniaturas */
+/* ========================================= */
+/* THUMBNAILS Y BOTONES                      */
+/* ========================================= */
 .sale-wrapper .sale-thumbs {
     display: flex;
     gap: 6px;
@@ -238,8 +202,8 @@
 .sale-wrapper .sale-thumb-btn {
     width: 36px;
     height: 36px;
-    border: 1px solid #e5e5ea;
-    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    background: rgba(255, 255, 255, 0.5);
     padding: 2px;
     border-radius: 8px;
     cursor: pointer;
@@ -253,13 +217,10 @@
     border-radius: 4px;
 }
 
-.sale-wrapper .sale-thumb-btn:hover {
-    border-color: #a1a1a6;
-}
-
+.sale-wrapper .sale-thumb-btn:hover { border-color: #ff3b30; }
 .sale-wrapper .sale-thumb-btn.is-active {
-    border-color: #1d1d1f;
-    box-shadow: 0 0 0 1px #1d1d1f;
+    border-color: #ff3b30;
+    box-shadow: 0 0 0 1px #ff3b30;
 }
 
 .sale-wrapper .sale-btn-primary {
@@ -280,11 +241,26 @@
 }
 
 .sale-wrapper .sale-btn-primary.disabled {
-    background: #f5f5f7;
+    background: rgba(245, 245, 247, 0.5);
     color: #a1a1a6;
     cursor: not-allowed;
+    border: 1px solid rgba(0, 0, 0, 0.15);
 }
 
+.sale-wrapper .sale-empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    background: rgba(255, 255, 255, 0.65);
+    backdrop-filter: blur(24px);
+    border-radius: 20px;
+    border: 1px dashed rgba(255, 59, 48, 0.3);
+    color: #86868b;
+    font-weight: 600;
+}
+
+/* ========================================= */
+/* TOAST                                     */
+/* ========================================= */
 .sale-wrapper .sale-toast-container { 
     position: fixed; 
     bottom: 24px; 
@@ -299,12 +275,14 @@
     font-weight: 700; 
     display: flex; 
     align-items: center; 
-    background: #1d1d1f; 
+    background: rgba(29, 29, 31, 0.95);
+    backdrop-filter: blur(10px);
     color: #ffffff;
     box-shadow: 0 10px 30px rgba(0,0,0,0.2); 
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.sale-wrapper .sale-toast.success { border-bottom: 3px solid #34c759; }
+.sale-wrapper .sale-toast.success { border-bottom: 3px solid #ff3b30; }
 .sale-wrapper .sale-toast.error { border-bottom: 3px solid #ff3b30; }
 
 @media (max-width: 991px) {
