@@ -6,9 +6,8 @@ import { obtenerUsuarios } from "../../../services/UsuarioService";
 import { obtenerPedidoPorId, obtenerTodosLosPedidos } from "../../../services/PedidoService"; 
 import './ReporteDashboard.css'; 
 
-/*
-    Funciones auxiliares para 
-    normalizar datos de pedidos     
+/* 
+    Funciones auxiliares para normalizar datos de pedidos 
 */
 function normalizeStatus(value) {
     return String(value ?? "").split('"').join("").split("'").join("").trim().toUpperCase();
@@ -43,10 +42,6 @@ function getLineTotal(detail, quantity) {
     return 0;
 }
 
-/*
-    Variantes para las animaciónes 
-    para el reporte de dashboard
-*/
 const containerVariants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
@@ -136,9 +131,10 @@ export function ReporteDashboard() {
             return status === "PENDIENTE" || status === "PENDING";
         }).length;
 
+        // SOLUCIÓN: Agregados estados "PAID" y "SHIPPED" para calcular ingresos correctamente
         const ingresosTotales = pedidos.filter((p) => {
             const status = normalizeStatus(p?.estado ?? p?.status);
-            return status === "COMPLETADO" || status === "COMPLETED" || status === "DELIVERED";
+            return ["COMPLETADO", "COMPLETED", "DELIVERED", "PAID", "SHIPPED"].includes(status);
         }).reduce((sum, p) => sum + getOrderTotal(p), 0);
 
         const ultimosPedidos = [...pedidos].sort((a, b) => toNumber(b?.id) - toNumber(a?.id)).slice(0, 5);
@@ -151,13 +147,7 @@ export function ReporteDashboard() {
 
     return (
         <div className="admin-dashboard-wrapper">
-
-            {/* LUCES AMBIENTALES */}
-            <div className="admin-ambient-blob admin-blob-1"></div>
-            <div className="admin-ambient-blob admin-blob-2"></div>
-            <div className="admin-ambient-blob admin-blob-3"></div>
-
-            <div className="container px-4 px-md-5 py-4 position-relative" style={{ zIndex: 1 }}>
+            <div className="container px-4 px-md-5 py-4">
                 
                 {/* ENCABEZADO */}
                 <motion.div 
@@ -171,12 +161,12 @@ export function ReporteDashboard() {
                 {/* ALERTAS GLOBALES */}
                 <AnimatePresence>
                     {cargando && (
-                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="admin-alert-glass info mb-4">
+                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="admin-alert info mb-4">
                             <i className="fas fa-circle-notch fa-spin me-2"></i> Sincronizando red de datos...
                         </motion.div>
                     )}
                     {error && (
-                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="admin-alert-glass error mb-4">
+                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="admin-alert error mb-4">
                             <i className="fas fa-exclamation-triangle me-2"></i> {error}
                         </motion.div>
                     )}
@@ -187,47 +177,47 @@ export function ReporteDashboard() {
                     {/* KPIs SECUNDARIOS */}
                     <div className="row g-4 mb-4">
                         <motion.div className="col-12 col-md-4" variants={cardVariants}>
-                            <motion.div whileHover={{ y: -5 }} className="admin-card-glass h-100 d-flex flex-column justify-content-between">
+                            <motion.div whileHover={{ y: -5 }} className="admin-card h-100 d-flex flex-column justify-content-between">
                                 <div>
                                     <div className="d-flex justify-content-between align-items-start mb-3">
                                         <div className="admin-label">Inventario Total</div>
-                                        <div className="admin-icon-glass"><i className="fas fa-box-open text-primary"></i></div>
+                                        <div className="admin-icon"><i className="fas fa-box-open text-primary"></i></div>
                                     </div>
                                     <div className="admin-kpi-number">{totalProductos}</div>
                                     <div className="admin-kpi-subtitle">Productos registrados</div>
                                 </div>
                                 <div className="mt-4">
-                                    <Link to="/inventario-admin" className="admin-btn-glass w-100 text-center">Gestionar Inventario</Link>
+                                    <Link to="/inventario-admin" className="admin-btn-outline w-100 text-center">Gestionar Inventario</Link>
                                 </div>
                             </motion.div>
                         </motion.div>
 
                         <motion.div className="col-12 col-md-4" variants={cardVariants}>
-                            <motion.div whileHover={{ y: -5 }} className="admin-card-glass h-100 d-flex flex-column justify-content-between">
+                            <motion.div whileHover={{ y: -5 }} className="admin-card h-100 d-flex flex-column justify-content-between">
                                 <div>
                                     <div className="d-flex justify-content-between align-items-start mb-3">
                                         <div className="admin-label">Base de Usuarios</div>
-                                        <div className="admin-icon-glass"><i className="fas fa-users text-info"></i></div>
+                                        <div className="admin-icon"><i className="fas fa-users text-info"></i></div>
                                     </div>
                                     <div className="admin-kpi-number">{totalUsuarios}</div>
                                     <div className="admin-kpi-subtitle">Cuentas activas</div>
                                 </div>
                                 <div className="mt-4">
-                                    <Link to="/usuarios-admin" className="admin-btn-glass w-100 text-center">Ver Comunidad</Link>
+                                    <Link to="/usuarios-admin" className="admin-btn-outline w-100 text-center">Ver Comunidad</Link>
                                 </div>
                             </motion.div>
                         </motion.div>
 
                         <motion.div className="col-12 col-md-4" variants={cardVariants}>
-                            <motion.div whileHover={{ y: -5 }} className={`admin-card-glass h-100 d-flex flex-column justify-content-between ${bajoStockCount > 0 ? 'critical-border' : ''}`}>
+                            <motion.div whileHover={{ y: -5 }} className={`admin-card h-100 d-flex flex-column justify-content-between ${bajoStockCount > 0 ? 'critical-border' : ''}`}>
                                 <div>
                                     <div className="d-flex justify-content-between align-items-start mb-3">
                                         <div className={`admin-label ${bajoStockCount > 0 ? 'text-danger' : ''}`}>Alerta de Stock</div>
-                                        <div className={`admin-icon-glass ${bajoStockCount > 0 ? 'critical-icon' : ''}`}>
+                                        <div className={`admin-icon ${bajoStockCount > 0 ? 'critical-icon' : ''}`}>
                                             <i className="fas fa-exclamation-triangle"></i>
                                         </div>
                                     </div>
-                                    <div className="admin-kpi-number text-white">{bajoStockCount}</div>
+                                    <div className={`admin-kpi-number ${bajoStockCount > 0 ? 'text-danger' : ''}`}>{bajoStockCount}</div>
                                     <div className="admin-kpi-subtitle">Productos en nivel crítico (&lt;5)</div>
                                 </div>
                                 <div className="mt-4">
@@ -242,7 +232,7 @@ export function ReporteDashboard() {
                     {/* KPIs PRINCIPALES */}
                     <div className="row g-4 mb-4">
                         <motion.div className="col-12 col-md-6" variants={cardVariants}>
-                            <motion.div whileHover={{ scale: 1.02 }} className="admin-card-glass p-4 h-100 feature-card-1">
+                            <motion.div whileHover={{ scale: 1.02 }} className="admin-card p-4 h-100 feature-card-1 border-0">
                                 <div className="d-flex justify-content-between align-items-start">
                                     <div className="z-2">
                                         <div className="admin-label text-white opacity-75 mb-3">Pedidos Pendientes</div>
@@ -251,19 +241,19 @@ export function ReporteDashboard() {
                                     </div>
                                     <div className="d-flex flex-column align-items-end z-2">
                                         <div className="admin-icon-large mb-4"><i className="fas fa-clock"></i></div>
-                                        <Link to="/pedidos-admin" className="admin-btn-glass text-white border-white">Despachar Órdenes</Link>
+                                        <Link to="/pedidos-admin" className="admin-btn-outline text-dark bg-white border-0">Despachar Órdenes</Link>
                                     </div>
                                 </div>
                             </motion.div>
                         </motion.div>
 
                         <motion.div className="col-12 col-md-6" variants={cardVariants}>
-                            <motion.div whileHover={{ scale: 1.02 }} className="admin-card-glass p-4 h-100 feature-card-2">
+                            <motion.div whileHover={{ scale: 1.02 }} className="admin-card p-4 h-100 feature-card-2 border-0">
                                 <div className="d-flex justify-content-between align-items-start">
                                     <div className="z-2">
                                         <div className="admin-label text-white opacity-75 mb-3">Ingresos Netos</div>
                                         <div className="admin-kpi-number display-4 text-white mt-3">{formatearPrecio(ingresosTotales)}</div>
-                                        <div className="admin-kpi-subtitle text-white opacity-75 mt-2">Ventas completadas/entregadas</div>
+                                        <div className="admin-kpi-subtitle text-white opacity-75 mt-2">Ventas completadas/pagadas</div>
                                     </div>
                                     <div className="z-2">
                                         <div className="admin-icon-large"><i className="fas fa-chart-line"></i></div>
@@ -276,8 +266,8 @@ export function ReporteDashboard() {
                     {/* SECCIÓN INFERIOR CON LA TABLA Y UN BUSCADOR */}
                     <div className="row g-4 mb-4">
                         <motion.div className="col-lg-7" variants={cardVariants}>
-                            <div className="admin-card-glass h-100 d-flex flex-column">
-                                <div className="admin-label d-flex justify-content-between align-items-center">
+                            <div className="admin-card h-100 d-flex flex-column">
+                                <div className="admin-label d-flex justify-content-between align-items-center mb-3">
                                     <span>Actividad Reciente</span>
                                     <Link to="/pedidos-admin" className="admin-link-accent">VER TODO <i className="fas fa-arrow-right ms-1"></i></Link>
                                 </div>
@@ -296,16 +286,16 @@ export function ReporteDashboard() {
                                                 {ultimosPedidos.length > 0 ? (
                                                     ultimosPedidos.map((p) => {
                                                         const status = normalizeStatus(p?.estado ?? p?.status);
-                                                        const isDone = status === "COMPLETED" || status === "DELIVERED" || status === "PAID";
-                                                        const isCanceled = status === "CANCELED";
+                                                        const isDone = status === "COMPLETED" || status === "DELIVERED" || status === "PAID" || status === "SHIPPED";
+                                                        const isCanceled = status === "CANCELED" || status === "CANCELLED";
                                                         const orderDate = getOrderDate(p);
                                                         return (
                                                             <tr key={p.id} className="admin-table-row">
-                                                                <td className="ps-4 fw-bold text-white">#{p.id}</td>
-                                                                <td className="text-muted">
+                                                                <td className="ps-4 fw-bold text-dark">#{p.id}</td>
+                                                                <td className="text-secondary">
                                                                     {orderDate ? new Date(orderDate).toLocaleDateString("es-CL", {day:'2-digit', month:'short'}) : "—"}
                                                                 </td>
-                                                                <td className="fw-bold text-white">{formatearPrecio(getOrderTotal(p))}</td>
+                                                                <td className="fw-bold text-dark">{formatearPrecio(getOrderTotal(p))}</td>
                                                                 <td className="text-end pe-4">
                                                                     {isDone ? <span className="admin-badge badge-ok">OK</span> : 
                                                                      isCanceled ? <span className="admin-badge badge-out">CANCELADO</span> : 
@@ -325,18 +315,18 @@ export function ReporteDashboard() {
                         </motion.div>
 
                         <motion.div className="col-lg-5" variants={cardVariants}>
-                            <div className="admin-card-glass h-100 d-flex flex-column">
-                                <div className="admin-label">
+                            <div className="admin-card h-100 d-flex flex-column">
+                                <div className="admin-label mb-3">
                                     <i className="fas fa-crosshairs me-2 text-primary"></i>Tracker de Pedidos
                                 </div>
-                                <div className="card-body p-4">
-                                    <div className="admin-label mb-2">Búsqueda Directa por ID</div>
+                                <div className="card-body p-0">
+                                    <div className="admin-label mb-2 mt-2">Búsqueda Directa por ID</div>
                                     <div className="d-flex gap-2 mb-4">
                                         <div className="admin-input-wrapper flex-grow-1">
                                             <i className="fas fa-search input-icon"></i>
                                             <input
                                                 type="number"
-                                                className="admin-input-glass w-100"
+                                                className="admin-input w-100"
                                                 placeholder="Ej: 15..."
                                                 value={pedidoId}
                                                 onChange={(e) => setPedidoId(e.target.value)}
@@ -354,14 +344,14 @@ export function ReporteDashboard() {
 
                                     <AnimatePresence>
                                         {errorPedido && (
-                                            <motion.div initial={{opacity:0, height:0}} animate={{opacity:1, height:'auto'}} exit={{opacity:0, height:0}} className="admin-alert-glass error mb-3">
+                                            <motion.div initial={{opacity:0, height:0}} animate={{opacity:1, height:'auto'}} exit={{opacity:0, height:0}} className="admin-alert error mb-3">
                                                 {errorPedido}
                                             </motion.div>
                                         )}
                                         {pedidoDetalle && (
                                             <motion.div initial={{opacity:0, scale: 0.95}} animate={{opacity:1, scale: 1}} exit={{opacity:0}} className="admin-tracker-result">
-                                                <div className="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom-glass">
-                                                    <span className="fw-bold text-white fs-6">Orden #{pedidoDetalle.id}</span>
+                                                <div className="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                                                    <span className="fw-bold text-dark fs-6">Orden #{pedidoDetalle.id}</span>
                                                     <span className="fw-bold text-accent fs-6">{formatearPrecio(getOrderTotal(pedidoDetalle))}</span>
                                                 </div>
                                                 <div className="d-flex justify-content-between align-items-center mb-3">
@@ -395,12 +385,12 @@ export function ReporteDashboard() {
                     </div>
 
                     {/* BARRA DE SALUD DEL INVENTARIO */}
-                    <motion.div className="admin-card-glass p-4" variants={cardVariants}>
+                    <motion.div className="admin-card p-4" variants={cardVariants}>
                         <div className="d-flex justify-content-between align-items-end mb-2">
-                            <h6 className="fw-bolder text-white mb-0" style={{ letterSpacing: "-0.02em" }}>Salud del Inventario Global</h6>
+                            <h6 className="fw-bolder text-dark mb-0" style={{ letterSpacing: "-0.02em" }}>Salud del Inventario Global</h6>
                             <span className="admin-label text-success mb-0">{pctOk}% Óptimo</span>
                         </div>
-                        <p className="fw-medium mb-3" style={{ fontSize: "13px", color: "#a1a1a6" }}>
+                        <p className="fw-medium mb-3" style={{ fontSize: "13px", color: "#86868b" }}>
                             {productosBajoStock.length} productos requieren reabastecimiento (stock &lt; 5 unidades).
                         </p>
                         <div className="admin-progress-bg">
