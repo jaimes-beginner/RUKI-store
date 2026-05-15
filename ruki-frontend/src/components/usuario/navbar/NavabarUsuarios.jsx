@@ -25,6 +25,7 @@ function Header() {
   return (
     <>
       <header className="ruki-header">
+
         {/* BARRA SUPERIOR OSCURA */}
         <Navbar variant="dark" className="py-4 ruki-top-navbar">
           <Container fluid className="ruki-topbar d-flex justify-content-between align-items-center px-4 px-lg-5">
