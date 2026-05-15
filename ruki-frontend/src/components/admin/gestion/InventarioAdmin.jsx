@@ -5,9 +5,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from '../../../config/SupabaseConfig';
 import './InventarioAdmin.css';
 
-/* 
-    Variantes para las animaciónes de inventario 
-*/
 const containerVariants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
@@ -24,9 +21,6 @@ export function InventarioAdmin() {
     const [loading, setLoading] = useState(false);
     const [editingId, setEditingId] = useState(null);
 
-    /*
-        Estado actualizado con las nuevas variantes y ofertas
-    */
     const [formulario, setFormulario] = useState({
         name: "", description: "", basePrice: "", categoryId: "", imageUrls: "",
         isSale: false, salePrice: "", variants: [] 
@@ -52,9 +46,6 @@ export function InventarioAdmin() {
         setFormulario({ ...formulario, [e.target.name]: value });
     };
 
-    /*
-        Lógica para las variantes, las tallas
-    */
     const handleAddVariant = () => {
         setFormulario(prev => ({
             ...prev,
@@ -94,18 +85,12 @@ export function InventarioAdmin() {
             if (String(formulario.categoryId).trim() !== "") payload.categoryId = Number(formulario.categoryId);
             if (arrayImagenes.length > 0) payload.imageUrls = arrayImagenes;
             
-            /*
-                Ofertas
-            */
             payload.sale = formulario.isSale; 
             payload.isSale = formulario.isSale;
             if (formulario.isSale && String(formulario.salePrice).trim() !== "") {
                 payload.salePrice = Number(formulario.salePrice);
             }
 
-            /*
-                Tallas
-            */
             payload.variants = formulario.variants.map(v => ({
                 size: v.size,
                 stock: Number(v.stock)
@@ -195,13 +180,10 @@ export function InventarioAdmin() {
 
     return (
         <div className="inventory-premium-wrapper">
-            <div className="inv-ambient-blob inv-blob-1"></div>
-            <div className="inv-ambient-blob inv-blob-2"></div>
-
-            <div className="container py-4 position-relative" style={{ zIndex: 1 }}>
+            <div className="container py-4">
                 
                 <motion.header 
-                    className="inv-page-header-glass"
+                    className="inv-page-header"
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
@@ -217,7 +199,7 @@ export function InventarioAdmin() {
                                 initial={{ opacity: 0, scale: 0.9, y: -20 }} 
                                 animate={{ opacity: 1, scale: 1, y: 0 }} 
                                 exit={{ opacity: 0, scale: 0.9, y: -20 }}
-                                className={`inv-toast-glass ${mensaje.includes("Error") ? "error" : "success"}`}
+                                className={`inv-toast ${mensaje.includes("Error") ? "error" : "success"}`}
                             >
                                 <i className={`fas ${mensaje.includes("Error") ? "fa-exclamation-triangle" : "fa-check-circle"} me-2 fs-5`}></i>
                                 {mensaje}
@@ -226,14 +208,15 @@ export function InventarioAdmin() {
                     </AnimatePresence>
                 </div>
 
-                <motion.div className="row g-4" variants={containerVariants} initial="hidden" animate="visible">
+                {/* MAGIA AQUÍ: align-items-start arregla el bug del estiramiento de tabla */}
+                <motion.div className="row g-4 align-items-start" variants={containerVariants} initial="hidden" animate="visible">
                     
                     {/* PANEL IZQUIERDO DEL FORMULARIO */}
                     <motion.div className="col-lg-4" variants={cardVariants}>
-                        <div className="inv-card-glass">
+                        <div className="inv-card">
                             <div className="inv-card-header d-flex justify-content-between align-items-center">
                                 <div>
-                                    <i className={`fas ${editingId ? 'fa-pen-nib text-primary' : 'fa-magic text-success'} me-2`}></i>
+                                    <i className={`fas ${editingId ? 'fa-pen-nib text-primary' : 'fa-magic text-dark'} me-2`}></i>
                                     {editingId ? "Editando Producto" : "Crear Producto"}
                                 </div>
                                 {editingId && <span className="inv-badge badge-dark">ID: {editingId}</span>}
@@ -245,7 +228,7 @@ export function InventarioAdmin() {
                                         <label>Nombre del Producto</label>
                                         <div className="inv-input-wrapper">
                                             <i className="fas fa-tag input-icon"></i>
-                                            <input type="text" name="name" className="inv-input-glass w-100" required 
+                                            <input type="text" name="name" className="inv-input w-100" required 
                                                    value={formulario.name} onChange={handleChange} placeholder="Ej: Camiseta Performance" />
                                         </div>
                                     </div>
@@ -254,7 +237,7 @@ export function InventarioAdmin() {
                                         <label>Clasificación</label>
                                         <div className="inv-input-wrapper">
                                             <i className="fas fa-layer-group input-icon z-2"></i>
-                                            <select name="categoryId" className="inv-input-glass inv-select-glass w-100" required 
+                                            <select name="categoryId" className="inv-input inv-select w-100" required 
                                                     value={formulario.categoryId} onChange={handleChange}>
                                                 <option value="" disabled>Selecciona categoría...</option>
                                                 {categorias.map(c => (
@@ -269,7 +252,7 @@ export function InventarioAdmin() {
                                             <label>Precio Base</label>
                                             <div className="inv-input-wrapper">
                                                 <i className="fas fa-dollar-sign input-icon"></i>
-                                                <input type="number" name="basePrice" className="inv-input-glass w-100" required 
+                                                <input type="number" name="basePrice" className="inv-input w-100" required 
                                                        value={formulario.basePrice} onChange={handleChange} min="1"/>
                                             </div>
                                         </div>
@@ -280,7 +263,7 @@ export function InventarioAdmin() {
                                             </label>
                                             <div className="inv-input-wrapper mt-1">
                                                 <i className="fas fa-tags input-icon text-danger"></i>
-                                                <input type="number" name="salePrice" className="inv-input-glass w-100 border-danger" 
+                                                <input type="number" name="salePrice" className="inv-input w-100 border-danger" 
                                                        value={formulario.salePrice} onChange={handleChange} 
                                                        placeholder={formulario.isSale ? "Precio rebajado" : "N/A"} 
                                                        disabled={!formulario.isSale} required={formulario.isSale} min="1"/>
@@ -289,12 +272,18 @@ export function InventarioAdmin() {
                                     </div>
 
                                     {/* SECCIÓN DINÁMICA DE TALLAS */}
-                                    <div className="inv-input-group mb-3 p-3 rounded" style={{ backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)' }}>
-                                        <div className="d-flex justify-content-between align-items-center mb-2">
-                                            <label className="mb-0 text-info"><i className="fas fa-ruler me-2"></i>Tallas y Stock</label>
-                                            <button type="button" className="btn btn-sm btn-outline-info rounded-pill px-3 py-1" onClick={handleAddVariant} style={{fontSize: '11px'}}>
+                                    <div className="inv-input-group mb-3 p-3 rounded-3" style={{ backgroundColor: '#f5f5f7', border: '1px solid rgba(0,0,0,0.04)' }}>
+                                        <div className="d-flex justify-content-between align-items-center mb-3">
+                                            <label className="mb-0 text-dark fw-bold"><i className="fas fa-ruler me-2"></i>Tallas y Stock</label>
+                                            <motion.button 
+                                                type="button" 
+                                                className="inv-btn-add" 
+                                                onClick={handleAddVariant}
+                                                whileHover={{ scale: 1.05 }}
+                                                whileTap={{ scale: 0.95 }}
+                                            >
                                                 <i className="fas fa-plus me-1"></i> Añadir
-                                            </button>
+                                            </motion.button>
                                         </div>
                                         
                                         <AnimatePresence>
@@ -304,7 +293,7 @@ export function InventarioAdmin() {
                                                     initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, height: 0 }}
                                                     className="d-flex gap-2 mb-2 align-items-center"
                                                 >
-                                                    <select className="inv-input-glass w-50 p-2" style={{fontSize: '13px', minHeight: '35px'}} value={v.size} onChange={(e) => handleVariantChange(index, 'size', e.target.value)} required>
+                                                    <select className="inv-input w-50 p-2" style={{fontSize: '13px', minHeight: '35px', paddingLeft: '12px'}} value={v.size} onChange={(e) => handleVariantChange(index, 'size', e.target.value)} required>
                                                         <option value="" disabled>Talla...</option>
                                                         <option value="XS">XS</option>
                                                         <option value="S">S</option>
@@ -314,8 +303,8 @@ export function InventarioAdmin() {
                                                         <option value="XXL">XXL</option>
                                                         <option value="Única">Única</option>
                                                     </select>
-                                                    <input type="number" className="inv-input-glass w-50 p-2" style={{fontSize: '13px', minHeight: '35px'}} placeholder="Cant." value={v.stock} onChange={(e) => handleVariantChange(index, 'stock', e.target.value)} min="0" required />
-                                                    <button type="button" className="btn btn-sm btn-danger p-2 d-flex align-items-center justify-content-center" onClick={() => handleRemoveVariant(index)}>
+                                                    <input type="number" className="inv-input w-50 p-2" style={{fontSize: '13px', minHeight: '35px', paddingLeft: '12px'}} placeholder="Cant." value={v.stock} onChange={(e) => handleVariantChange(index, 'stock', e.target.value)} min="0" required />
+                                                    <button type="button" className="btn btn-sm btn-outline-danger p-2 d-flex align-items-center justify-content-center" style={{borderRadius: '10px'}} onClick={() => handleRemoveVariant(index)}>
                                                         <i className="fas fa-times"></i>
                                                     </button>
                                                 </motion.div>
@@ -330,7 +319,7 @@ export function InventarioAdmin() {
                                         <label>Descripción detallada</label>
                                         <div className="inv-input-wrapper">
                                             <i className="fas fa-align-left input-icon" style={{ top: "16px", transform: "none" }}></i>
-                                            <textarea name="description" className="inv-input-glass w-100" rows="2" 
+                                            <textarea name="description" className="inv-input w-100" rows="2" 
                                                       value={formulario.description} onChange={handleChange} placeholder="Materiales, uso..." />
                                         </div>
                                     </div>
@@ -338,9 +327,9 @@ export function InventarioAdmin() {
                                     <div className="inv-input-group mb-4">
                                         <label>Subir Imágenes de Producto</label>
                                         <div className="inv-input-wrapper">
-                                            <input type="file" accept="image/*" onChange={handleFileUpload} className="inv-input-glass w-100" style={{ paddingLeft: '16px' }} />
+                                            <input type="file" accept="image/*" onChange={handleFileUpload} className="inv-input w-100" style={{ paddingLeft: '16px' }} />
                                         </div>
-                                        <textarea name="imageUrls" className="inv-input-glass w-100 mt-2" rows="1" readOnly 
+                                        <textarea name="imageUrls" className="inv-input w-100 mt-2" rows="1" readOnly 
                                                   value={formulario.imageUrls} placeholder="Las URLs aparecerán aquí..." style={{fontSize: '11px'}} />
                                     </div>
 
@@ -360,7 +349,7 @@ export function InventarioAdmin() {
 
                     {/* PANEL DERECHO, LA TABLA CON LOS DATOS */}
                     <motion.div className="col-lg-8" variants={cardVariants}>
-                        <div className="inv-card-glass h-100 d-flex flex-column">
+                        <div className="inv-card h-100 d-flex flex-column">
                             <div className="inv-card-header d-flex justify-content-between align-items-center">
                                 <div><i className="fas fa-database me-2 text-secondary"></i> Base de Datos de Productos</div>
                                 <span className="inv-badge badge-light-blue">{productos.length} REGISTROS</span>
@@ -387,19 +376,19 @@ export function InventarioAdmin() {
                                                     className={editingId === p.id ? 'active-row' : ''}
                                                 >
                                                     <td className="ps-4">
-                                                        <div className="d-flex align-items-center gap-3">
+                                                        <div className="d-flex align-items-center gap-3 text-start">
                                                             {p.imageUrls && p.imageUrls.length > 0 ? (
                                                                 <img src={p.imageUrls[0]} alt="" className="inv-avatar" />
                                                             ) : (
                                                                 <div className="inv-avatar-fallback"><i className="fas fa-camera-retro"></i></div>
                                                             )}
-                                                            <div>
+                                                            <div className="d-flex flex-column align-items-start">
                                                                 <div className="inv-item-name">{p.name}</div>
                                                                 <div className="inv-item-id">
                                                                     ID: {p.id} 
                                                                     {p.variants && p.variants.length > 0 && (
-                                                                        <span className="ms-2 text-info">
-                                                                            ({p.variants.map(v => v.size).join(', ')})
+                                                                        <span className="inv-item-variants">
+                                                                            &nbsp;• Tallas: {p.variants.map(v => v.size).join(', ')}
                                                                         </span>
                                                                     )}
                                                                 </div>
@@ -420,12 +409,10 @@ export function InventarioAdmin() {
                                                     <td>
                                                         {p.stock > 10 ? <span className="inv-status-dot ok">Óptimo ({p.stock})</span> : 
                                                          p.stock > 0 ? <span className="inv-status-dot warning">Bajo ({p.stock})</span> : 
-                                                         <span className="inv-status-dot error blink">Agotado</span>}
+                                                         <span className="inv-status-dot error">Agotado</span>}
                                                     </td>
                                                     <td className="text-end pe-4">
                                                         <div className="d-flex justify-content-end gap-2">
-                                                            
-                                                            {/* BOTÓN EDITAR */}
                                                             <motion.button 
                                                                 whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} 
                                                                 className="inv-action-btn edit" onClick={() => handleEditar(p)} title="Editar"
@@ -434,8 +421,6 @@ export function InventarioAdmin() {
                                                                     <path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
                                                                 </svg>
                                                             </motion.button>
-                                                            
-                                                            {/* BOTÓN ELIMINAR */}
                                                             <motion.button 
                                                                 whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} 
                                                                 className="inv-action-btn delete" onClick={() => handleEliminar(p.id, p.name)} title="Eliminar"
