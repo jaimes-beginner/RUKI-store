@@ -127,10 +127,6 @@ export function Perfil() {
     return (
         <div className="profile-main-wrapper">
 
-            {/* LUCES AMBIENTALES */}
-            <div className="profile-ambient-blob profile-blob-1"></div>
-            <div className="profile-ambient-blob profile-blob-2"></div>
-
             <div className="container mt-5 mb-5 position-relative" style={{ zIndex: 1 }}>
                 
                 {/* CABECERA */}
