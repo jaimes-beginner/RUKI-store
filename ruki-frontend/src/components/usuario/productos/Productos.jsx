@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useCart } from '../../../contexts/CartContext'; 
-import { filtrarProductos, obtenerCategoriasActivas } from '../../../services/ProductoService'; 
+import { useCart } from '../../../contexts/CartContext';
+import { filtrarProductos, obtenerCategoriasActivas } from '../../../services/ProductoService';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import './Productos.css';
@@ -19,12 +19,11 @@ const itemVariants = {
 };
 
 export default function Productos() {
-    const { addToCart } = useCart(); 
-    
+    const { addToCart } = useCart();
+
     const [productosReales, setProductosReales] = useState([]);
     const [categorias, setCategorias] = useState([]);
-    
-    // --- ESTADO DEL FILTRO DINÁMICO ---
+
     const [filtros, setFiltros] = useState({
         categoryId: '',
         size: '',
@@ -41,45 +40,51 @@ export default function Productos() {
         setTimeout(() => setToast({ ...toast, mostrar: false }), 3000);
     };
 
-    // Cargar las categorías una sola vez al montar el componente
+    /*
+        Cargar las categorías una sola vez al montar el componente
+    */
     useEffect(() => {
         obtenerCategoriasActivas()
             .then(data => setCategorias(data))
             .catch(err => console.error("Error al cargar categorías", err));
     }, []);
 
-    // Cargar el catálogo CADA VEZ que cambie algún filtro
+    /*
+        Cargar el catálogo CADA VEZ que cambie algún filtro
+    */
     useEffect(() => {
         const cargarCatalogo = async () => {
             setLoading(true);
             try {
-                // Enviamos el objeto de filtros a la función maestra
+                
+                /*
+                    Enviamos el objeto de filtros a la función maestra
+                */
                 const data = await filtrarProductos(filtros);
                 setProductosReales(data);
-                setError(null); // Limpiamos errores previos si los hubo
+                setError(null);
             } catch (err) {
                 setError(err.message || "Error al cargar el catálogo");
             } finally {
                 setLoading(false);
             }
         };
-        
+
         cargarCatalogo();
-    }, [filtros]); 
+    }, [filtros]);
 
     const handleFilterChange = (key, value) => {
         setFiltros(prev => ({
             ...prev,
-            // Si el usuario hace clic en la misma talla que ya estaba seleccionada, la deselecciona (toggle)
             [key]: prev[key] === value ? '' : value
         }));
     };
 
     const getGallery = (product) => {
         if (product.imageUrls && product.imageUrls.length > 0) {
-            return [...new Set(product.imageUrls)]; 
+            return [...new Set(product.imageUrls)];
         }
-        return ['https://via.placeholder.com/400x500?text=Sin+Imagen']; 
+        return ['https://via.placeholder.com/400x500?text=Sin+Imagen'];
     };
 
     const getSelectedIndex = (productId) => selectedImages[productId] ?? 0;
@@ -96,7 +101,7 @@ export default function Productos() {
 
     if (error) {
         return (
-            <main className="productos-wrapper d-flex justify-content-center align-items-center" style={{minHeight: '60vh'}}>
+            <main className="productos-wrapper d-flex justify-content-center align-items-center" style={{ minHeight: '60vh' }}>
                 <div className="text-center text-danger prod-error">
                     <i className="fas fa-exclamation-triangle fa-2x mb-3"></i>
                     <h3 className="fw-bold">{error}</h3>
@@ -108,12 +113,12 @@ export default function Productos() {
 
     return (
         <main className="productos-wrapper">
-            
+
             {/* HERO BANNER */}
             <section className="prod-hero-section">
-                <motion.div 
-                    initial={{ opacity: 0, y: -20 }} 
-                    animate={{ opacity: 1, y: 0 }} 
+                <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6 }}
                     className="prod-hero-content"
                 >
@@ -124,28 +129,52 @@ export default function Productos() {
 
             <div className="container px-4 px-lg-5 pb-5">
                 <div className="row g-5">
-                    
+
                     {/* PANEL DE FILTROS LATERAL */}
                     <aside className="col-lg-3 d-none d-lg-block">
-                        <div className="prod-filter-sidebar position-sticky" style={{top: '100px'}}>
-                            <h3 className="prod-filter-header">Filtros</h3>
-                            
-                            <div className="prod-filter-group">
-                                <h4 className="prod-filter-title">Categorías</h4>
-                                <ul className="prod-filter-list">
-                                    <li>
-                                        <button 
-                                            className={filtros.categoryId === '' ? 'active' : ''} 
-                                            onClick={() => handleFilterChange('categoryId', '')}
+                        <div className="prod-filter-sidebar position-sticky p-4" style={{ top: '100px' }}>
+                            <h3 className="fw-bolder mb-4 text-dark" style={{ letterSpacing: '-0.02em' }}>Filtros</h3>
+
+                            {/* TALLAS (Grid de 2x3) */}
+                            <div className="prod-filter-group mb-4">
+                                <h4 className="text-muted small fw-bold mb-3" style={{ letterSpacing: '1px', fontSize: '0.75rem' }}>TALLA</h4>
+
+                                <div className="prod-size-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                                    {['XS', 'S', 'M', 'L', 'XL', 'Única'].map(size => (
+                                        <motion.button
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
+                                            key={size}
+                                            type="button"
+                                            className="py-2 rounded-3 fw-semibold transition-all"
+                                            onClick={() => handleFilterChange('size', size)}
+                                            style={{
+                                                backgroundColor: filtros.size === size ? '#1d1d1f' : '#ffffff',
+                                                color: filtros.size === size ? '#ffffff' : '#1d1d1f',
+                                                border: filtros.size === size ? '1.5px solid #1d1d1f' : '1.5px solid #d2d2d7',
+                                            }}
                                         >
-                                            Todos los productos
-                                        </button>
-                                    </li>
-                                    {categorias.map(cat => (
-                                        <li key={cat.id}>
-                                            <button 
-                                                className={filtros.categoryId === cat.id ? 'active' : ''} 
+                                            {size}
+                                        </motion.button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* CATEGORÍAS */}
+                            <div className="prod-filter-group">
+                                <h4 className="text-muted small fw-bold mb-3" style={{ letterSpacing: '1px', fontSize: '0.75rem' }}>CATEGORÍAS</h4>
+
+                                <ul className="list-unstyled p-0 m-0 d-flex flex-column gap-2 prod-scrollable-list">
+                                    {[{ id: '', name: 'Todos' }, ...categorias].map(cat => (
+                                        <li key={cat.id || 'todos'}>
+                                            <button
+                                                className={`w-100 text-start px-3 py-2 rounded-3 border-0 transition-all ${filtros.categoryId === cat.id ? 'text-white fw-medium shadow-sm' : 'bg-transparent text-secondary'}`}
                                                 onClick={() => handleFilterChange('categoryId', cat.id)}
+                                                style={{ 
+                                                    backgroundColor: filtros.categoryId === cat.id ? '#1d1d1f' : 'transparent'
+                                                }}
+                                                onMouseOver={(e) => { if (filtros.categoryId !== cat.id) e.currentTarget.style.backgroundColor = '#f5f5f7' }}
+                                                onMouseOut={(e) => { if (filtros.categoryId !== cat.id) e.currentTarget.style.backgroundColor = 'transparent' }}
                                             >
                                                 {cat.name}
                                             </button>
@@ -154,37 +183,19 @@ export default function Productos() {
                                 </ul>
                             </div>
 
-                            <div className="prod-filter-group mt-4">
-                                <h4 className="prod-filter-title">Talla</h4>
-                                <div className="prod-size-grid">
-                                    {['XS', 'S', 'M', 'L', 'XL', 'Única'].map(size => (
-                                        <motion.button 
-                                            whileHover={{ scale: 1.05 }} 
-                                            whileTap={{ scale: 0.95 }} 
-                                            key={size} 
-                                            type="button" 
-                                            className={`prod-size-btn ${filtros.size === size ? 'active-size' : ''}`}
-                                            onClick={() => handleFilterChange('size', size)}
-                                            style={filtros.size === size ? {backgroundColor: 'white', color: 'black'} : {}}
-                                        >
-                                            {size}
-                                        </motion.button>
-                                    ))}
-                                </div>
-                            </div>
                         </div>
                     </aside>
 
                     {/* ÁREA DE PRODUCTOS */}
                     <div className="col-lg-9">
                         <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
-                            <span className="fw-semibold text-secondary" style={{fontSize: '14px'}}>
+                            <span className="fw-semibold text-secondary" style={{ fontSize: '14px' }}>
                                 Mostrando {productosReales.length} productos
                             </span>
-                            
-                            {/* SELECTOR DE ORDENAMIENTO (CONECTADO AL ESTADO) */}
-                            <select 
-                                className="prod-sort-select" 
+
+                            {/* SELECTOR DE ORDENAMIENTO */}
+                            <select
+                                className="prod-sort-select"
                                 value={filtros.sort}
                                 onChange={(e) => handleFilterChange('sort', e.target.value)}
                             >
@@ -195,7 +206,7 @@ export default function Productos() {
                         </div>
 
                         {loading ? (
-                            <div className="d-flex justify-content-center align-items-center" style={{minHeight: '40vh'}}>
+                            <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '40vh' }}>
                                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center">
                                     <i className="fas fa-circle-notch fa-spin fa-2x mb-3 text-secondary"></i>
                                     <p className="text-muted fw-bold">Actualizando catálogo...</p>
@@ -212,7 +223,7 @@ export default function Productos() {
                             </motion.div>
                         ) : (
                             /* GRILLA ANIMADA */
-                            <motion.div 
+                            <motion.div
                                 className="row g-4"
                                 variants={containerVariants}
                                 initial="hidden"
@@ -220,31 +231,34 @@ export default function Productos() {
                             >
                                 {productosReales.map((product) => (
                                     <motion.div key={product.id} className="col-12 col-sm-6 col-md-4" variants={itemVariants}>
-                                        <article className="prod-card">
+                                        <article className="prod-card d-flex flex-column">
                                             <div className="prod-image-wrap">
-                                                
-                                                {/* BADGES FLOTANTES DE OFERTA/NUEVO */}
-                                                <div className="d-flex flex-column gap-1 position-absolute" style={{ top: '10px', left: '10px', zIndex: 2 }}>
-                                                    {product.sale && (
-                                                        <span className="badge bg-danger rounded-1 shadow-sm px-2 py-1" style={{fontSize: '11px', letterSpacing: '1px'}}>SALE</span>
-                                                    )}
-                                                </div>
 
-                                                <div className="prod-badge-container">
+                                                {/* CONTENEDOR ÚNICO DE ETIQUETAS */}
+                                                <div className="prod-badge-container d-flex flex-column align-items-start gap-2">
+                                                    {product.sale && product.basePrice > 0 && (
+                                                        <span className="prod-card-badge shadow-sm text-white" style={{ backgroundColor: '#ff3b30', borderColor: '#ff3b30' }}>
+                                                            OFERTA -{Math.round(((product.basePrice - product.salePrice) / product.basePrice) * 100)}%
+                                                        </span>
+                                                    )}
                                                     {product.stock > 0 && product.stock <= 5 && (
-                                                        <span className="prod-card-badge warning shadow-sm">¡ÚLTIMOS {product.stock}!</span>
+                                                        <span className="prod-card-badge warning shadow-sm">
+                                                            ¡ÚLTIMOS {product.stock}!
+                                                        </span>
                                                     )}
                                                     {product.stock === 0 && (
-                                                        <span className="prod-card-badge error shadow-sm">AGOTADO</span>
+                                                        <span className="prod-card-badge error shadow-sm">
+                                                            AGOTADO
+                                                        </span>
                                                     )}
                                                 </div>
 
                                                 {/* TRANSICIÓN DE IMÁGENES SUAVE */}
                                                 <Link to={`/producto/${product.id}`}>
                                                     <AnimatePresence mode="wait">
-                                                        <motion.img 
+                                                        <motion.img
                                                             key={getDisplayImage(product)}
-                                                            src={getDisplayImage(product)} 
+                                                            src={getDisplayImage(product)}
                                                             alt={product.name}
                                                             initial={{ opacity: 0 }}
                                                             animate={{ opacity: 1 }}
@@ -256,8 +270,8 @@ export default function Productos() {
                                                 </Link>
                                             </div>
 
-                                            <div className="prod-card-info d-flex flex-column h-100">
-                                                
+                                            <div className="prod-card-info d-flex flex-column flex-grow-1">
+
                                                 {/* MINIATURAS */}
                                                 <div className="prod-thumbs">
                                                     {getGallery(product).length > 1 && getGallery(product).map((thumb, index) => (
@@ -275,10 +289,10 @@ export default function Productos() {
                                                 </div>
 
                                                 <h3 className="prod-product-title mt-2">{product.name}</h3>
-                                                <p className="prod-product-desc text-muted mb-2" style={{fontSize: '0.85rem', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden'}}>
+                                                <p className="prod-product-desc text-muted mb-2" style={{ fontSize: '0.85rem', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                                                     {product.description || "Equipamiento RUKI."}
                                                 </p>
-                                                
+
                                                 {/* PRECIOS DINÁMICOS */}
                                                 <div className="mb-3">
                                                     {product.sale ? (
@@ -290,11 +304,11 @@ export default function Productos() {
                                                         <span className="fw-bold fs-5 text-dark">${Number(product.basePrice).toLocaleString('es-CL')}</span>
                                                     )}
                                                 </div>
-                                                
+
                                                 <div style={{ flexGrow: 1 }}></div>
 
                                                 {/* BOTÓN AÑADIR AL CARRITO */}
-                                                <motion.button 
+                                                <motion.button
                                                     whileTap={product.stock > 0 ? { scale: 0.95 } : {}}
                                                     className={`prod-btn-primary mt-auto w-100 ${product.stock === 0 ? 'disabled' : ''}`}
                                                     onClick={() => {
@@ -319,13 +333,13 @@ export default function Productos() {
                 </div>
             </div>
 
-            {/* TOAST NOTIFICATION CLEAN STYLE */}
+            {/* TOAST NOTIFICATION SOLID STYLE */}
             <div className="prod-toast-container">
                 <AnimatePresence>
                     {toast.mostrar && (
-                        <motion.div 
-                            initial={{ opacity: 0, y: 50, scale: 0.9 }} 
-                            animate={{ opacity: 1, y: 0, scale: 1 }} 
+                        <motion.div
+                            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: 20, scale: 0.9 }}
                             className={`prod-toast ${toast.tipo === 'error' ? 'error' : 'success'}`}
                         >
