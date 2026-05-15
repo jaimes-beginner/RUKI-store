@@ -208,7 +208,6 @@ export function InventarioAdmin() {
                     </AnimatePresence>
                 </div>
 
-                {/* MAGIA AQUÍ: align-items-start arregla el bug del estiramiento de tabla */}
                 <motion.div className="row g-4 align-items-start" variants={containerVariants} initial="hidden" animate="visible">
                     
                     {/* PANEL IZQUIERDO DEL FORMULARIO */}
