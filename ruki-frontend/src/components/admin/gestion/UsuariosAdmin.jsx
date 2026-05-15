@@ -3,10 +3,6 @@ import { obtenerUsuarios, crearUsuario, eliminarUsuario, actualizarUsuario } fro
 import { motion, AnimatePresence } from "framer-motion";
 import './UsuariosAdmin.css';
 
-/*
-    Variantes para las animaciónes 
-    de los usuarios
-*/
 const containerVariants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
@@ -33,7 +29,9 @@ export function UsuariosAdmin() {
     const cargarDatos = async () => {
         try {
             const data = await obtenerUsuarios();
-            setUsuarios(Array.isArray(data) ? data : []);
+            // Ordenamos para que los más recientes salgan primero (opcional, si el backend no lo hace)
+            const usersOrdenados = Array.isArray(data) ? data.sort((a, b) => b.id - a.id) : [];
+            setUsuarios(usersOrdenados);
         } catch (error) {
             console.error("Error cargando usuarios", error);
             setMensaje("Error al cargar la base de datos de usuarios.");
@@ -105,17 +103,21 @@ export function UsuariosAdmin() {
         setFormulario({ firstName: "", lastName: "", email: "", password: "" });
     };
 
+    /*
+        Función para formatear la fecha de registro
+    */
+    const formatearFecha = (fechaString) => {
+        if (!fechaString) return '—';
+        const opciones = { year: 'numeric', month: 'short', day: 'numeric' };
+        return new Date(fechaString).toLocaleDateString('es-CL', opciones);
+    };
+
     return (
         <div className="users-premium-wrapper">
-
-            {/* LUCES AMBIENTALES */}
-            <div className="usr-ambient-blob usr-blob-1"></div>
-            <div className="usr-ambient-blob usr-blob-2"></div>
-
-            <div className="container py-4 position-relative" style={{ zIndex: 1 }}>
+            <div className="container py-4 position-relative">
                 
                 <motion.header 
-                    className="usr-page-header-glass"
+                    className="usr-page-header"
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
@@ -131,7 +133,7 @@ export function UsuariosAdmin() {
                                 initial={{ opacity: 0, scale: 0.9, y: -20 }} 
                                 animate={{ opacity: 1, scale: 1, y: 0 }} 
                                 exit={{ opacity: 0, scale: 0.9, y: -20 }}
-                                className={`usr-toast-glass ${mensaje.includes("Error") ? "error" : "success"}`}
+                                className={`usr-toast ${mensaje.includes("Error") ? "error" : "success"}`}
                             >
                                 <i className={`fas ${mensaje.includes("Error") ? "fa-exclamation-triangle" : "fa-check-circle"} me-2 fs-5`}></i>
                                 {mensaje}
@@ -140,14 +142,14 @@ export function UsuariosAdmin() {
                     </AnimatePresence>
                 </div>
 
-                <motion.div className="row g-4" variants={containerVariants} initial="hidden" animate="visible">
+                <motion.div className="row g-4 align-items-start" variants={containerVariants} initial="hidden" animate="visible">
                     
                     {/* PANEL IZQUIERDO CON EL FORMULARIO */}
                     <motion.div className="col-lg-4" variants={cardVariants}>
-                        <div className="usr-card-glass">
+                        <div className="usr-card">
                             <div className="usr-card-header d-flex justify-content-between align-items-center">
                                 <div>
-                                    <i className={`fas ${editingId ? 'fa-user-edit text-primary' : 'fa-user-plus text-success'} me-2`}></i>
+                                    <i className={`fas ${editingId ? 'fa-user-edit text-primary' : 'fa-user-plus text-dark'} me-2`}></i>
                                     {editingId ? "Editando Usuario" : "Nuevo Usuario"}
                                 </div>
                                 {editingId && <span className="usr-badge badge-dark">ID: {editingId}</span>}
@@ -160,7 +162,7 @@ export function UsuariosAdmin() {
                                             <label>Nombre</label>
                                             <div className="usr-input-wrapper">
                                                 <i className="fas fa-font input-icon"></i>
-                                                <input type="text" name="firstName" className="usr-input-glass w-100" required 
+                                                <input type="text" name="firstName" className="usr-input w-100" required 
                                                        value={formulario.firstName} onChange={handleChange} placeholder="Ej: Juan" />
                                             </div>
                                         </div>
@@ -168,7 +170,7 @@ export function UsuariosAdmin() {
                                             <label>Apellido</label>
                                             <div className="usr-input-wrapper">
                                                 <i className="fas fa-id-card input-icon"></i>
-                                                <input type="text" name="lastName" className="usr-input-glass w-100" required 
+                                                <input type="text" name="lastName" className="usr-input w-100" required 
                                                        value={formulario.lastName} onChange={handleChange} placeholder="Ej: Pérez" />
                                             </div>
                                         </div>
@@ -178,7 +180,7 @@ export function UsuariosAdmin() {
                                         <label>Correo Electrónico</label>
                                         <div className="usr-input-wrapper">
                                             <i className="fas fa-envelope input-icon"></i>
-                                            <input type="email" name="email" className="usr-input-glass w-100" required={!editingId} disabled={!!editingId}
+                                            <input type="email" name="email" className="usr-input w-100" required={!editingId} disabled={!!editingId}
                                                    value={formulario.email} onChange={handleChange} placeholder="correo@ejemplo.com" />
                                         </div>
                                         {editingId && <span className="usr-helper-text mt-2"><i className="fas fa-lock me-1"></i>El correo no se puede modificar.</span>}
@@ -188,14 +190,14 @@ export function UsuariosAdmin() {
                                         <label>Contraseña</label>
                                         <div className="usr-input-wrapper">
                                             <i className="fas fa-key input-icon"></i>
-                                            <input type="password" name="password" className="usr-input-glass w-100" required={!editingId} minLength="6"
+                                            <input type="password" name="password" className="usr-input w-100" required={!editingId} minLength="6"
                                                    value={formulario.password} onChange={handleChange} placeholder={editingId ? "Dejar en blanco para conservar" : "Mín. 6 caracteres"} />
                                         </div>
                                         {!editingId && <span className="usr-helper-text mt-2">Rol <strong>CLIENTE</strong> por defecto.</span>}
                                     </div>
 
                                     <motion.button whileTap={{ scale: 0.95 }} type="submit" className="usr-btn-primary w-100" disabled={loading}>
-                                        {loading ? <><i className="fas fa-spinner fa-spin me-2"></i>PROCESANDO...</> : (editingId ? "Guardar Cambios" : "Crear Usuario")}
+                                        {loading ? <><i className="fas fa-spinner fa-spin me-2"></i>Procesando...</> : (editingId ? "Guardar Cambios" : "Crear Usuario")}
                                     </motion.button>
                                     
                                     {editingId && (
@@ -210,7 +212,7 @@ export function UsuariosAdmin() {
 
                     {/* PANEL DERECHO CON LA TABLA DE DATOS */}
                     <motion.div className="col-lg-8" variants={cardVariants}>
-                        <div className="usr-card-glass h-100 d-flex flex-column">
+                        <div className="usr-card h-100 d-flex flex-column">
                             <div className="usr-card-header d-flex justify-content-between align-items-center">
                                 <div><i className="fas fa-address-book me-2 text-secondary"></i> Base de Datos de Usuarios</div>
                                 <span className="usr-badge badge-light-blue">{usuarios.length} REGISTROS</span>
@@ -222,6 +224,7 @@ export function UsuariosAdmin() {
                                         <tr>
                                             <th className="ps-4">Usuario</th>
                                             <th>Contacto</th>
+                                            <th>Registro</th>
                                             <th>Rol</th>
                                             <th className="text-end pe-4">Acciones</th>
                                         </tr>
@@ -241,7 +244,7 @@ export function UsuariosAdmin() {
                                                     >
                                                         <td className="ps-4">
                                                             <div className="d-flex align-items-center gap-3">
-                                                                <div className="usr-avatar-fallback">
+                                                                <div className={`usr-avatar-fallback ${isAdmin ? 'admin-avatar' : ''}`}>
                                                                     {u.firstName ? u.firstName.charAt(0).toUpperCase() : u.email.charAt(0).toUpperCase()}
                                                                 </div>
                                                                 <div>
@@ -251,6 +254,7 @@ export function UsuariosAdmin() {
                                                             </div>
                                                         </td>
                                                         <td className="usr-text-muted">{u.email}</td>
+                                                        <td className="usr-text-muted">{formatearFecha(u.createdAt)}</td>
                                                         <td>
                                                             <span className={`usr-badge ${isAdmin ? 'badge-dark' : 'badge-neutral'}`}>
                                                                 {isAdmin ? 'ADMINISTRADOR' : 'CLIENTE'}
@@ -296,7 +300,7 @@ export function UsuariosAdmin() {
                                         </AnimatePresence>
                                         {usuarios.length === 0 && (
                                             <tr>
-                                                <td colSpan="4" className="text-center py-5">
+                                                <td colSpan="5" className="text-center py-5">
                                                     <div className="usr-empty-state">
                                                         <i className="fas fa-users-slash mb-3"></i>
                                                         <p>No hay usuarios registrados en el sistema.</p>
