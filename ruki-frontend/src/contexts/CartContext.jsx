@@ -15,17 +15,12 @@ export function CartProvider({ children }) {
         }
     });
 
-    const { clearCart } = useCart();
-
     useEffect(() => {
-        // Vaciamos el carrito al cargar la pantalla de éxito
-        clearCart();
-        
-    }, []);
+        localStorage.setItem(CART_KEY, JSON.stringify(cart));
+    }, [cart]);
 
     const addToCart = (producto, cantidad = 1) => {
         setCart(prevCart => {
-            // Si el producto viene de la vista rápida, le asignamos 'Única' por defecto
             const size = producto.selectedSize || 'Única';
             const uniqueCartId = `${producto.id}-${size}`;
             
@@ -38,17 +33,16 @@ export function CartProvider({ children }) {
                         : item
                 );
             } else {
-                // Cálculo inteligente del precio: Si no trae cartPrice, calculamos si está en oferta o no.
                 const precio = producto.cartPrice !== undefined 
                     ? producto.cartPrice 
                     : (producto.sale ? producto.salePrice : producto.basePrice);
 
                 return [...prevCart, { 
                     ...producto, 
-                    selectedSize: size, // Forzamos a que siempre tenga talla
+                    selectedSize: size,
                     uniqueId: uniqueCartId, 
                     cantidad: cantidad,
-                    precioFinal: Number(precio) // Forzamos a que sea un número válido
+                    precioFinal: Number(precio)
                 }];
             }
         });
@@ -75,21 +69,14 @@ export function CartProvider({ children }) {
         );
     };
 
+    /* La función limpia y protegida contra bucles infinitos */
     const clearCart = useCallback(() => {
         setCart(prevCart => prevCart.length === 0 ? prevCart : []);
     }, []);
 
-    /*
-        Cálculos blindados contra NaN
-    */
     const cartTotals = useMemo(() => {
         return cart.reduce(
             (totals, item) => {
-                
-                /*
-                    Si por algún motivo el precio es 
-                    undefined, usa 0 en vez de dar NaN
-                */
                 const precioSeguro = Number(item.precioFinal) || Number(item.basePrice) || 0;
                 const cantidadSegura = Number(item.cantidad) || 1;
 
