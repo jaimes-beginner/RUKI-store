@@ -1,23 +1,79 @@
 import { createContext, useContext, useState, useEffect, useMemo, useCallback } from "react";
+import { useAuth } from "./AuthContext"; // IMPORTANTE: Importamos para saber quién está logueado
 
-const CART_KEY = "ruki_cart";
 const CartContext = createContext(null);
 
 export function CartProvider({ children }) {
+    /*
+        Obtenemos el usuario actual
+    */
+    const { usuario, isAuthenticated } = useAuth();
     
-    const [cart, setCart] = useState(() => {
+    /*
+        Generamos una llave de carrito 
+        única basada en el usuario
+    */
+    const cartKey = useMemo(() => {
+        if (isAuthenticated && usuario && usuario.id) {
+
+            /*
+                Carrito privado del usuario
+            */
+            return `ruki_cart_user_${usuario.id}`; 
+        }
+
+        /*
+            Carrito público (invitado)
+        */
+        return "ruki_cart_guest"; 
+    }, [isAuthenticated, usuario]);
+
+    /*
+        Inicializamos el estado del carrito 
+        LEYENDO de la llave correcta
+    */
+    const [cart, setCart] = useState([]);
+
+    /*
+        Cada vez que cambie de usuario (o inicie 
+        sesión), cargamos SU carrito correspondiente
+    */
+    useEffect(() => {
         try {
-            const savedCart = localStorage.getItem(CART_KEY);
-            return savedCart ? JSON.parse(savedCart) : [];
+            const savedCart = localStorage.getItem(cartKey);
+            if (savedCart) {
+                setCart(JSON.parse(savedCart));
+            } else {
+
+                /*
+                    Si este usuario no tiene carrito 
+                    guardado, arranca vacío
+                */
+                setCart([]); 
+            }
         } catch (error) {
             console.error("Error al leer el carrito local:", error);
-            return [];
+            setCart([]);
         }
-    });
 
+    /*
+        El useEffect se dispara cuando la llave 
+        cambia (cuando alguien hace login/logout)
+    */
+    }, [cartKey]); 
+
+    /*
+        Cada vez que el carrito cambie (agrega, quita 
+        items), guardamos en la llave correcta
+    */
     useEffect(() => {
-        localStorage.setItem(CART_KEY, JSON.stringify(cart));
-    }, [cart]);
+        
+        /*
+            Evitamos guardar un array vacío sobreescribiendo 
+            algo por error durante la carga inicial
+        */
+        localStorage.setItem(cartKey, JSON.stringify(cart));
+    }, [cart, cartKey]);
 
     const addToCart = (producto, cantidad = 1) => {
         setCart(prevCart => {
@@ -69,9 +125,12 @@ export function CartProvider({ children }) {
         );
     };
 
-    /* La función limpia y protegida contra bucles infinitos */
     const clearCart = useCallback(() => {
-        setCart(prevCart => prevCart.length === 0 ? prevCart : []);
+
+        /*
+            Simplemente lo vaciamos
+        */
+        setCart([]); 
     }, []);
 
     const cartTotals = useMemo(() => {
