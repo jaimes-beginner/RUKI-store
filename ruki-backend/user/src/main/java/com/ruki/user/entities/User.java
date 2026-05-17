@@ -66,4 +66,10 @@ public class User {
             isActive = true;
         }
     }
+
+    @Column(length = 100)
+    private String resetPasswordToken;
+
+    private LocalDateTime tokenExpirationDate;
+
 }
