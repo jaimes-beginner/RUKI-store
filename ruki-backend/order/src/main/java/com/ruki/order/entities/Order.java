@@ -59,4 +59,10 @@ public class Order {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items = new ArrayList<>();
 
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal subTotal = BigDecimal.ZERO;
+
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal taxAmount = BigDecimal.ZERO;
+
 }
