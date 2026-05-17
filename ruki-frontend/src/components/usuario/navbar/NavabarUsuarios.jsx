@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import './NavbarUsuarios.css';
 
 function Header() {
-  const { cart, cartCount, cartTotalAmount, updateQuantity, removeFromCart } = useCart();
+  const { cart, cartCount, cartTotalAmount, cartSubtotal, cartIva, updateQuantity, removeFromCart } = useCart();
   const { isAuthenticated, usuario, logout } = useAuth();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   
@@ -248,12 +248,29 @@ function Header() {
 
                     {/* RESUMEN Y BOTÓN DE PAGO */}
                     <div className="ios-cart-footer">
-                      <div className="d-flex justify-content-between mb-3 fw-bolder text-dark fs-5" style={{ letterSpacing: '-0.02em' }}>
-                        <span>Total</span>
-                        <span>${cartTotalAmount.toLocaleString('es-CL')}</span>
+                      
+                      {/* DESGLOSE DE IMPUESTOS */}
+                      <div className="d-flex justify-content-between mb-1 text-secondary" style={{ fontSize: '13px', fontWeight: '500' }}>
+                        <span>Subtotal (Neto)</span>
+                        <span>${(cartSubtotal || 0).toLocaleString('es-CL')}</span>
                       </div>
-                      <motion.button whileTap={{ scale: 0.95 }} className="ios-btn-dark w-100 py-3" onClick={irAlCheckout}>
-                        FINALIZAR COMPRA
+                      
+                      <div className="d-flex justify-content-between mb-3 text-secondary" style={{ fontSize: '13px', fontWeight: '500' }}>
+                        <span>IVA (19%)</span>
+                        <span>${(cartIva || 0).toLocaleString('es-CL')}</span>
+                      </div>
+
+                      <div className="mb-3" style={{ borderTop: '1px dashed rgba(0,0,0,0.15)' }}></div>
+
+                      {/* TOTAL A PAGAR */}
+                      <div className="d-flex justify-content-between mb-4 fw-bolder text-dark fs-4" style={{ letterSpacing: '-0.02em' }}>
+                        <span>Total</span>
+                        <span>${(cartTotalAmount || 0).toLocaleString('es-CL')}</span>
+                      </div>
+
+                      <motion.button whileTap={{ scale: 0.95 }} className="ios-btn-dark w-100 py-3 d-flex justify-content-between align-items-center px-4" onClick={irAlCheckout}>
+                        <span>FINALIZAR COMPRA</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                       </motion.button>
                     </div>
                   </>

@@ -185,9 +185,12 @@ export function LoginUsuario() {
                         </div>
                     </form>
 
-                    <div className="login-footer">
-                        <small>
-                            ¿No tienes una cuenta? <Link to="/crear-usuario" className="login-link">Regístrate ahora</Link>
+                    <div className="login-footer d-flex flex-column align-items-center gap-2 mt-4 pt-3" style={{ borderTop: '1px solid rgba(0,0,0,0.1)' }}>
+                        <small className="text-muted">
+                            ¿No tienes una cuenta? <Link to="/crear-usuario" className="login-link fw-bold text-decoration-none">Regístrate ahora</Link>
+                        </small>
+                        <small className="text-muted">
+                            ¿Olvidaste tu contraseña? <Link to="/forgot-password" className="login-link fw-bold text-decoration-none">Recupérala aquí</Link>
                         </small>
                     </div>
                 </motion.div>

@@ -1,24 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import { obtenerProductosActivos, obtenerCategoriasActivas } from '../../../services/ProductoService';
 import './PantallaInicio.css';
 
-const categories = [
-    { title: 'Accesorios', image: '/imagenes/wallpaper.jpg' },
-    { title: 'Shorts', image: '/imagenes/walpaper 2.jpg' },
-    { title: 'Polerones', image: '/imagenes/fondo.jpeg' },
-    { title: 'Polera', image: '/imagenes/wallpaper.jpg' },
-];
-
-const products = [
-    { name: 'Poleron Crossfit On Fire', price: 14900, image: '/imagenes/walpaper 2.jpg' },
-    { name: 'Polera NO MORE BURPEES', price: 15900, image: '/imagenes/fondo.jpeg' },
-    { name: 'Polera Sailor Moon', price: 15900, image: '/imagenes/wallpaper.jpg' },
-    { name: 'Short Performance Black', price: 18900, image: '/imagenes/walpaper 2.jpg' },
-    { name: 'Mochila Utility RUKI', price: 22900, image: '/imagenes/wallpaper.jpg' },
-];
-
 /*
-    Variantes para las animaciónes 
+    Variantes para las animaciones 
     de la pantalla de inicio
 */
 const fadeInUp = {
@@ -32,9 +19,43 @@ const staggerContainer = {
 };
 
 function PantallaInicio() {
+    const navigate = useNavigate();
+
+    // Estados para la data dinámica
+    const [categories, setCategories] = useState([]);
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    // Estados para el carrusel
     const [slideIndex, setSlideIndex] = useState(0);
     const [cardsPerView, setCardsPerView] = useState(3);
 
+    // Cargar Datos del Backend
+    useEffect(() => {
+        const fetchInicioData = async () => {
+            try {
+                // Hacemos ambas peticiones al mismo tiempo para mayor velocidad
+                const [catsData, prodsData] = await Promise.all([
+                    obtenerCategoriasActivas(),
+                    obtenerProductosActivos()
+                ]);
+
+                setCategories(catsData);
+
+                // Tomamos los productos activos, los invertimos para tener los más nuevos primero, y cortamos los primeros 6
+                const ultimosProductos = prodsData.reverse().slice(0, 6);
+                setProducts(ultimosProductos);
+            } catch (error) {
+                console.error("Error cargando la pantalla de inicio:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchInicioData();
+    }, []);
+
+    // Lógica Responsive del Carrusel
     useEffect(() => {
         const syncCards = () => {
             if (window.innerWidth <= 640) { setCardsPerView(1); return; }
@@ -65,6 +86,14 @@ function PantallaInicio() {
 
     const handlePrev = () => setSlideIndex((current) => (current <= 0 ? maxSlideIndex : current - 1));
     const handleNext = () => setSlideIndex((current) => (current >= maxSlideIndex ? 0 : current + 1));
+
+    if (loading) {
+        return (
+            <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '100vh', background: '#f5f5f7' }}>
+                <i className="fas fa-circle-notch fa-spin fa-3x text-dark"></i>
+            </div>
+        );
+    }
 
     return (
         <main className="ios-home-main">
@@ -108,7 +137,7 @@ function PantallaInicio() {
                     </div>
                 </motion.section>
 
-                {/* CATEGORÍAS */}
+                {/* CATEGORÍAS DINÁMICAS */}
                 <motion.section 
                     className="ios-category-grid" 
                     aria-label="Categorias"
@@ -117,103 +146,134 @@ function PantallaInicio() {
                     whileInView="visible"
                     viewport={{ once: true, margin: "-50px" }}
                 >
-                    {categories.map((category) => (
-                        <motion.article 
-                            key={category.title} 
-                            className="ios-category-card"
-                            variants={fadeInUp}
-                            whileHover={{ y: -8, scale: 1.02, boxShadow: "0 20px 40px rgba(0,0,0,0.12)" }}
-                            whileTap={{ scale: 0.97 }}
-                        >
-                            <img src={category.image} alt={category.title} />
-                            
-                            {/* PILDORA DE CRISTAL FLOTANTE */}
-                            <div className="ios-category-label-glass">
-                                <span>{category.title}</span>
-                                <i className="fas fa-arrow-right"></i>
-                            </div>
-                        </motion.article>
-                    ))}
-                </motion.section>
-
-                {/* PRODUCTOS DESTACADOS */}
-                <motion.section 
-                    className="ios-products-section" 
-                    aria-label="Nuevos productos"
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true, margin: "-50px" }}
-                    variants={fadeInUp}
-                >
-                    <div className="ios-section-header">
-                        <div>
-                            <h3>Nuevos Lanzamientos</h3>
-                            <p className="ios-section-subtitle">El equipamiento que necesitas hoy.</p>
-                        </div>
-                        <span className="ios-badge-glass">Lo último</span>
-                    </div>
-
-                    <div className="ios-carousel-wrap">
-                        <motion.button 
-                            whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
-                            type="button" className="ios-carousel-btn left" onClick={handlePrev} aria-label="Anterior"
-                        >
-                            <i className="fas fa-chevron-left"></i>
-                        </motion.button>
-
-                        <div className="ios-carousel-viewport">
-                            <div
-                                className="ios-carousel-track"
-                                style={{ transform: `translateX(-${(slideIndex * 100) / cardsPerView}%)` }}
+                    {categories.map((category) => {
+                        // Extraemos la imagen de la BD o usamos una por defecto
+                        const catImage = category.imageUrl || '/imagenes/wallpaper.jpg';
+                        return (
+                            <motion.article 
+                                key={category.id} 
+                                className="ios-category-card"
+                                variants={fadeInUp}
+                                whileHover={{ y: -8, scale: 1.02, boxShadow: "0 20px 40px rgba(0,0,0,0.12)" }}
+                                whileTap={{ scale: 0.97 }}
+                                onClick={() => navigate(`/productos?categoria=${category.id}`)} // Navegar al filtro
                             >
-                                {products.map((product) => (
-                                    <div key={product.name} className="ios-product-slide">
-                                        <motion.article 
-                                            className="ios-product-card"
-                                            whileHover={{ y: -8, boxShadow: "0 24px 48px rgba(0,0,0,0.06)" }}
-                                        >
-                                            <div className="ios-product-img-wrapper">
-                                                <img src={product.image} alt={product.name} />
-                                                <motion.button 
-                                                    className="ios-quick-add-btn"
-                                                    whileHover={{ scale: 1.1 }}
-                                                    whileTap={{ scale: 0.9 }}
-                                                >
-                                                    <i className="fas fa-plus"></i>
-                                                </motion.button>
-                                            </div>
-                                            <div className="ios-product-meta">
-                                                <p className="ios-product-name">{product.name}</p>
-                                                <p className="ios-product-price">
-                                                    ${product.price.toLocaleString('es-CL')}
-                                                </p>
-                                            </div>
-                                        </motion.article>
-                                    </div>
-                                ))}
+                                <img src={catImage} alt={category.name} />
+                                
+                                {/* PILDORA DE CRISTAL FLOTANTE */}
+                                <div className="ios-category-label-glass">
+                                    <span>{category.name}</span>
+                                    <i className="fas fa-arrow-right"></i>
+                                </div>
+                            </motion.article>
+                        )
+                    })}
+                </motion.section>
+
+                {/* PRODUCTOS DESTACADOS DINÁMICOS */}
+                {products.length > 0 && (
+                    <motion.section 
+                        className="ios-products-section" 
+                        aria-label="Nuevos productos"
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true, margin: "-50px" }}
+                        variants={fadeInUp}
+                    >
+                        <div className="ios-section-header">
+                            <div>
+                                <h3>Nuevos Lanzamientos</h3>
+                                <p className="ios-section-subtitle">El equipamiento que necesitas hoy.</p>
                             </div>
+                            <span className="ios-badge-glass">Lo último</span>
                         </div>
 
-                        <motion.button 
-                            whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
-                            type="button" className="ios-carousel-btn right" onClick={handleNext} aria-label="Siguiente"
-                        >
-                            <i className="fas fa-chevron-right"></i>
-                        </motion.button>
-                    </div>
+                        <div className="ios-carousel-wrap">
+                            <motion.button 
+                                whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
+                                type="button" className="ios-carousel-btn left" onClick={handlePrev} aria-label="Anterior"
+                            >
+                                <i className="fas fa-chevron-left"></i>
+                            </motion.button>
 
-                    <div className="ios-carousel-dots">
-                        {Array.from({ length: maxSlideIndex + 1 }).map((_, index) => (
-                            <button
-                                key={`dot-${index}`}
-                                type="button"
-                                className={`ios-dot ${slideIndex === index ? 'active' : ''}`}
-                                onClick={() => setSlideIndex(index)}
-                                aria-label={`Ir a la diapositiva ${index + 1}`}
-                            ></button>
-                        ))}
-                    </div>
-                </motion.section>
+                            <div className="ios-carousel-viewport">
+                                <div
+                                    className="ios-carousel-track"
+                                    style={{ transform: `translateX(-${(slideIndex * 100) / cardsPerView}%)` }}
+                                >
+                                    {products.map((product) => {
+                                        // Validaciones para precios e imágenes del backend
+                                        const finalPrice = product.sale && product.salePrice ? product.salePrice : product.basePrice;
+                                        const imgUrl = product.imageUrls && product.imageUrls.length > 0 ? product.imageUrls[0] : '/imagenes/fondo.jpeg';
+
+                                        return (
+                                            <div key={product.id} className="ios-product-slide">
+                                                <motion.article 
+                                                    className="ios-product-card"
+                                                    whileHover={{ y: -8, boxShadow: "0 24px 48px rgba(0,0,0,0.06)" }}
+                                                    onClick={() => navigate(`/producto/${product.id}`)}
+                                                >
+                                                    <div className="ios-product-img-wrapper">
+                                                        <img src={imgUrl} alt={product.name} />
+                                                        
+                                                        {/* BADGE DE OFERTA */}
+                                                        {product.sale && (
+                                                            <div className="position-absolute top-0 start-0 m-2 px-2 py-1 bg-danger text-white rounded-2 fw-bolder" style={{fontSize: '11px', letterSpacing: '1px'}}>
+                                                                OFERTA
+                                                            </div>
+                                                        )}
+
+                                                        <motion.button 
+                                                            className="ios-quick-add-btn"
+                                                            whileHover={{ scale: 1.1 }}
+                                                            whileTap={{ scale: 0.9 }}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation(); // Evita que se abra el detalle al hacer clic en el "+"
+                                                                navigate(`/producto/${product.id}`); 
+                                                            }}
+                                                        >
+                                                            <i className="fas fa-plus"></i>
+                                                        </motion.button>
+                                                    </div>
+                                                    <div className="ios-product-meta">
+                                                        <p className="ios-product-name">{product.name}</p>
+                                                        <p className="ios-product-price">
+                                                            ${Number(finalPrice).toLocaleString('es-CL')}
+                                                            {product.sale && (
+                                                                <small className="text-muted text-decoration-line-through ms-2">
+                                                                    ${Number(product.basePrice).toLocaleString('es-CL')}
+                                                                </small>
+                                                            )}
+                                                        </p>
+                                                    </div>
+                                                </motion.article>
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                            </div>
+
+                            <motion.button 
+                                whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
+                                type="button" className="ios-carousel-btn right" onClick={handleNext} aria-label="Siguiente"
+                            >
+                                <i className="fas fa-chevron-right"></i>
+                            </motion.button>
+                        </div>
+
+                        <div className="ios-carousel-dots">
+                            {Array.from({ length: maxSlideIndex + 1 }).map((_, index) => (
+                                <button
+                                    key={`dot-${index}`}
+                                    type="button"
+                                    className={`ios-dot ${slideIndex === index ? 'active' : ''}`}
+                                    onClick={() => setSlideIndex(index)}
+                                    aria-label={`Ir a la diapositiva ${index + 1}`}
+                                ></button>
+                            ))}
+                        </div>
+                    </motion.section>
+                )}
             </div>
         </main>
     );

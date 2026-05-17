@@ -21,6 +21,8 @@ import { ProductoDetallePage } from './page/Cliente/ProductoDetallePage.jsx'
 import { MisPedidosPage } from './page/Cliente/MisPedidosPage.jsx'
 import { RegistrarUsuarioPage } from './page/Auth/RegistrarUsuarioPage.jsx'
 import { LoginUsuarioPage } from './page/Auth/LoginUsuarioPage.jsx'
+import { ForgotPasswordPage } from './page/Auth/ForgotPasswordPage.jsx'
+import { ResetPasswordPage } from './page/Auth/ResetPasswordPage.jsx'
 
 
 function App() {
@@ -37,6 +39,9 @@ function App() {
         <Route path="/mi-perfil" element={<PerfilPage />} />
         <Route path="/producto/:id" element={<ProductoDetallePage />} />
         <Route path="/mis-pedidos" element={<MisPedidosPage />} />
+
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
 
         <Route path="/crear-usuario" element={
           <PublicRoute>

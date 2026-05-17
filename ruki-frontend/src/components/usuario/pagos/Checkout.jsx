@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import './Checkout.css';
 
 export function Checkout() {
-    const { cart, cartTotalAmount } = useCart();
+    const { cart, cartTotalAmount, cartSubtotal, cartIva } = useCart();
     const { usuario } = useAuth();
     const navigate = useNavigate();
 
@@ -246,17 +246,28 @@ export function Checkout() {
                             </div>
 
                             <div className="summary-totals border-top pt-3">
+                                {/* SUBTOTAL NETO */}
                                 <div className="d-flex justify-content-between mb-2 small text-secondary">
-                                    <span>Subtotal</span>
-                                    <span>${cartTotalAmount.toLocaleString('es-CL')}</span>
+                                    <span>Subtotal (Neto)</span>
+                                    <span>${(cartSubtotal || 0).toLocaleString('es-CL')}</span>
                                 </div>
+                                
+                                {/* IVA */}
+                                <div className="d-flex justify-content-between mb-2 small text-secondary">
+                                    <span>IVA (19%)</span>
+                                    <span>${(cartIva || 0).toLocaleString('es-CL')}</span>
+                                </div>
+                                
+                                {/* ENVÍO */}
                                 <div className="d-flex justify-content-between mb-3 small text-secondary">
                                     <span>Envío</span>
                                     <span>Calculado en Stripe</span>
                                 </div>
+                                
+                                {/* TOTAL A PAGAR */}
                                 <div className="d-flex justify-content-between border-top pt-3 mb-4 fw-bolder fs-5 text-dark">
-                                    <span>Total</span>
-                                    <span>${cartTotalAmount.toLocaleString('es-CL')}</span>
+                                    <span>Total a Pagar</span>
+                                    <span>${(cartTotalAmount || 0).toLocaleString('es-CL')}</span>
                                 </div>
                             </div>
 

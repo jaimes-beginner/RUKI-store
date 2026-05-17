@@ -302,6 +302,24 @@ export function MisPedidos() {
                                                                 );
                                                             })}
                                                         </div>
+
+                                                        <div className="order-payment-summary mt-4">
+                                                            <p className="order-section-title"><i className="fas fa-receipt me-2"></i>RESUMEN DE PAGO</p>
+                                                            <div className="bg-light p-3 rounded-3 border border-light text-dark small">
+                                                                <div className="d-flex justify-content-between mb-2 text-secondary fw-medium">
+                                                                    <span>Subtotal (Neto)</span>
+                                                                    <span>${Number(pedido.subTotal || 0).toLocaleString('es-CL')}</span>
+                                                                </div>
+                                                                <div className="d-flex justify-content-between mb-2 text-secondary fw-medium">
+                                                                    <span>IVA (19%)</span>
+                                                                    <span>${Number(pedido.taxAmount || 0).toLocaleString('es-CL')}</span>
+                                                                </div>
+                                                                <div className="d-flex justify-content-between mt-2 pt-2 border-top fw-bolder" style={{ fontSize: '14px' }}>
+                                                                    <span>Total</span>
+                                                                    <span>${Number(totalPedido).toLocaleString('es-CL')}</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                         
                                                         {pedido.status === 'PENDING' && (
                                                             <div className="order-actions mt-4">

@@ -134,7 +134,7 @@ export function CartProvider({ children }) {
     }, []);
 
     const cartTotals = useMemo(() => {
-        return cart.reduce(
+        const totalesBasicos = cart.reduce(
             (totals, item) => {
                 const precioSeguro = Number(item.precioFinal) || Number(item.basePrice) || 0;
                 const cantidadSegura = Number(item.cantidad) || 1;
@@ -145,12 +145,25 @@ export function CartProvider({ children }) {
             },
             { count: 0, amount: 0 }
         );
+
+        const subtotalNeto = totalesBasicos.amount;
+        const ivaAmount = Math.round(subtotalNeto * 0.19); 
+        const totalAmount = subtotalNeto + ivaAmount;
+
+        return {
+            count: totalesBasicos.count,
+            subtotal: subtotalNeto,
+            iva: ivaAmount,
+            totalAmount: totalAmount
+        };
     }, [cart]);
 
     const value = {
         cart,
         cartCount: cartTotals.count,
-        cartTotalAmount: cartTotals.amount,
+        cartTotalAmount: cartTotals.totalAmount,    // El cliente paga esto
+        cartSubtotal: cartTotals.subtotal,          // Lo que gana la tienda
+        cartIva: cartTotals.iva,                    // Lo que va para el estado
         addToCart,
         removeFromCart,
         updateQuantity,

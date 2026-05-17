@@ -33,3 +33,40 @@ export async function registrarUsuario(userData) {
     }
     return response.json();
 }
+
+/*
+    Función asíncrona para recuperar contraseña de un usuario 
+    en caso de olvido
+*/
+export async function forgotPassword(email) {
+    const response = await fetch(`${API_BASE_URL}/api-ruki/auth/forgot-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email })
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text().catch(() => "");
+        throw new Error(errorText || "Error al solicitar recuperación de contraseña");
+    }
+    
+    return response.text();
+}
+
+/*
+    Función asíncrona para restablecer contraseña de un usuario
+*/
+export async function resetPassword(token, newPassword) {
+    const response = await fetch(`${API_BASE_URL}/api-ruki/auth/reset-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, newPassword })
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text().catch(() => "");
+        throw new Error(errorText || "Error al restablecer la contraseña");
+    }
+    
+    return response.text();
+}
