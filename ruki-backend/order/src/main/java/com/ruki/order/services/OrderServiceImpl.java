@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,7 +42,7 @@ public class OrderServiceImpl implements OrderService {
         order.setShippingAddressId(request.getShippingAddressId());
         order.setStatus(OrderStatus.PENDING);
         
-        BigDecimal totalAmount = BigDecimal.ZERO;
+        BigDecimal orderSubTotal = BigDecimal.ZERO;
         List<OrderItem> items = new ArrayList<>();
         List<OrderItemRequest> processedItems = new ArrayList<>();
 
@@ -88,7 +89,8 @@ public class OrderServiceImpl implements OrderService {
                                         : realProduct.getBasePrice();
 
                 BigDecimal itemSubTotal = finalPrice.multiply(new BigDecimal(itemRequest.getQuantity()));
-                totalAmount = totalAmount.add(itemSubTotal);
+                
+                orderSubTotal = orderSubTotal.add(itemSubTotal);
 
                 OrderItem orderItem = new OrderItem();
                 orderItem.setOrder(order);
@@ -109,8 +111,17 @@ public class OrderServiceImpl implements OrderService {
                 items.add(orderItem);
             }
 
+            /*
+                Agregando el IVA
+            */
+            BigDecimal ivaRate = new BigDecimal("0.19");
+            BigDecimal taxAmount = orderSubTotal.multiply(ivaRate).setScale(0, RoundingMode.HALF_UP);
+            BigDecimal finalTotalAmount = orderSubTotal.add(taxAmount);
+
             order.setItems(items);
-            order.setTotalAmount(totalAmount);
+            order.setSubTotal(orderSubTotal);
+            order.setTaxAmount(taxAmount);
+            order.setTotalAmount(finalTotalAmount);
 
             return orderRepository.save(order);
 
