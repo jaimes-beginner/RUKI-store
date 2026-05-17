@@ -45,10 +45,15 @@ public class SecurityConfig {
                     Estas son la rutas publicas, las 
                     que no piden token para acceder
                 */
-                .requestMatchers("/api-ruki/users/create").permitAll() 
-                .requestMatchers("/api-ruki/auth/login").permitAll() 
+                .requestMatchers(
+                    "/api-ruki/auth/login",
+                    "/api-ruki/users/create", 
+                    "/api-ruki/auth/forgot-password", 
+                    "/api-ruki/auth/reset-password",
+                    "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html"
+                ).permitAll()
+
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
 
                 /* 
                     Rutas de panel administrativo y 
