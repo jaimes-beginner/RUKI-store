@@ -1,6 +1,7 @@
 package com.ruki.order.services;
 
 import com.ruki.order.clients.ProductClient;
+import com.ruki.order.clients.UserClient;
 import com.ruki.order.entities.Order;
 import com.ruki.order.entities.OrderItem;
 import com.ruki.order.entities.OrderStatus;
@@ -8,6 +9,7 @@ import com.ruki.order.repositories.OrderRepository;
 import com.ruki.order.requests.OrderCreate;
 import com.ruki.order.requests.OrderItemRequest;
 import com.ruki.order.requests.ProductClientResponse;
+import com.ruki.order.requests.UserClientResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -26,6 +28,8 @@ public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
     private final ProductClient productClient;
+    private final EmailService emailService;
+    private final UserClient userClient;
 
     /*
         Lógica para crear una orden
@@ -188,9 +192,24 @@ public class OrderServiceImpl implements OrderService {
     public Order updateOrderStatusAdmin(Long orderId, OrderStatus newStatus) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pedido no encontrado"));
+        
         order.setStatus(newStatus);
+        Order savedOrder = orderRepository.save(order);
+        
+        /*
+            Disparar correo si el Admin lo marca como ENVIADO o ENTREGADO
+        */
+        if (newStatus == OrderStatus.SHIPPED || newStatus == OrderStatus.DELIVERED || newStatus == OrderStatus.CANCELLED) {
+            try {
+                UserClientResponse user = userClient.getUserById(savedOrder.getUserId());
+                emailService.sendOrderStatusUpdate(user.getEmail(), savedOrder.getId(), newStatus.name());
+            } catch (Exception e) {
+                log.error("No se pudo obtener el correo del usuario ID {} para enviar actualización.", savedOrder.getUserId());
+            }
+        }
+
         log.info("AUDITORÍA ADMIN: El estado del pedido ID {} cambió a {}", orderId, newStatus);
-        return orderRepository.save(order);
+        return savedOrder;
     }
 
     /*
@@ -199,8 +218,33 @@ public class OrderServiceImpl implements OrderService {
     public Order updateStatusFromPayment(Long orderId, String status) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Orden #" + orderId + " no encontrada"));
+        
         order.setStatus(OrderStatus.valueOf(status));
-        return orderRepository.save(order);
+        Order savedOrder = orderRepository.save(order);
+
+        /*
+            Si el pago fue exitoso (PAID), mandamos el correo electrónico
+        */
+        if (status.equals("PAID")) {
+            
+            try {
+                /*
+                    Llamamos al microservicio de usuarios
+                */
+                UserClientResponse user = userClient.getUserById(savedOrder.getUserId());
+                
+                /*
+                    Le mandamos el correo a su email real
+                */
+                emailService.sendOrderConfirmation(user.getEmail(), savedOrder.getId(), savedOrder.getTotalAmount());
+            } catch (Exception e) {
+                log.error("No se pudo obtener el correo del usuario ID {} para enviar la confirmación.", savedOrder.getUserId());
+            }
+
+        }
+
+        return savedOrder;
     }
+    
     
 }
