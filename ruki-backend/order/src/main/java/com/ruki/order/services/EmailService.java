@@ -20,7 +20,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class EmailService {
 
-    private final ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Value("${spring.mail.password}")
     private String resendApiKey;

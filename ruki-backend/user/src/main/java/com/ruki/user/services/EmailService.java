@@ -21,7 +21,7 @@ public class EmailService {
     /*
         Para armar un JSON seguro
     */
-    private final ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Value("${spring.mail.password}")
     private String resendApiKey;
