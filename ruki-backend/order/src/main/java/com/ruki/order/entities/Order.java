@@ -65,4 +65,6 @@ public class Order {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal taxAmount = BigDecimal.ZERO;
 
+    private String userEmail;
+
 }

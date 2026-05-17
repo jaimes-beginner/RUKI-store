@@ -33,7 +33,7 @@ public class OrderServiceImpl implements OrderService {
     private final UserClient userClient;
 
     /*
-        Lógica para crear una orden
+        Método para crear una orden
     */
     @Override
     public Order createOrder(OrderCreate request, Long userId) {
@@ -41,6 +41,13 @@ public class OrderServiceImpl implements OrderService {
         order.setUserId(userId); 
         order.setShippingAddressId(request.getShippingAddressId());
         order.setStatus(OrderStatus.PENDING);
+
+        try {
+            UserClientResponse user = userClient.getUserById(userId);
+            order.setUserEmail(user.getEmail());
+        } catch (Exception e) {
+            log.warn("No se pudo obtener el correo en la creación de la orden.");
+        }
         
         BigDecimal orderSubTotal = BigDecimal.ZERO;
         List<OrderItem> items = new ArrayList<>();
@@ -62,17 +69,11 @@ public class OrderServiceImpl implements OrderService {
                         "El producto '" + realProduct.getName() + "' ya no está disponible.");
                 }
 
-                /*
-                    Chequeo global preliminar
-                */
                 if (realProduct.getStock() < itemRequest.getQuantity()) {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
                         "Stock insuficiente para: '" + realProduct.getName() + "'. Quedan " + realProduct.getStock() + ".");
                 }
 
-                /*
-                    Logica del descuento según la talla
-                */
                 try {
                     productClient.discountStock(realProduct.getId(), itemRequest.getQuantity(), itemRequest.getSize());
                     processedItems.add(itemRequest);
@@ -81,39 +82,24 @@ public class OrderServiceImpl implements OrderService {
                         "Fallo al descontar inventario del producto: " + realProduct.getName() + " (Talla: " + itemRequest.getSize() + ")");
                 }
 
-                /*
-                    Lógica de los precios para saber si están en oferta o no 
-                */
                 BigDecimal finalPrice = (realProduct.isSale() && realProduct.getSalePrice() != null) 
                                         ? realProduct.getSalePrice() 
                                         : realProduct.getBasePrice();
 
                 BigDecimal itemSubTotal = finalPrice.multiply(new BigDecimal(itemRequest.getQuantity()));
-                
                 orderSubTotal = orderSubTotal.add(itemSubTotal);
 
                 OrderItem orderItem = new OrderItem();
                 orderItem.setOrder(order);
                 orderItem.setProductId(realProduct.getId());
                 orderItem.setQuantity(itemRequest.getQuantity());
-
-                /*
-                    Cobramos el precio correcto
-                */
                 orderItem.setUnitPrice(finalPrice);
                 orderItem.setSubTotal(itemSubTotal);
-
-                /*
-                    Guardamos la talla para el envío
-                */
                 orderItem.setSize(itemRequest.getSize()); 
 
                 items.add(orderItem);
             }
 
-            /*
-                Agregando el IVA
-            */
             BigDecimal ivaRate = new BigDecimal("0.19");
             BigDecimal taxAmount = orderSubTotal.multiply(ivaRate).setScale(0, RoundingMode.HALF_UP);
             BigDecimal finalTotalAmount = orderSubTotal.add(taxAmount);
@@ -129,10 +115,6 @@ public class OrderServiceImpl implements OrderService {
             log.error("Error creando el pedido. Iniciando Rollback de stock...");
             for (OrderItemRequest processedItem : processedItems) {
                 try {
-
-                    /*
-                        Rollback en donde devolvemos a la talla específica
-                    */
                     productClient.addStock(processedItem.getProductId(), processedItem.getQuantity(), processedItem.getSize());
                     log.info("Rollback exitoso: Devueltas {} unidades al producto {} (Talla: {})", 
                             processedItem.getQuantity(), processedItem.getProductId(), processedItem.getSize());
@@ -145,7 +127,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     /*
-        Lógica para obtener una orden por su ID
+        Método para obtener una orden por su ID
     */
     @Override
     @Transactional(readOnly = true)
@@ -160,7 +142,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     /*
-        Lógica para obtener mis pedidos
+        Método para obtener todas las órdenes de un usuario
     */
     @Override
     @Transactional(readOnly = true)
@@ -169,7 +151,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     /*
-        Lógica para cancelar un pedido
+        Método para cancelar una orden
     */
     @Override
     public Order cancelMyOrder(Long orderId, Long currentUserId, boolean isAdmin) {
@@ -188,7 +170,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     /*
-        Lógica para obtener todas las ordenes (solo admin)
+        Método para obtener todas las órdenes (solo para administradores)
     */
     @Override
     @Transactional(readOnly = true)
@@ -197,7 +179,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     /*
-        Lógica para actualizar el estado de un pedido (solo admin)
+        Método para actualizar el estado de una orden (solo para administradores)
     */
     @Override
     public Order updateOrderStatusAdmin(Long orderId, OrderStatus newStatus) {
@@ -207,15 +189,17 @@ public class OrderServiceImpl implements OrderService {
         order.setStatus(newStatus);
         Order savedOrder = orderRepository.save(order);
         
-        /*
-            Disparar correo si el Admin lo marca como ENVIADO o ENTREGADO
-        */
         if (newStatus == OrderStatus.SHIPPED || newStatus == OrderStatus.DELIVERED || newStatus == OrderStatus.CANCELLED) {
             try {
-                UserClientResponse user = userClient.getUserById(savedOrder.getUserId());
-                emailService.sendOrderStatusUpdate(user.getEmail(), savedOrder.getId(), newStatus.name());
+                
+                /*
+                    Usamos el correo guardado en lugar de llamar a Feign
+                */
+                if (savedOrder.getUserEmail() != null) {
+                    emailService.sendOrderStatusUpdate(savedOrder.getUserEmail(), savedOrder.getId(), newStatus.name());
+                }
             } catch (Exception e) {
-                log.error("No se pudo obtener el correo del usuario ID {} para enviar actualización.", savedOrder.getUserId());
+                log.error("Error al intentar enviar actualización logística.");
             }
         }
 
@@ -224,7 +208,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     /*
-        Lógica para actualizar el estado de de pago de un pedido
+        Método para actualizar el estado de una orden desde el servicio de pago
     */
     public Order updateStatusFromPayment(Long orderId, String status) {
         Order order = orderRepository.findById(orderId)
@@ -233,29 +217,21 @@ public class OrderServiceImpl implements OrderService {
         order.setStatus(OrderStatus.valueOf(status));
         Order savedOrder = orderRepository.save(order);
 
-        /*
-            Si el pago fue exitoso (PAID), mandamos el correo electrónico
-        */
         if (status.equals("PAID")) {
-            
             try {
-                /*
-                    Llamamos al microservicio de usuarios
-                */
-                UserClientResponse user = userClient.getUserById(savedOrder.getUserId());
                 
                 /*
-                    Le mandamos el correo a su email real
+                    Usamos el correo guardado en lugar de llamar a Feign
                 */
-                emailService.sendOrderConfirmation(user.getEmail(), savedOrder.getId(), savedOrder.getTotalAmount());
+                if (savedOrder.getUserEmail() != null) {
+                    emailService.sendOrderConfirmation(savedOrder.getUserEmail(), savedOrder.getId(), savedOrder.getTotalAmount());
+                } else {
+                    log.error("El pedido ID {} no tiene un correo asociado.", savedOrder.getId());
+                }
             } catch (Exception e) {
-                log.error("No se pudo obtener el correo del usuario ID {} para enviar la confirmación.", savedOrder.getUserId());
+                log.error("Error al enviar correo de confirmación: {}", e.getMessage());
             }
-
         }
-
         return savedOrder;
     }
-    
-    
 }
