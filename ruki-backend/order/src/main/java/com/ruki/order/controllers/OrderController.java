@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import java.util.List;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,7 +27,7 @@ public class OrderController {
     private final OrderService orderService;
 
     /* 
-        Endpoint para crear un nuevo pedido 
+        Endpoint para crear un nuevo pedido (Online)
     */
     @PostMapping("/create")
     @SecurityRequirement(name = "bearerAuth") 
@@ -40,6 +41,27 @@ public class OrderController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Long userId = (Long) authentication.getPrincipal();
         return ResponseEntity.ok(orderService.createOrder(request, userId));
+    }
+
+    /* 
+        Endpoint exclusivo para ventas en Tienda Física (POS)
+    */
+    @PostMapping("/physical")
+    @SecurityRequirement(name = "bearerAuth") 
+    @Operation(summary = "Crear venta física (POS)", description = "Genera una orden cobrada y entregada automáticamente en tienda. Solo administradores.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Venta física creada exitosamente"),
+            @ApiResponse(responseCode = "400", description = "Datos inválidos o sin stock"),
+            @ApiResponse(responseCode = "401", description = "Token ausente o inválido"),
+            @ApiResponse(responseCode = "403", description = "No tienes permisos de Administrador")
+    })
+    public ResponseEntity<Order> createPhysicalOrder(@Valid @RequestBody OrderCreate request) {
+        // Aprovechamos tu excelente práctica de usar el Contexto de Seguridad
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Long adminId = (Long) authentication.getPrincipal();
+        
+        Order newOrder = orderService.createPhysicalOrder(request, adminId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newOrder);
     }
 
     /* 
@@ -97,7 +119,6 @@ public class OrderController {
         
         return ResponseEntity.ok(orderService.cancelMyOrder(id, currentUserId, isAdmin));
     }
-
 
     /* 
         Endpoint para que el administrador vea todas las órdenes del sistema

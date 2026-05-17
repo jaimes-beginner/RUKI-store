@@ -234,4 +234,114 @@ public class OrderServiceImpl implements OrderService {
         }
         return savedOrder;
     }
+
+    /*
+        Método para crear una orden de compra física (solo para administradores)
+    */
+    @Override
+    public Order createPhysicalOrder(OrderCreate request, Long adminId) {
+        Order order = new Order();
+        
+        /*
+            Asignamos la venta al admin que la procesó
+        */
+        order.setUserId(adminId); 
+        
+        /*
+            No hay dirección de envío porque se entrega en mano
+        */
+        order.setShippingAddressId(null);
+
+        order.setStatus(OrderStatus.DELIVERED);
+
+        try {
+            UserClientResponse adminUser = userClient.getUserById(adminId);
+            order.setUserEmail(adminUser.getEmail());
+        } catch (Exception e) {
+            log.warn("Venta Física: No se pudo obtener el correo del admin.");
+            order.setUserEmail("tienda-fisica@ruki.com"); 
+        }
+        
+        BigDecimal orderSubTotal = BigDecimal.ZERO;
+        List<OrderItem> items = new ArrayList<>();
+        List<OrderItemRequest> processedItems = new ArrayList<>();
+
+        try {
+            for (OrderItemRequest itemRequest : request.getItems()) {
+                ProductClientResponse realProduct;
+                try {
+                    realProduct = productClient.getProductById(itemRequest.getProductId());
+                } catch (Exception e) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
+                        "El producto con ID " + itemRequest.getProductId() + " no existe.");
+                }
+
+                if (!realProduct.isActive()) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
+                        "El producto '" + realProduct.getName() + "' ya no está disponible.");
+                }
+
+                if (realProduct.getStock() < itemRequest.getQuantity()) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
+                        "Stock insuficiente para: '" + realProduct.getName() + "'.");
+                }
+
+                // Descontamos inventario en tiempo real
+                try {
+                    productClient.discountStock(realProduct.getId(), itemRequest.getQuantity(), itemRequest.getSize());
+                    processedItems.add(itemRequest);
+                } catch (Exception e) {
+                    throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, 
+                        "Fallo al descontar stock de: " + realProduct.getName());
+                }
+
+                BigDecimal finalPrice = (realProduct.isSale() && realProduct.getSalePrice() != null) 
+                                        ? realProduct.getSalePrice() 
+                                        : realProduct.getBasePrice();
+
+                BigDecimal itemSubTotal = finalPrice.multiply(new BigDecimal(itemRequest.getQuantity()));
+                orderSubTotal = orderSubTotal.add(itemSubTotal);
+
+                OrderItem orderItem = new OrderItem();
+                orderItem.setOrder(order);
+                orderItem.setProductId(realProduct.getId());
+                orderItem.setQuantity(itemRequest.getQuantity());
+                orderItem.setUnitPrice(finalPrice);
+                orderItem.setSubTotal(itemSubTotal);
+                orderItem.setSize(itemRequest.getSize()); 
+
+                items.add(orderItem);
+            }
+
+            BigDecimal ivaRate = new BigDecimal("0.19");
+            BigDecimal taxAmount = orderSubTotal.multiply(ivaRate).setScale(0, RoundingMode.HALF_UP);
+            BigDecimal finalTotalAmount = orderSubTotal.add(taxAmount);
+
+            order.setItems(items);
+            order.setSubTotal(orderSubTotal);
+            order.setTaxAmount(taxAmount);
+            order.setTotalAmount(finalTotalAmount);
+
+            Order savedOrder = orderRepository.save(order);
+            
+            if (savedOrder.getUserEmail() != null && !savedOrder.getUserEmail().equals("tienda-fisica@ruki.com")) {
+                 emailService.sendOrderConfirmation(savedOrder.getUserEmail(), savedOrder.getId(), savedOrder.getTotalAmount());
+            }
+
+            log.info("VENTA FÍSICA | Registrada con éxito. Pedido #{} cobrado por Admin {}", savedOrder.getId(), adminId);
+            return savedOrder;
+
+        } catch (Exception e) {
+            log.error("ERROR | Error en Venta Física. Iniciando Rollback de stock...");
+            for (OrderItemRequest processedItem : processedItems) {
+                try {
+                    productClient.addStock(processedItem.getProductId(), processedItem.getQuantity(), processedItem.getSize());
+                } catch (Exception rollbackEx) {
+                    log.error("ALERTA CRÍTICA | Falló el rollback para el producto {}", processedItem.getProductId());
+                }
+            }
+            throw e;
+        }
+    }
+
 }
