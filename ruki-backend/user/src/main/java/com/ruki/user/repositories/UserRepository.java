@@ -15,6 +15,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     */
     Optional<User> findByEmail(String email);
     Optional<User> findByEmailAndIsActiveTrue(String email);
+    
     Optional<User> findByIdAndIsActiveTrue(Long id);
     boolean existsByIdAndIsActiveTrue(Long id);
 
@@ -23,4 +24,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
         los usuarios activos o inactivos
     */
     List<User> findAllByIsActive(boolean isActive);
+
+    Optional<User> findByResetPasswordToken(String token);
+
 }
