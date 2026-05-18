@@ -20,8 +20,7 @@ public class OrderCreate {
         cuando un cliente quiera crear un nuevo pedido
     */
 
-    @NotNull(message = "Debes seleccionar una dirección de envío")
-    @Positive(message = "El ID de la dirección debe ser válido")
+
     private Long shippingAddressId;
 
     @NotEmpty(message = "El pedido debe contener al menos un producto")

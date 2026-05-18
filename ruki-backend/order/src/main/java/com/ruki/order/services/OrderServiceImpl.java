@@ -37,6 +37,11 @@ public class OrderServiceImpl implements OrderService {
     */
     @Override
     public Order createOrder(OrderCreate request, Long userId) {
+        
+        if (request.getShippingAddressId() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Debes seleccionar una dirección de envío para compras online.");
+        }
+
         Order order = new Order();
         order.setUserId(userId); 
         order.setShippingAddressId(request.getShippingAddressId());
