@@ -134,7 +134,7 @@
 .ios-cart-img { width: 64px; height: 64px; object-fit: cover; border-radius: 8px; }
 
 .ios-cart-title { font-size: 13px; letter-spacing: -0.01em; color: #ffffff !important; }
-.ios-cart-price { font-size: 12px; color: #0a84ff; /* Acento azul RUKI */ }
+.ios-cart-price { font-size: 12px; color: #600aff;}
 .ios-cart-qty { font-size: 12px; width: 12px; text-align: center; margin: 0 12px; font-weight: 700; color: #ffffff; }
 
 /* Controles de cantidad (+/-) en el carrito */

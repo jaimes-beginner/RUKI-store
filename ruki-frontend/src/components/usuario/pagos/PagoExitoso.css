@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
 .success-page-wrapper {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     min-height: calc(100vh - 120px); 
@@ -5,7 +7,8 @@
     align-items: center;
     justify-content: center;
     padding: 20px;
-    background-color: #fcfcfd; 
+    background-color: #020202; /* Fondo ultra oscuro */
+    color: #ffffff;
     
     /* Configuración vital para contener las luces */
     position: relative;
@@ -13,60 +16,62 @@
 }
 
 /* ========================================= */
-/* LUCES AMBIENTALES DE ÉXITO (VERDE/AZUL)   */
+/* LUCES AMBIENTALES DE ÉXITO (VERDE/CIAN)   */
 /* ========================================= */
+.success-glow-container {
+    position: fixed; 
+    inset: 0;
+    z-index: 0;
+    pointer-events: none; 
+    overflow: hidden;
+}
 
-.success-ambient-blob {
+.success-glow-blob {
     position: absolute;
     border-radius: 50%;
-    filter: blur(120px);
-    z-index: 0;
-    opacity: 0.65;
-    pointer-events: none;
-    animation: floatBlobSuccess 12s infinite alternate ease-in-out;
+    filter: blur(140px);
+    opacity: 0.2; 
+    animation: pulseGlowSuccess 10s infinite alternate ease-in-out;
 }
 
 /* Luz Verde Esmeralda (Éxito) */
-.blob-success-left {
-    top: 15%;
+.blob-success-green {
+    top: -10%;
     left: -10%;
-    width: 450px;
-    height: 450px;
-    background: radial-gradient(circle, rgba(52, 199, 89, 0.4) 0%, rgba(52, 199, 89, 0) 70%);
+    width: 45vw;
+    height: 45vw;
+    background: #30d158;
 }
 
-/* Luz Turquesa (Frescura/Tecnología) */
-.blob-success-right {
+/* Luz Cian (Frescura/Tecnología) */
+.blob-success-cyan {
     bottom: 10%;
-    right: -10%;
-    width: 550px;
-    height: 550px;
-    background: radial-gradient(circle, rgba(90, 200, 250, 0.35) 0%, rgba(90, 200, 250, 0) 70%);
+    right: -5%;
+    width: 40vw;
+    height: 40vw;
+    background: #0a84ff;
+    animation-delay: -3s;
 }
 
-@keyframes floatBlobSuccess {
-    0% { transform: translate(0, 0) scale(1); }
-    50% { transform: translate(30px, -40px) scale(1.1); }
-    100% { transform: translate(-30px, 20px) scale(0.95); }
+@keyframes pulseGlowSuccess {
+    from { transform: scale(1) translate(0, 0); }
+    to { transform: scale(1.1) translate(4%, 4%); }
 }
 
 /* ========================================= */
 /* TARJETA GLASSMORPHISM                     */
 /* ========================================= */
-
 .success-card {
-    /* Fondo semi-transparente + desenfoque */
-    background: rgba(255, 255, 255, 0.575) !important;
+    background: rgba(20, 20, 20, 0.45);
     backdrop-filter: blur(24px) saturate(180%);
     -webkit-backdrop-filter: blur(24px) saturate(180%);
-    border: 1px solid rgba(0, 0, 0, 0.137) !important;
-    
-    border-radius: 24px;
-    padding: 40px 20px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 28px;
+    padding: 48px 24px;
     max-width: 480px;
     width: 100%;
     text-align: center;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.03);
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4);
     
     /* Aseguramos que el cristal esté por encima de las luces */
     position: relative;
@@ -74,71 +79,75 @@
 }
 
 .success-icon-wrapper {
-    width: 80px;
-    height: 80px;
-    background-color: #34c759;
+    width: 88px;
+    height: 88px;
+    background-color: #30d158;
     color: white;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 36px;
-    box-shadow: 0 8px 24px rgba(52, 199, 89, 0.3);
+    box-shadow: 0 8px 32px rgba(48, 209, 88, 0.3);
 }
 
 .order-receipt-box {
-    /* Le damos un toque de cristal sutil a la caja del recibo también */
-    background-color: rgba(245, 245, 247, 0.6);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px dashed rgba(210, 210, 215, 0.8);
-    
+    background-color: rgba(0, 0, 0, 0.4);
+    border: 1px dashed rgba(255, 255, 255, 0.15);
     border-radius: 16px;
-    padding: 16px 20px;
-    max-width: 300px;
+    padding: 20px;
+    max-width: 320px;
 }
 
 .receipt-label {
     font-size: 0.75rem;
-    font-weight: 700;
-    color: #86868b;
-    letter-spacing: 1px;
-    margin-bottom: 4px;
+    font-weight: 800;
+    color: #a1a1a6;
+    letter-spacing: 0.1em;
+    margin-bottom: 6px;
 }
 
 .receipt-number {
-    font-size: 1.5rem;
+    font-size: 1.75rem;
     font-weight: 800;
-    color: #1d1d1f;
+    color: #ffffff;
     margin: 0;
     font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    letter-spacing: -0.02em;
 }
 
-.checkout-btn-dark {
-    background-color: #1d1d1f;
-    color: #ffffff;
-    font-weight: 600;
+/* ========================================= */
+/* BOTONES MODERNOS                          */
+/* ========================================= */
+.success-btn-primary {
+    background-color: #ffffff;
+    color: #000000;
+    font-weight: 800;
     font-size: 1rem;
-    border-radius: 14px;
+    border-radius: 16px;
+    padding: 16px;
     border: none;
     transition: all 0.2s ease;
+    box-shadow: 0 8px 24px rgba(255, 255, 255, 0.15);
 }
 
-.checkout-btn-dark:hover {
-    background-color: #000000;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+.success-btn-primary:hover {
+    background-color: #d2d2d7;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(255, 255, 255, 0.2);
 }
 
-.ios-btn-outline { 
-    background-color: rgba(255, 255, 255, 0.5); 
-    color: #1d1d1f; 
-    font-weight: 600;
-    border-radius: 14px;
-    border: 1.5px solid #d2d2d7;
+.success-btn-outline { 
+    background-color: transparent; 
+    color: #ffffff; 
+    font-weight: 700;
+    border-radius: 16px;
+    padding: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
     transition: all 0.2s ease;
 }
 
-.ios-btn-outline:hover { 
-    background-color: rgba(245, 245, 247, 0.8); 
+.success-btn-outline:hover { 
+    background-color: rgba(255, 255, 255, 0.05); 
+    border-color: rgba(255, 255, 255, 0.4);
 }

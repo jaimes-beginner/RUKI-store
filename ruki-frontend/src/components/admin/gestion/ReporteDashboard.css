@@ -49,7 +49,7 @@
 .admin-dashboard-header {
     margin-bottom: 32px;
     padding-bottom: 24px;
-    border-bottom: 2px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .admin-title {
@@ -69,20 +69,22 @@
 .admin-subtitle strong { color: #ffffff; }
 
 /* ========================================= */
-/* TARJETAS PRINCIPALES (DARK SOLID)         */
+/* TARJETAS PRINCIPALES (GLASSMORPHISM)      */
 /* ========================================= */
 .admin-card {
-    background: #111111; /* Gris muy oscuro, casi negro */
+    background: rgba(20, 20, 20, 0.45);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
     border-radius: 24px;
     padding: 24px;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
-    border: 1px solid #222222;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     overflow: hidden;
     transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
 }
 
 .admin-card:hover {
-    border-color: #333333;
+    border-color: rgba(255, 255, 255, 0.2);
 }
 
 .admin-card.critical-border {
@@ -90,16 +92,20 @@
     box-shadow: inset 0 0 0 1px rgba(255, 69, 58, 0.1), 0 8px 30px rgba(255, 69, 58, 0.05);
 }
 
-/* Tarjetas con gradientes para los KPIs más importantes */
+/* Tarjetas con gradientes cristalinos para los KPIs */
 .feature-card-1 {
-    background: linear-gradient(135deg, rgba(10, 132, 255, 0.9), rgba(94, 92, 230, 0.9));
+    background: linear-gradient(135deg, rgba(10, 132, 255, 0.6), rgba(94, 92, 230, 0.6));
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
     box-shadow: 0 16px 40px rgba(10, 132, 255, 0.2);
-    border: none;
+    border: 1px solid rgba(255, 255, 255, 0.15);
 }
 .feature-card-2 {
-    background: linear-gradient(135deg, rgba(48, 209, 88, 0.9), rgba(0, 150, 136, 0.9));
+    background: linear-gradient(135deg, rgba(48, 209, 88, 0.6), rgba(0, 150, 136, 0.6));
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
     box-shadow: 0 16px 40px rgba(48, 209, 88, 0.2);
-    border: none;
+    border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .admin-label {
@@ -122,14 +128,14 @@
 .admin-kpi-subtitle {
     font-size: 12px;
     font-weight: 600;
-    color: #86868b;
+    color: #e5e5ea;
 }
 
 .admin-icon {
     width: 44px;
     height: 44px;
-    background: #181818;
-    border: 1px solid #333333;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 14px;
     display: flex;
     align-items: center;
@@ -139,7 +145,7 @@
 }
 
 .critical-icon {
-    background: rgba(255, 69, 58, 0.1);
+    background: rgba(255, 69, 58, 0.15);
     color: #ff453a;
     border-color: rgba(255, 69, 58, 0.3);
 }
@@ -155,7 +161,7 @@
 .admin-btn-outline {
     display: inline-block;
     background: transparent;
-    border: 1px solid #444444;
+    border: 1px solid rgba(255, 255, 255, 0.2);
     color: #ffffff;
     font-size: 13px;
     font-weight: 700;
@@ -165,8 +171,8 @@
     transition: all 0.2s;
 }
 .admin-btn-outline:hover {
-    background: #222222;
-    border-color: #666666;
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.4);
     color: #ffffff;
 }
 
@@ -181,16 +187,18 @@
     border-radius: 12px;
     text-decoration: none;
     transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
 }
 .admin-btn-solid:hover:not(:disabled) { 
     background: #d2d2d7; 
-    box-shadow: 0 4px 16px rgba(255, 255, 255, 0.2); 
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2); 
     transform: translateY(-1px);
 }
 .admin-btn-solid:disabled {
-    background: #333333;
+    background: rgba(255, 255, 255, 0.1);
     color: #666666;
     cursor: not-allowed;
+    box-shadow: none;
 }
 
 .admin-btn-solid.btn-danger { background: #ff453a; color: white; }
@@ -201,12 +209,12 @@
 /* ========================================= */
 .admin-input-wrapper { position: relative; }
 .admin-input-wrapper .input-icon {
-    position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #666666; font-size: 14px;
+    position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #86868b; font-size: 14px;
 }
 
 .admin-input {
-    background: #0a0a0a; /* Fondo más oscuro que la tarjeta */
-    border: 1px solid #333333;
+    background: rgba(0, 0, 0, 0.4); 
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
     color: #ffffff;
     padding: 12px 16px 12px 42px;
@@ -214,9 +222,9 @@
     font-weight: 500;
     transition: all 0.3s;
 }
-.admin-input::placeholder { color: #555555; }
+.admin-input::placeholder { color: #86868b; }
 .admin-input:focus {
-    background: #000000;
+    background: rgba(0, 0, 0, 0.6);
     border-color: #0a84ff;
     outline: none;
     box-shadow: 0 0 0 4px rgba(10, 132, 255, 0.2);
@@ -238,20 +246,20 @@
 .admin-link-accent:hover { color: #5ac8fa; }
 
 /* ========================================= */
-/* TABLAS Y TRACKER                          */
+/* TABLAS Y TRACKER (GLASSMORPHISM)          */
 /* ========================================= */
 .admin-table-wrapper {
     overflow-x: auto;
 }
 .admin-table th {
-    background: #0a0a0a; color: #86868b; font-size: 11px; font-weight: 800;
-    text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #222222;
+    background: rgba(0, 0, 0, 0.2); color: #86868b; font-size: 11px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     padding: 12px 16px; white-space: nowrap;
 }
 .admin-table td {
-    padding: 16px; border-bottom: 1px solid #1f1f1f; vertical-align: middle; white-space: nowrap; color: #d2d2d7;
+    padding: 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.04); vertical-align: middle; white-space: nowrap; color: #d2d2d7;
 }
-.admin-table-row:hover td { background: #181818; color: #ffffff; }
+.admin-table-row:hover td { background: rgba(255, 255, 255, 0.03); color: #ffffff; }
 .admin-table tr:last-child td { border-bottom: none; }
 
 .admin-badge {
@@ -262,14 +270,19 @@
 .badge-out { background: rgba(255, 69, 58, 0.15); color: #ff453a; border-color: rgba(255, 69, 58, 0.3); }
 
 .admin-tracker-result {
-    background: #0a0a0a; border: 1px solid #222222; border-radius: 16px; padding: 16px; margin-top: 16px;
+    background: rgba(0, 0, 0, 0.3); 
+    border: 1px dashed rgba(255, 255, 255, 0.15); 
+    border-radius: 16px; 
+    padding: 16px; 
+    margin-top: 16px;
+    backdrop-filter: blur(10px);
 }
 
 .text-accent { color: #0a84ff; }
 .tracker-items-scroll { max-height: 150px; overflow-y: auto; padding-right: 8px; }
 .tracker-items-scroll::-webkit-scrollbar { width: 4px; }
-.tracker-items-scroll::-webkit-scrollbar-thumb { background-color: #333333; border-radius: 10px; }
-.tracker-item-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #1f1f1f; }
+.tracker-items-scroll::-webkit-scrollbar-thumb { background-color: rgba(255, 255, 255, 0.2); border-radius: 10px; }
+.tracker-item-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
 .tracker-item-name { color: #ffffff; font-size: 13px; font-weight: 600; max-width: 160px; }
 .tracker-item-qty { color: #86868b; font-size: 12px; font-weight: 700; }
 .tracker-item-price { color: #ffffff; font-size: 13px; font-weight: 800; }
@@ -278,7 +291,7 @@
 /* BARRAS DE PROGRESO Y ALERTAS              */
 /* ========================================= */
 .admin-progress-bg {
-    width: 100%; height: 8px; background: #222222; border-radius: 4px; overflow: hidden;
+    width: 100%; height: 8px; background: rgba(255, 255, 255, 0.1); border-radius: 4px; overflow: hidden;
 }
 .admin-progress-fill {
     height: 100%; background: linear-gradient(90deg, #30d158, #28a745); border-radius: 4px; box-shadow: 0 0 10px rgba(48, 209, 88, 0.4);

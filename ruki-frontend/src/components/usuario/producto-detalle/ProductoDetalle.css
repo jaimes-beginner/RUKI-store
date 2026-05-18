@@ -28,8 +28,8 @@
     animation: pulseGlowDetail 10s infinite alternate;
 }
 
-.detail-blob-blue { width: 45vw; height: 45vw; background: #4912ca; top: -10%; left: -10%; }
-.detail-blob-silver { width: 35vw; height: 35vw; background: #4912ca; bottom: 10%; right: -5%; animation-delay: -2s; opacity: 0.1; }
+.detail-blob-blue { width: 45vw; height: 45vw; background: #5816f1; top: -10%; left: -10%; }
+.detail-blob-silver { width: 35vw; height: 35vw; background: #5618e7; bottom: 10%; right: -5%; animation-delay: -2s; opacity: 0.1; }
 
 @keyframes pulseGlowDetail {
     from { transform: scale(1) translate(0,0); }

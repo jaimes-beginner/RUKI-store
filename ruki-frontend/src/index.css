@@ -177,3 +177,27 @@ code {
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04) !important;
 }
 
+
+
+
+
+
+
+
+
+/* ========================================= */
+/* ANIMACIONES GLOBALES DE CARGA (SPINNERS)  */
+/* ========================================= */
+
+/* 1. Definimos el movimiento rotatorio de 0 a 360 grados */
+@keyframes spinGlow {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* 2. Se lo aplicamos a cualquier clase de carga que usemos en la app */
+.spin-animation,
+.fa-spin {
+    animation: spinGlow 1s linear infinite !important;
+    transform-origin: center center;
+}

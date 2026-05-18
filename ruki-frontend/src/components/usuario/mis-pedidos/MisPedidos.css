@@ -99,7 +99,7 @@
 
 .orders-search-input::placeholder { color: #555555; }
 .orders-search-input:focus {
-    background: #000000; border-color: #0a84ff; outline: none; box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.2);
+    background: #000000; border-color: #740aff; outline: none; box-shadow: 0 0 0 3px rgba(83, 10, 255, 0.2);
 }
 
 .orders-filter-pills { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -149,6 +149,7 @@
 .order-body-expandable { overflow: hidden; }
 .order-body {
     padding: 0 24px 24px; border-top: 1px solid rgba(255,255,255,0.08); margin-top: 4px; padding-top: 20px;
+    
 }
 
 .order-section-title { font-size: 11px; font-weight: 800; color: #86868b; letter-spacing: 0.06em; margin-bottom: 12px; }
