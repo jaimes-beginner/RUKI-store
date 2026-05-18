@@ -83,9 +83,11 @@ export function LoginUsuario() {
     return (
         <div className="login-main-wrapper">
 
-            {/* LUCES AMBIENTALES DE FONDO */}
-            <div className="login-ambient-blob login-blob-1"></div>
-            <div className="login-ambient-blob login-blob-2"></div>
+            {/* LUCES DE FONDO (BLUE/PURPLE NEON) */}
+            <div className="login-glow-container">
+                <div className="login-glow-blob login-blob-1"></div>
+                <div className="login-glow-blob login-blob-2"></div>
+            </div>
 
             <div className="container d-flex justify-content-center align-items-center" style={{ minHeight: '80vh', position: 'relative', zIndex: 1 }}>
                 <motion.div 
@@ -96,7 +98,6 @@ export function LoginUsuario() {
                     transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
                 >
                     <div className="text-center mb-4">
-                        {/* ICONO/LOGO FLOTANTE */}
                         <div className="login-icon-glass mx-auto mb-3">
                             <i className="fas fa-user-lock"></i>
                         </div>
@@ -185,11 +186,11 @@ export function LoginUsuario() {
                         </div>
                     </form>
 
-                    <div className="login-footer d-flex flex-column align-items-center gap-2 mt-4 pt-3" style={{ borderTop: '1px solid rgba(0,0,0,0.1)' }}>
-                        <small className="text-muted">
+                    <div className="login-footer d-flex flex-column align-items-center gap-2 mt-4 pt-3">
+                        <small>
                             ¿No tienes una cuenta? <Link to="/crear-usuario" className="login-link fw-bold text-decoration-none">Regístrate ahora</Link>
                         </small>
-                        <small className="text-muted">
+                        <small>
                             ¿Olvidaste tu contraseña? <Link to="/forgot-password" className="login-link fw-bold text-decoration-none">Recupérala aquí</Link>
                         </small>
                     </div>

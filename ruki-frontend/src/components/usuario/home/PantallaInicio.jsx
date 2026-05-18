@@ -1,279 +1,110 @@
-import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
-import { obtenerProductosActivos, obtenerCategoriasActivas } from '../../../services/ProductoService';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../../../contexts/AuthContext';
 import './PantallaInicio.css';
 
-/*
-    Variantes para las animaciones 
-    de la pantalla de inicio
-*/
 const fadeInUp = {
-    hidden: { opacity: 0, y: 40 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.2, 0.65, 0.3, 0.9] } }
+    hidden: { opacity: 0, y: 30 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
 };
 
 const staggerContainer = {
     hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.15 } }
+    visible: { opacity: 1, transition: { staggerChildren: 0.2 } }
 };
 
 function PantallaInicio() {
-    const navigate = useNavigate();
-
-    // Estados para la data dinámica
-    const [categories, setCategories] = useState([]);
-    const [products, setProducts] = useState([]);
-    const [loading, setLoading] = useState(true);
-
-    // Estados para el carrusel
-    const [slideIndex, setSlideIndex] = useState(0);
-    const [cardsPerView, setCardsPerView] = useState(3);
-
-    // Cargar Datos del Backend
-    useEffect(() => {
-        const fetchInicioData = async () => {
-            try {
-                // Hacemos ambas peticiones al mismo tiempo para mayor velocidad
-                const [catsData, prodsData] = await Promise.all([
-                    obtenerCategoriasActivas(),
-                    obtenerProductosActivos()
-                ]);
-
-                setCategories(catsData);
-
-                // Tomamos los productos activos, los invertimos para tener los más nuevos primero, y cortamos los primeros 6
-                const ultimosProductos = prodsData.reverse().slice(0, 6);
-                setProducts(ultimosProductos);
-            } catch (error) {
-                console.error("Error cargando la pantalla de inicio:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchInicioData();
-    }, []);
-
-    // Lógica Responsive del Carrusel
-    useEffect(() => {
-        const syncCards = () => {
-            if (window.innerWidth <= 640) { setCardsPerView(1); return; }
-            if (window.innerWidth <= 980) { setCardsPerView(2); return; }
-            setCardsPerView(3);
-        };
-        syncCards();
-        window.addEventListener('resize', syncCards);
-        return () => window.removeEventListener('resize', syncCards);
-    }, []);
-
-    const maxSlideIndex = useMemo(
-        () => Math.max(0, products.length - cardsPerView),
-        [cardsPerView, products.length],
-    );
-
-    useEffect(() => {
-        if (slideIndex > maxSlideIndex) setSlideIndex(maxSlideIndex);
-    }, [slideIndex, maxSlideIndex]);
-
-    useEffect(() => {
-        if (maxSlideIndex === 0) return undefined;
-        const timer = window.setInterval(() => {
-            setSlideIndex((current) => (current >= maxSlideIndex ? 0 : current + 1));
-        }, 5000); 
-        return () => window.clearInterval(timer);
-    }, [maxSlideIndex]);
-
-    const handlePrev = () => setSlideIndex((current) => (current <= 0 ? maxSlideIndex : current - 1));
-    const handleNext = () => setSlideIndex((current) => (current >= maxSlideIndex ? 0 : current + 1));
-
-    if (loading) {
-        return (
-            <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '100vh', background: '#f5f5f7' }}>
-                <i className="fas fa-circle-notch fa-spin fa-3x text-dark"></i>
-            </div>
-        );
-    }
+    const { isAuthenticated, usuario } = useAuth();
 
     return (
-        <main className="ios-home-main">
+        <main className="saas-home-main">
+            
+            {/* FONDO INMERSIVO DE LUCES (GLOW) */}
+            <div className="saas-glow-container">
+                <div className="glow-blob blob-blue"></div>
+                <div className="glow-blob blob-purple"></div>
+                <div className="glow-blob blob-red"></div>
+            </div>
 
-            {/* LUCES AMBIENTALES DE FONDO */}
-            <div className="ios-ambient-blob blob-1"></div>
-            <div className="ios-ambient-blob blob-2"></div>
-
-            <div className="ios-home-main-inner">
+            <div className="saas-content-wrapper">
                 
-                {/* HERO BANNER */}
-                <motion.section 
-                    className="ios-hero-banner"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
-                >
-                    <motion.img 
-                        src="/imagenes/fondo.jpeg" 
-                        alt="Welcome to RUKI" 
-                        initial={{ scale: 1.1 }}
-                        animate={{ scale: 1 }}
-                        transition={{ duration: 4, ease: "easeOut" }}
-                    />
-                    <div className="ios-hero-mask"></div>
-                    
-                    <div className="ios-hero-content">
-                        <motion.div 
-                            className="ios-hero-badge-glass"
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: 0.4, duration: 0.5 }}
-                        >
-                            <span className="sparkle"></span> Colección 2026
+                {/* HERO SECTION - LA VISIÓN */}
+                <section className="saas-hero-section">
+                    <motion.div 
+                        initial="hidden"
+                        animate="visible"
+                        variants={staggerContainer}
+                        className="text-center"
+                    >
+                        <motion.div variants={fadeInUp} className="saas-badge">
+                            <span className="saas-badge-new">EST. 2026</span> RUKI PERFORMANCE CL
                         </motion.div>
-                        <h1>
-                            Eleva tu <br />
-                            <span className="text-gradient">Performance</span>
-                        </h1>
-                        <p>Diseñado para resistir. Creado para destacar.</p>
-                    </div>
-                </motion.section>
+                        
+                        <motion.h1 variants={fadeInUp} className="saas-main-title">
+                            Donde la <span className="saas-text-gradient-accent">Tecnología</span> <br />
+                            se une al <span className="saas-text-gradient-white">Fitness.</span>
+                        </motion.h1>
+                        
+                        <motion.p variants={fadeInUp} className="saas-main-subtitle">
+                            RUKI no es solo una tienda de ropa deportiva; es una infraestructura diseñada para atletas que exigen lo máximo. Construida para resistir, creada para destacar en cada burpee, cada sprint y cada levantamiento.
+                        </motion.p>
 
-                {/* CATEGORÍAS DINÁMICAS */}
-                <motion.section 
-                    className="ios-category-grid" 
-                    aria-label="Categorias"
-                    variants={staggerContainer}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true, margin: "-50px" }}
-                >
-                    {categories.map((category) => {
-                        // Extraemos la imagen de la BD o usamos una por defecto
-                        const catImage = category.imageUrl || '/imagenes/wallpaper.jpg';
-                        return (
-                            <motion.article 
-                                key={category.id} 
-                                className="ios-category-card"
-                                variants={fadeInUp}
-                                whileHover={{ y: -8, scale: 1.02, boxShadow: "0 20px 40px rgba(0,0,0,0.12)" }}
-                                whileTap={{ scale: 0.97 }}
-                                onClick={() => navigate(`/productos?categoria=${category.id}`)} // Navegar al filtro
-                            >
-                                <img src={catImage} alt={category.name} />
-                                
-                                {/* PILDORA DE CRISTAL FLOTANTE */}
-                                <div className="ios-category-label-glass">
-                                    <span>{category.name}</span>
-                                    <i className="fas fa-arrow-right"></i>
+                        <motion.div variants={fadeInUp} className="saas-hero-buttons">
+                            <Link to="/productos" className="saas-btn saas-btn-primary">
+                                Explorar Colección <i className="fas fa-shopping-bag ms-2"></i>
+                            </Link>
+                            
+                            {!isAuthenticated ? (
+                                <div className="d-flex gap-3">
+                                    <Link to="/crear-usuario" className="saas-btn saas-btn-secondary">
+                                        Crear Cuenta
+                                    </Link>
+                                    <Link to="/login" className="saas-btn saas-btn-outline">
+                                        Iniciar Sesión
+                                    </Link>
                                 </div>
-                            </motion.article>
-                        )
-                    })}
-                </motion.section>
+                            ) : (
+                                <Link to={usuario?.role === 'ADMIN' ? '/admin/reporte-dashboard' : '/perfil/pedidos'} className="saas-btn saas-btn-secondary">
+                                    <i className="fas fa-user-circle me-2"></i> Mi Panel de Control
+                                </Link>
+                            )}
+                        </motion.div>
+                    </motion.div>
+                </section>
 
-                {/* PRODUCTOS DESTACADOS DINÁMICOS */}
-                {products.length > 0 && (
-                    <motion.section 
-                        className="ios-products-section" 
-                        aria-label="Nuevos productos"
+                {/* SECCIÓN DE SÍNTESIS / PILARES */}
+                <section className="saas-philosophy-section">
+                    <motion.div 
+                        className="saas-features-grid"
                         initial="hidden"
                         whileInView="visible"
-                        viewport={{ once: true, margin: "-50px" }}
-                        variants={fadeInUp}
+                        viewport={{ once: true }}
+                        variants={staggerContainer}
                     >
-                        <div className="ios-section-header">
-                            <div>
-                                <h3>Nuevos Lanzamientos</h3>
-                                <p className="ios-section-subtitle">El equipamiento que necesitas hoy.</p>
-                            </div>
-                            <span className="ios-badge-glass">Lo último</span>
-                        </div>
+                        <motion.div className="saas-feature-card" variants={fadeInUp}>
+                            <div className="saas-feature-icon"><i className="fas fa-shield-heart"></i></div>
+                            <h3>Calidad Blindada</h3>
+                            <p>Telas con tecnología de compresión avanzada que se adaptan a tu piel, permitiendo una transpiración total y soporte muscular.</p>
+                        </motion.div>
 
-                        <div className="ios-carousel-wrap">
-                            <motion.button 
-                                whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
-                                type="button" className="ios-carousel-btn left" onClick={handlePrev} aria-label="Anterior"
-                            >
-                                <i className="fas fa-chevron-left"></i>
-                            </motion.button>
+                        <motion.div className="saas-feature-card" variants={fadeInUp}>
+                            <div className="saas-feature-icon"><i className="fas fa-microchip"></i></div>
+                            <h3>Diseño Técnico</h3>
+                            <p>Cada costura está pensada para evitar el roce y maximizar el rango de movimiento. Ingeniería chilena aplicada al deporte.</p>
+                        </motion.div>
 
-                            <div className="ios-carousel-viewport">
-                                <div
-                                    className="ios-carousel-track"
-                                    style={{ transform: `translateX(-${(slideIndex * 100) / cardsPerView}%)` }}
-                                >
-                                    {products.map((product) => {
-                                        // Validaciones para precios e imágenes del backend
-                                        const finalPrice = product.sale && product.salePrice ? product.salePrice : product.basePrice;
-                                        const imgUrl = product.imageUrls && product.imageUrls.length > 0 ? product.imageUrls[0] : '/imagenes/fondo.jpeg';
+                        <motion.div className="saas-feature-card" variants={fadeInUp}>
+                            <div className="saas-feature-icon"><i className="fas fa-infinity"></i></div>
+                            <h3>Comunidad RUKI</h3>
+                            <p>Únete a un ecosistema de deportistas. Sigue tus pedidos, recibe ofertas exclusivas y eleva tu nivel junto a nosotros.</p>
+                        </motion.div>
+                    </motion.div>
+                </section>
 
-                                        return (
-                                            <div key={product.id} className="ios-product-slide">
-                                                <motion.article 
-                                                    className="ios-product-card"
-                                                    whileHover={{ y: -8, boxShadow: "0 24px 48px rgba(0,0,0,0.06)" }}
-                                                    onClick={() => navigate(`/producto/${product.id}`)}
-                                                >
-                                                    <div className="ios-product-img-wrapper">
-                                                        <img src={imgUrl} alt={product.name} />
-                                                        
-                                                        {/* BADGE DE OFERTA */}
-                                                        {product.sale && (
-                                                            <div className="position-absolute top-0 start-0 m-2 px-2 py-1 bg-danger text-white rounded-2 fw-bolder" style={{fontSize: '11px', letterSpacing: '1px'}}>
-                                                                OFERTA
-                                                            </div>
-                                                        )}
-
-                                                        <motion.button 
-                                                            className="ios-quick-add-btn"
-                                                            whileHover={{ scale: 1.1 }}
-                                                            whileTap={{ scale: 0.9 }}
-                                                            onClick={(e) => {
-                                                                e.stopPropagation(); // Evita que se abra el detalle al hacer clic en el "+"
-                                                                navigate(`/producto/${product.id}`); 
-                                                            }}
-                                                        >
-                                                            <i className="fas fa-plus"></i>
-                                                        </motion.button>
-                                                    </div>
-                                                    <div className="ios-product-meta">
-                                                        <p className="ios-product-name">{product.name}</p>
-                                                        <p className="ios-product-price">
-                                                            ${Number(finalPrice).toLocaleString('es-CL')}
-                                                            {product.sale && (
-                                                                <small className="text-muted text-decoration-line-through ms-2">
-                                                                    ${Number(product.basePrice).toLocaleString('es-CL')}
-                                                                </small>
-                                                            )}
-                                                        </p>
-                                                    </div>
-                                                </motion.article>
-                                            </div>
-                                        )
-                                    })}
-                                </div>
-                            </div>
-
-                            <motion.button 
-                                whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
-                                type="button" className="ios-carousel-btn right" onClick={handleNext} aria-label="Siguiente"
-                            >
-                                <i className="fas fa-chevron-right"></i>
-                            </motion.button>
-                        </div>
-
-                        <div className="ios-carousel-dots">
-                            {Array.from({ length: maxSlideIndex + 1 }).map((_, index) => (
-                                <button
-                                    key={`dot-${index}`}
-                                    type="button"
-                                    className={`ios-dot ${slideIndex === index ? 'active' : ''}`}
-                                    onClick={() => setSlideIndex(index)}
-                                    aria-label={`Ir a la diapositiva ${index + 1}`}
-                                ></button>
-                            ))}
-                        </div>
-                    </motion.section>
-                )}
+                {/* PIE DE PÁGINA SIMPLE */}
+                <footer className="saas-minimal-footer">
+                    <p>© 2026 RUKI Store CL. Maipú, Chile. <br/> <small className="opacity-50">Construido con React + Spring Boot Microservices.</small></p>
+                </footer>
             </div>
         </main>
     );

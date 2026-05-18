@@ -23,6 +23,7 @@ import { RegistrarUsuarioPage } from './page/Auth/RegistrarUsuarioPage.jsx'
 import { LoginUsuarioPage } from './page/Auth/LoginUsuarioPage.jsx'
 import { ForgotPasswordPage } from './page/Auth/ForgotPasswordPage.jsx'
 import { ResetPasswordPage } from './page/Auth/ResetPasswordPage.jsx'
+import { POSAdminPage } from './page/Admin/POSAdminPage.jsx'
 
 
 function App() {
@@ -81,6 +82,13 @@ function App() {
             <PedidosAdminPage />
           </AdminRoute>
         } />
+
+        <Route path="/pos-admin" element={
+          <AdminRoute>
+            <POSAdminPage />
+          </AdminRoute>
+        } />
+
       </Routes>
   )
 }

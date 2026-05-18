@@ -29,7 +29,7 @@ export function ForgotPassword() {
 
         try {
             const respuesta = await forgotPassword(correo);
-            setMensaje(respuesta); // "Si el correo existe, se ha enviado un enlace..."
+            setMensaje(respuesta); 
         } catch (err) {
             setError(err.message || "Error al solicitar la recuperación.");
         } finally {
@@ -39,8 +39,12 @@ export function ForgotPassword() {
 
     return (
         <div className="login-main-wrapper">
-            <div className="login-ambient-blob login-blob-1"></div>
-            <div className="login-ambient-blob login-blob-2"></div>
+            
+            {/* LUCES DE FONDO (BLUE/PURPLE NEON) */}
+            <div className="login-glow-container">
+                <div className="login-glow-blob login-blob-1"></div>
+                <div className="login-glow-blob login-blob-2"></div>
+            </div>
 
             <div className="container d-flex justify-content-center align-items-center" style={{ minHeight: '80vh', position: 'relative', zIndex: 1 }}>
                 <motion.div 

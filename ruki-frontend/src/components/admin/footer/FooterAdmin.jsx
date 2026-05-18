@@ -1,17 +1,12 @@
-// Importaciones
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import './FooterAdmin.css'; 
 
-/*
-  Componente para la barra inferior 
-  del panel de administrador
-*/
 export function FooterAdmin() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="admin-footer-glass pt-5 pb-4 mt-5">
+    <footer className="admin-footer-glass pt-5 pb-4">
       <div className="container-fluid px-4">
         <div className="row justify-content-between">
 

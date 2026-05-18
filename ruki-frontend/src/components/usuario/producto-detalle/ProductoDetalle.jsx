@@ -25,6 +25,10 @@ export function ProductoDetalle() {
     };
 
     useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+
+    useEffect(() => {
         const cargarProducto = async () => {
             try {
                 const data = await obtenerProductoPorId(id);
@@ -100,8 +104,17 @@ export function ProductoDetalle() {
         </div>
     );
 
+    
+
     return (
-        <main className="product-detail-main pb-5">
+        <main className="prod-detail-wrapper pb-5">
+            
+            {/* LAS LUCES DE FONDO DEL DETALLE */}
+            <div className="detail-glow-container">
+                <div className="detail-glow-blob detail-blob-blue"></div>
+                <div className="detail-glow-blob detail-blob-silver"></div>
+            </div>
+
             <div className="container py-3 py-md-5 mt-md-3">
                 
                 {/* BOTÓN VOLVER CON SVG */}
@@ -109,7 +122,7 @@ export function ProductoDetalle() {
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="me-2">
                         <polyline points="15 18 9 12 15 6"></polyline>
                     </svg>
-                    Volver al catálogo
+                    Volver atrás
                 </button>
 
                 <div className="row g-4 g-lg-5 align-items-start product-card-container">
@@ -124,7 +137,7 @@ export function ProductoDetalle() {
                         >
                             <div className="position-absolute top-0 start-0 p-3 d-flex flex-column gap-2" style={{ zIndex: 2 }}>
                                 {producto.sale && (
-                                    <span className="badge bg-danger shadow-sm fs-6 px-3 py-2 rounded-1" style={{letterSpacing: '1px'}}>SALE</span>
+                                    <span className="badge bg-danger text-white border-danger shadow-sm fs-6 px-3 py-2 rounded-1" style={{letterSpacing: '1px'}}>SALE</span>
                                 )}
                             </div>
 
@@ -160,7 +173,7 @@ export function ProductoDetalle() {
                         initial="hidden"
                         animate="visible"
                     >
-                        <motion.small className="text-muted fw-bold text-uppercase mb-2 d-block" style={{letterSpacing: '2px', fontSize: '12px'}} variants={itemVariants}>
+                        <motion.small className="fw-bold text-uppercase mb-2 d-block" style={{letterSpacing: '2px', fontSize: '12px', color: '#600aff'}} variants={itemVariants}>
                             {producto.category?.name || "Categoría"}
                         </motion.small>
 
@@ -172,10 +185,10 @@ export function ProductoDetalle() {
                             {producto.sale ? (
                                 <div className="d-flex align-items-center gap-3">
                                     <span className="text-danger fw-bold fs-2">${Number(producto.salePrice).toLocaleString('es-CL')}</span>
-                                    <span className="text-muted text-decoration-line-through fs-4">${Number(producto.basePrice).toLocaleString('es-CL')}</span>
+                                    <span className="text-decoration-line-through fs-4" style={{color: '#666666'}}>${Number(producto.basePrice).toLocaleString('es-CL')}</span>
                                 </div>
                             ) : (
-                                <span className="fw-bold fs-2 text-dark">${Number(producto.basePrice).toLocaleString('es-CL')}</span>
+                                <span className="fw-bold fs-2 text-white">${Number(producto.basePrice).toLocaleString('es-CL')}</span>
                             )}
                         </motion.div>
                         
@@ -191,7 +204,7 @@ export function ProductoDetalle() {
                         {producto.variants && producto.variants.length > 0 && (
                             <motion.div className="mb-4" variants={itemVariants}>
                                 <div className="d-flex justify-content-between align-items-end mb-3">
-                                    <p className="product-qty-label mb-0">Talla Seleccionada: <span className="text-dark fw-bold">{selectedVariant?.size || 'Ninguna'}</span></p>
+                                    <p className="product-qty-label mb-0">Talla Seleccionada: <span className="text-white fw-bold">{selectedVariant?.size || 'Ninguna'}</span></p>
                                 </div>
                                 <div className="d-flex flex-wrap gap-2">
                                     {producto.variants.map(variant => (
@@ -230,7 +243,7 @@ export function ProductoDetalle() {
                                     </span>
                                 </div>
                                 {currentStock <= 5 && (
-                                    <small className="text-danger fw-bold d-flex align-items-center mt-3">
+                                    <small className="text-warning fw-bold d-flex align-items-center mt-3">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="me-1"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>
                                         ¡Apúrate, quedan pocas unidades!
                                     </small>
@@ -255,15 +268,15 @@ export function ProductoDetalle() {
                             <div className="shipping-info-box">
                                 <div className="shipping-item">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
-                                    <span>      Envío rápido y seguro a todo Chile.</span>
+                                    <span>Envío rápido y seguro a todo Chile.</span>
                                 </div>
                                 <div className="shipping-item">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-                                    <span>      Retiro en tienda gratuito.</span>
+                                    <span>Retiro en tienda gratuito.</span>
                                 </div>
                                 <div className="shipping-item">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-                                    <span>      Pago 100% seguro garantizado.</span>
+                                    <span>Pago 100% seguro garantizado.</span>
                                 </div>
                             </div>
                         </motion.div>

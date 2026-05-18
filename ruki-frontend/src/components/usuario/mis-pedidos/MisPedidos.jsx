@@ -2,23 +2,16 @@ import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { obtenerMisPedidos, cancelarMiPedido } from '../../../services/PedidoService'; 
 import { obtenerProductoPorId } from '../../../services/ProductoService';
-import { obtenerDireccionesPorUsuario } from '../../../services/UsuarioService'; // Agregado
+import { obtenerDireccionesPorUsuario } from '../../../services/UsuarioService';
 import { motion, AnimatePresence } from 'framer-motion';
 import './MisPedidos.css';
 
 export function MisPedidos() {
     
-    /*
-        Agregamos 'usuario' para poder obtener su ID
-    */
     const { isAuthenticated, usuario } = useAuth();
     
     const [pedidos, setPedidos] = useState([]);
     const [productosInfo, setProductosInfo] = useState({}); 
-
-    /*
-        Nuevo estado para el diccionario de direcciones
-    */
     const [direccionesInfo, setDireccionesInfo] = useState({}); 
     
     const [loading, setLoading] = useState(true);
@@ -36,18 +29,10 @@ export function MisPedidos() {
 
     const cargarPedidos = async () => {
         try {
-            
-            /*
-                Obtenemos los pedidos del backend
-            */
             const data = await obtenerMisPedidos();
             const ordenesOrdenadas = data.sort((a, b) => b.id - a.id);
             setPedidos(ordenesOrdenadas);
 
-            /*
-                Descargamos las direcciones del usuario para 
-                hacer "match" con el shippingAddressId
-            */
             let diccionarioDirecciones = {};
             if (usuario && usuario.id) {
                 try {
@@ -61,9 +46,6 @@ export function MisPedidos() {
                 }
             }
 
-            /*
-                Descargamos la información de los productos únicos
-            */
             const idsUnicos = new Set();
             ordenesOrdenadas.forEach(pedido => {
                 const items = pedido.detalles || pedido.items || [];
@@ -118,6 +100,7 @@ export function MisPedidos() {
             PAID: { text: 'PAGADO', className: 'badge-paid', icon: 'fa-check-circle' },
             PENDING: { text: 'PENDIENTE', className: 'badge-pending', icon: 'fa-clock' },
             SHIPPED: { text: 'ENVIADO', className: 'badge-shipped', icon: 'fa-truck' },
+            DELIVERED: { text: 'ENTREGADO', className: 'badge-delivered', icon: 'fa-box-open' }, 
             CANCELLED: { text: 'CANCELADO', className: 'badge-cancelled', icon: 'fa-times-circle' }
         };
         return config[status] || { text: status, className: 'badge-default', icon: 'fa-box' };
@@ -131,18 +114,25 @@ export function MisPedidos() {
 
     if (loading) {
         return (
-            <div className="orders-loading-screen">
+            <div className="orders-loading-screen d-flex justify-content-center align-items-center" style={{ minHeight: '60vh' }}>
                 <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}>
-                    <i className="fas fa-circle-notch fa-spin fa-3x text-dark"></i>
+                    <i className="fas fa-circle-notch fa-spin fa-3x text-white opacity-50"></i>
                 </motion.div>
             </div>
         );
     }
 
-    if (!isAuthenticated) return <div className="orders-auth-warning">Debes iniciar sesión para ver tus pedidos.</div>;
+    if (!isAuthenticated) return <div className="orders-auth-warning text-white">Debes iniciar sesión para ver tus pedidos.</div>;
 
     return (
         <div className="orders-main-wrapper">
+            
+            {/* LUCES DE FONDO (BLUE/PURPLE NEON) */}
+            <div className="orders-glow-container">
+                <div className="orders-glow-blob orders-blob-blue"></div>
+                <div className="orders-glow-blob orders-blob-purple"></div>
+            </div>
+
             <div className="orders-container">
                 
                 {/* CABECERA */}
@@ -156,7 +146,7 @@ export function MisPedidos() {
                     <p>Revisa el detalle, estado y seguimiento de tus compras.</p>
                 </motion.div>
                 
-                {error && <div className="alert alert-danger border-0 rounded-4 mb-4"><i className="fas fa-exclamation-triangle me-2"></i>{error}</div>}
+                {error && <div className="alert alert-danger border-danger bg-transparent text-danger rounded-4 mb-4"><i className="fas fa-exclamation-triangle me-2"></i>{error}</div>}
 
                 {/* PANEL DE FILTROS FRONTEND */}
                 {pedidos.length > 0 && (
@@ -178,7 +168,7 @@ export function MisPedidos() {
                         </div>
 
                         <div className="orders-filter-pills">
-                            {['TODOS', 'PENDING', 'PAID', 'SHIPPED', 'CANCELLED'].map(estado => (
+                            {['TODOS', 'PENDING', 'PAID', 'SHIPPED', 'DELIVERED', 'CANCELLED'].map(estado => (
                                 <motion.button
                                     key={estado}
                                     whileTap={{ scale: 0.95 }}
@@ -214,7 +204,9 @@ export function MisPedidos() {
                                 const listaItems = pedido.items || pedido.detalles || [];
                                 const fechaPedido = pedido.createdAt || pedido.fechaPedido;
                                 
-                                const direccionReal = direccionesInfo[pedido.shippingAddressId] || `Dirección ID: ${pedido.shippingAddressId} (Dirección eliminada)`;
+                                const direccionReal = pedido.shippingAddressId === null || !pedido.shippingAddressId
+                                    ? "Venta Presencial | Retiro en Tienda Física (RUKI Store)"
+                                    : (direccionesInfo[pedido.shippingAddressId] || "Dirección no encontrada en el perfil");
 
                                 return (
                                     <motion.div 
@@ -265,7 +257,7 @@ export function MisPedidos() {
                                                         {/* SECCIÓN DIRECCIÓN DE ENVÍO */}
                                                         <div className="order-shipping-info mb-4">
                                                             <p className="order-section-title"><i className="fas fa-map-marker-alt me-2"></i>DIRECCIÓN DE ENVÍO</p>
-                                                            <div className="bg-light p-3 rounded-3 border border-light text-dark small fw-medium">
+                                                            <div className="shipping-info-glass small fw-medium">
                                                                 {direccionReal}
                                                             </div>
                                                         </div>
@@ -286,17 +278,17 @@ export function MisPedidos() {
                                                                             <div className="item-details">
                                                                                 <span className="item-name">{prodName}</span>
                                                                                 <div className="d-flex align-items-center gap-2 mt-1">
-                                                                                    <span className="item-meta bg-light border px-2 py-1 rounded-2">Talla: {talla}</span>
-                                                                                    <span className="item-meta bg-light border px-2 py-1 rounded-2">Cant: {item.quantity || item.cantidad}</span>
+                                                                                    <span className="item-meta-glass px-2 py-1 rounded-2">Talla: {talla}</span>
+                                                                                    <span className="item-meta-glass px-2 py-1 rounded-2">Cant: {item.quantity || item.cantidad}</span>
                                                                                     {prodCompleto?.sale && (
-                                                                                        <span className="item-meta bg-danger text-white px-2 py-1 rounded-2 border border-danger">OFERTA</span>
+                                                                                        <span className="item-meta-glass bg-danger text-white px-2 py-1 rounded-2 border-danger">OFERTA</span>
                                                                                     )}
                                                                                 </div>
                                                                             </div>
                                                                         </div>
                                                                         <div className="item-price text-end">
                                                                             ${Number(precioUnitario).toLocaleString('es-CL')} <br/>
-                                                                            <small className="text-muted fw-normal">Subtotal: ${(Number(precioUnitario) * (item.quantity || item.cantidad)).toLocaleString('es-CL')}</small>
+                                                                            <small className="text-secondary fw-normal" style={{fontSize:'12px'}}>Subtotal: ${(Number(precioUnitario) * (item.quantity || item.cantidad)).toLocaleString('es-CL')}</small>
                                                                         </div>
                                                                     </div>
                                                                 );
@@ -305,7 +297,7 @@ export function MisPedidos() {
 
                                                         <div className="order-payment-summary mt-4">
                                                             <p className="order-section-title"><i className="fas fa-receipt me-2"></i>RESUMEN DE PAGO</p>
-                                                            <div className="bg-light p-3 rounded-3 border border-light text-dark small">
+                                                            <div className="payment-summary-glass small">
                                                                 <div className="d-flex justify-content-between mb-2 text-secondary fw-medium">
                                                                     <span>Subtotal (Neto)</span>
                                                                     <span>${Number(pedido.subTotal || 0).toLocaleString('es-CL')}</span>
@@ -314,7 +306,7 @@ export function MisPedidos() {
                                                                     <span>IVA (19%)</span>
                                                                     <span>${Number(pedido.taxAmount || 0).toLocaleString('es-CL')}</span>
                                                                 </div>
-                                                                <div className="d-flex justify-content-between mt-2 pt-2 border-top fw-bolder" style={{ fontSize: '14px' }}>
+                                                                <div className="d-flex justify-content-between mt-2 pt-2 fw-bolder text-white" style={{ fontSize: '14px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
                                                                     <span>Total</span>
                                                                     <span>${Number(totalPedido).toLocaleString('es-CL')}</span>
                                                                 </div>

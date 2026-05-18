@@ -173,7 +173,7 @@ function Header() {
                 <button type="button" className="btn-close" aria-label="Cerrar" onClick={handleClose}></button>
               </div>
               
-              <div className="d-flex flex-column flex-grow-1 p-0 bg-white" style={{ overflow: "hidden" }}>
+              <div className="d-flex flex-column flex-grow-1 p-0 " style={{ overflow: "hidden", backgroundColor: '#0a0a0a' }}>
                 {cart.length === 0 ? (
                   <div className="text-center mt-5 p-4 text-muted">
                     <div className="ios-empty-cart-icon mb-3">
@@ -183,7 +183,7 @@ function Header() {
                         <path d="M16 10a4 4 0 0 1-8 0"></path>
                       </svg>
                     </div>
-                    <h5 className="fw-bolder text-dark mb-2">Tu carrito está vacío</h5>
+                    <h5 className="fw-bolder text-white mb-2">Tu carrito está vacío</h5>
                     <p className="small mb-4 text-secondary">Aún no has agregado ningún producto.</p>
                     <button className="ios-btn-outline w-100" onClick={handleClose}>
                       SEGUIR COMPRANDO

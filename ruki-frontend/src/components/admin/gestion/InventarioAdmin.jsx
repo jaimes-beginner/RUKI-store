@@ -180,6 +180,13 @@ export function InventarioAdmin() {
 
     return (
         <div className="inventory-premium-wrapper">
+
+            {/* LUCES DE FONDO (CYAN/PURPLE NEON) */}
+            <div className="inv-glow-container">
+                <div className="inv-glow-blob inv-blob-cyan"></div>
+                <div className="inv-glow-blob inv-blob-purple"></div>
+            </div>
+
             <div className="container py-4">
                 
                 <motion.header 
@@ -215,7 +222,7 @@ export function InventarioAdmin() {
                         <div className="inv-card">
                             <div className="inv-card-header d-flex justify-content-between align-items-center">
                                 <div>
-                                    <i className={`fas ${editingId ? 'fa-pen-nib text-primary' : 'fa-magic text-dark'} me-2`}></i>
+                                    <i className={`fas ${editingId ? 'fa-pen-nib text-primary' : 'fa-magic text-white'} me-2`}></i>
                                     {editingId ? "Editando Producto" : "Crear Producto"}
                                 </div>
                                 {editingId && <span className="inv-badge badge-dark">ID: {editingId}</span>}
@@ -270,10 +277,10 @@ export function InventarioAdmin() {
                                         </div>
                                     </div>
 
-                                    {/* SECCIÓN DINÁMICA DE TALLAS */}
-                                    <div className="inv-input-group mb-3 p-3 rounded-3" style={{ backgroundColor: '#f5f5f7', border: '1px solid rgba(0,0,0,0.04)' }}>
+                                    {/* SECCIÓN DINÁMICA DE TALLAS (Adaptado a Dark Glass) */}
+                                    <div className="inv-input-group mb-3 p-3 rounded-3" style={{ backgroundColor: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.05)' }}>
                                         <div className="d-flex justify-content-between align-items-center mb-3">
-                                            <label className="mb-0 text-dark fw-bold"><i className="fas fa-ruler me-2"></i>Tallas y Stock</label>
+                                            <label className="mb-0 text-white fw-bold"><i className="fas fa-ruler me-2"></i>Tallas y Stock</label>
                                             <motion.button 
                                                 type="button" 
                                                 className="inv-btn-add" 
@@ -292,7 +299,7 @@ export function InventarioAdmin() {
                                                     initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, height: 0 }}
                                                     className="d-flex gap-2 mb-2 align-items-center"
                                                 >
-                                                    <select className="inv-input w-50 p-2" style={{fontSize: '13px', minHeight: '35px', paddingLeft: '12px'}} value={v.size} onChange={(e) => handleVariantChange(index, 'size', e.target.value)} required>
+                                                    <select className="inv-input inv-select w-50 p-2" style={{fontSize: '13px', minHeight: '35px', paddingLeft: '12px', paddingRight: '28px'}} value={v.size} onChange={(e) => handleVariantChange(index, 'size', e.target.value)} required>
                                                         <option value="" disabled>Talla...</option>
                                                         <option value="XS">XS</option>
                                                         <option value="S">S</option>
@@ -310,7 +317,7 @@ export function InventarioAdmin() {
                                             ))}
                                         </AnimatePresence>
                                         {formulario.variants.length === 0 && (
-                                            <small className="text-muted d-block text-center mt-2" style={{fontSize: '11px'}}>Agrega tallas para activar el producto.</small>
+                                            <small className="text-secondary d-block text-center mt-2" style={{fontSize: '11px'}}>Agrega tallas para activar el producto.</small>
                                         )}
                                     </div>
 
@@ -350,7 +357,7 @@ export function InventarioAdmin() {
                     <motion.div className="col-lg-8" variants={cardVariants}>
                         <div className="inv-card h-100 d-flex flex-column">
                             <div className="inv-card-header d-flex justify-content-between align-items-center">
-                                <div><i className="fas fa-database me-2 text-secondary"></i> Base de Datos de Productos</div>
+                                <div><i className="fas fa-database me-2 opacity-75"></i> Base de Datos de Productos</div>
                                 <span className="inv-badge badge-light-blue">{productos.length} REGISTROS</span>
                             </div>
                             
@@ -399,7 +406,7 @@ export function InventarioAdmin() {
                                                         {p.sale || p.isSale ? (
                                                             <div>
                                                                 <span className="inv-item-price text-danger d-block">${Number(p.salePrice).toLocaleString('es-CL')}</span>
-                                                                <span className="text-decoration-line-through text-muted small">${Number(p.basePrice).toLocaleString('es-CL')}</span>
+                                                                <span className="text-decoration-line-through text-secondary small">${Number(p.basePrice).toLocaleString('es-CL')}</span>
                                                             </div>
                                                         ) : (
                                                             <span className="inv-item-price">${Number(p.basePrice).toLocaleString('es-CL')}</span>

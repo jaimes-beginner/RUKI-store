@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { obtenerTodosLosPedidos, actualizarEstadoPedido } from "../../../services/PedidoService"; 
 import { obtenerProductoPorId } from "../../../services/ProductoService";
-import { obtenerDireccionesPorUsuario } from "../../../services/UsuarioService"; // IMPORTANTE: Agregamos esto
+import { obtenerDireccionesPorUsuario } from "../../../services/UsuarioService";
 import { motion, AnimatePresence } from "framer-motion";
 import './PedidosAdmin.css'; 
 
@@ -61,9 +61,6 @@ export function PedidosAdmin() {
         setTimeout(() => setToast((prev) => ({ ...prev, mostrar: false })), 3500);
     };
 
-    /*
-        Buscamos la dirección real del usuario cuando seleccionamos el pedido
-    */
     const handleVerDetalle = async (pedido) => {
         setPedidoSeleccionado(pedido);
         setNuevoEstado(pedido.status || pedido.estado || "PENDING");
@@ -128,6 +125,13 @@ export function PedidosAdmin() {
 
     return (
         <div className="orders-premium-wrapper">
+
+            {/* LUCES AMBIENTALES DE FONDO (BLUE & CORAL GLOW) */}
+            <div className="orders-glow-container">
+                <div className="orders-glow-blob ord-blob-blue"></div>
+                <div className="orders-glow-blob ord-blob-coral"></div>
+            </div>
+
             <div className="container py-4 position-relative">
                 
                 <motion.header 
@@ -163,7 +167,7 @@ export function PedidosAdmin() {
                         <div className="ord-card">
                             <div className="ord-card-header d-flex justify-content-between align-items-center">
                                 <div>
-                                    <i className="fas fa-box-open me-2 text-dark"></i> 
+                                    <i className="fas fa-box-open me-2"></i> 
                                     Detalle del Pedido
                                 </div>
                                 {pedidoSeleccionado && (
@@ -175,7 +179,7 @@ export function PedidosAdmin() {
                                 {!pedidoSeleccionado ? (
                                     <div className="text-center py-5">
                                         <i className="fas fa-mouse-pointer fa-3x text-muted opacity-25 mb-3"></i>
-                                        <p className="fw-bold text-dark mb-1" style={{fontSize: "13px"}}>Ningún pedido seleccionado</p>
+                                        <p className="fw-bold text-white mb-1" style={{fontSize: "13px"}}>Ningún pedido seleccionado</p>
                                         <p className="ord-helper-text mx-auto" style={{maxWidth: "200px"}}>Haz clic en el icono del ojo en la tabla para revisar sus detalles.</p>
                                     </div>
                                 ) : (
@@ -185,22 +189,22 @@ export function PedidosAdmin() {
                                         <div className="mb-4 pb-3 border-bottom-subtle">
                                             <div className="d-flex justify-content-between mb-2 align-items-center">
                                                 <span className="ord-label mb-0">Fecha de Orden</span>
-                                                <span className="fw-bold text-dark" style={{fontSize: "12px"}}>{formatearFecha(pedidoSeleccionado.createdAt)}</span>
+                                                <span className="fw-bold text-white" style={{fontSize: "12px"}}>{formatearFecha(pedidoSeleccionado.createdAt)}</span>
                                             </div>
                                             <div className="d-flex justify-content-between mb-2 align-items-center">
                                                 <span className="ord-label mb-0">ID Cliente</span>
-                                                <span className="fw-bold text-dark" style={{fontSize: "12px"}}>Usuario #{pedidoSeleccionado.userId}</span>
+                                                <span className="fw-bold text-white" style={{fontSize: "12px"}}>Usuario #{pedidoSeleccionado.userId}</span>
                                             </div>
                                             
-                                            {/* DIRECCIÓN TRADUCIDA */}
-                                            <div className="bg-light p-3 rounded-3 border mt-3">
-                                                <span className="ord-label mb-1 text-dark"><i className="fas fa-map-marker-alt me-1 text-secondary"></i> Destino de Envío</span>
-                                                <p className="small mb-0 fw-medium text-dark">{direccionCompleta}</p>
+                                            {/* DIRECCIÓN TRADUCIDA (Tratamiento Oscuro de Cristal) */}
+                                            <div className="ord-shipping-destination-box mt-3">
+                                                <span className="ord-label mb-2 text-white"><i className="fas fa-map-marker-alt me-1 opacity-50"></i> Destino de Envío</span>
+                                                <p className="small mb-0 fw-medium" style={{ color: '#e5e5ea' }}>{direccionCompleta}</p>
                                             </div>
 
                                             <div className="d-flex justify-content-between mt-3 align-items-center">
                                                 <span className="ord-label mb-0">Total Recaudado</span>
-                                                <span className="fw-bold text-dark" style={{fontSize: "18px"}}>{formatearPrecio(pedidoSeleccionado.totalAmount)}</span>
+                                                <span className="fw-bold text-white" style={{fontSize: "18px"}}>{formatearPrecio(pedidoSeleccionado.totalAmount)}</span>
                                             </div>
                                         </div>
 
@@ -212,17 +216,17 @@ export function PedidosAdmin() {
                                                     <tbody>
                                                         {(pedidoSeleccionado.items || []).map((item, idx) => (
                                                             <tr key={idx} className="border-bottom-subtle">
-                                                                <td className="ps-0 py-2 fw-semibold text-dark" style={{fontSize: '12px'}}>
+                                                                <td className="ps-0 py-2 fw-semibold text-white" style={{fontSize: '12px', backgroundColor: 'transparent'}}>
                                                                     <div className="text-truncate" style={{maxWidth: '140px'}}>{nombresProductos[item.productId] || `Prod #${item.productId}`}</div>
                                                                     <div className="d-flex align-items-center gap-2 mt-1">
                                                                         <span className="ord-helper-text m-0">ID: {item.productId}</span>
-                                                                        <span className="badge bg-light text-dark border">Talla: {item.size || item.selectedSize || 'Única'}</span>
+                                                                        <span className="ord-item-badge">Talla: {item.size || item.selectedSize || 'Única'}</span>
                                                                     </div>
                                                                 </td>
-                                                                <td className="text-muted text-center align-middle py-2" style={{fontSize: '12px'}}>
+                                                                <td className="text-secondary text-center align-middle py-2" style={{fontSize: '12px', backgroundColor: 'transparent'}}>
                                                                     x{item.quantity}
                                                                 </td>
-                                                                <td className="text-end pe-0 fw-bold text-dark align-middle py-2" style={{fontSize: '13px'}}>
+                                                                <td className="text-end pe-0 fw-bold text-white align-middle py-2" style={{fontSize: '13px', backgroundColor: 'transparent'}}>
                                                                     {formatearPrecio((item.unitPrice || item.price) * item.quantity)}
                                                                 </td>
                                                             </tr>
@@ -243,12 +247,11 @@ export function PedidosAdmin() {
                                                         <option value="PAID">PAID (Pagado / Preparando)</option>
                                                         <option value="SHIPPED">SHIPPED (Enviado / En camino)</option>
                                                         <option value="DELIVERED">DELIVERED (Entregado)</option>
-                                                        {/* SOLUCIÓN AL BUG 500: Doble "L" en CANCELLED */}
                                                         <option value="CANCELLED">CANCELLED (Cancelado)</option>
                                                     </select>
                                                 </div>
                                             </div>
-                                            <motion.button whileTap={{ scale: 0.95 }} type="submit" className="ord-btn-primary w-100" disabled={loading}>
+                                            <motion.button whileTap={{ scale: 0.95 }} type="submit" className="ord-btn-primary" disabled={loading}>
                                                 {loading ? <><i className="fas fa-spinner fa-spin me-2"></i>ACTUALIZANDO...</> : "Guardar Cambio de Estado"}
                                             </motion.button>
                                         </form>
@@ -262,7 +265,7 @@ export function PedidosAdmin() {
                     <motion.div className="col-lg-8" variants={cardVariants}>
                         <div className="ord-card h-100 d-flex flex-column">
                             <div className="ord-card-header d-flex justify-content-between align-items-center">
-                                <div><i className="fas fa-list-ul me-2 text-secondary"></i> Historial General</div>
+                                <div><i className="fas fa-list-ul me-2"></i> Historial General</div>
                                 <span className="ord-badge badge-light-blue">{pedidos.length} ÓRDENES</span>
                             </div>
                             
@@ -294,7 +297,6 @@ export function PedidosAdmin() {
                                                     <td className="ord-item-price">{formatearPrecio(p.totalAmount)}</td>
                                                     <td>{renderBadgeEstado(p.status || p.estado)}</td>
                                                     <td className="text-end pe-4">
-                                                        {/* BOTÓN VER (CLEAN) */}
                                                         <motion.button 
                                                             whileHover={{ scale: 1.1 }} 
                                                             whileTap={{ scale: 0.9 }} 

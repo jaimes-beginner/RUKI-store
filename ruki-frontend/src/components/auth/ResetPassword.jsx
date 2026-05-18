@@ -42,7 +42,6 @@ export function ResetPassword() {
             const respuesta = await resetPassword(token, passwords.newPassword);
             setMensaje(respuesta);
             
-            // Redirigir al login después de 3 segundos
             setTimeout(() => {
                 navigate("/login");
             }, 3000);
@@ -53,15 +52,15 @@ export function ResetPassword() {
         }
     };
 
-    // Si el usuario entra a la ruta sin token, mostramos un error directo
     if (!token) {
         return (
             <div className="login-main-wrapper d-flex justify-content-center align-items-center">
-                <div className="ios-alert-glass alert-error-glass p-4 text-center">
+                <div className="login-glow-container"><div className="login-glow-blob login-blob-1"></div></div>
+                <div className="ios-alert-glass alert-error-glass p-4 text-center" style={{ zIndex: 1, maxWidth: '400px' }}>
                     <h3><i className="fas fa-lock text-danger mb-3"></i></h3>
-                    <h5>Acceso Inválido</h5>
-                    <p>No se encontró un token de recuperación en la URL.</p>
-                    <button onClick={() => navigate("/login")} className="btn btn-dark mt-3">Ir al Login</button>
+                    <h5 className="text-white">Acceso Inválido</h5>
+                    <p className="text-muted">No se encontró un token de recuperación en la URL.</p>
+                    <button onClick={() => navigate("/login")} className="ios-btn-back w-100 mt-3">Ir al Login</button>
                 </div>
             </div>
         );
@@ -69,8 +68,11 @@ export function ResetPassword() {
 
     return (
         <div className="login-main-wrapper">
-            <div className="login-ambient-blob login-blob-1"></div>
-            <div className="login-ambient-blob login-blob-2"></div>
+            
+            <div className="login-glow-container">
+                <div className="login-glow-blob login-blob-1"></div>
+                <div className="login-glow-blob login-blob-2"></div>
+            </div>
 
             <div className="container d-flex justify-content-center align-items-center" style={{ minHeight: '80vh', position: 'relative', zIndex: 1 }}>
                 <motion.div 

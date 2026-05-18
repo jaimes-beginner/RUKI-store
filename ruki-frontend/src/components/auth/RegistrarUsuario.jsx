@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { registrarUsuario } from "../../services/AuthService";
 import { regiones } from "../../data/Regiones";
 import { motion, AnimatePresence } from "framer-motion";
-import "./RegistrarUsuario.css"; // <-- NUEVO CSS
+import "./RegistrarUsuario.css"; 
 
 const REGEX_CORREO = /^[\w.-]+@(gmail\.com|ruki\.com|test\.com)$/i;
 const REGEX_CONTRASENA = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
@@ -136,9 +136,11 @@ export function RegistrarUsuario() {
     return (
         <div className="register-main-wrapper">
 
-            {/* LUCES AMBIENTALES */}
-            <div className="register-ambient-blob register-blob-1"></div>
-            <div className="register-ambient-blob register-blob-2"></div>
+            {/* LUCES DE FONDO (GREEN/BLUE NEON) */}
+            <div className="register-glow-container">
+                <div className="register-ambient-blob register-blob-1"></div>
+                <div className="register-ambient-blob register-blob-2"></div>
+            </div>
 
             <div className="container d-flex justify-content-center align-items-center" style={{ minHeight: '85vh', position: 'relative', zIndex: 1 }}>
                 <motion.div 
@@ -170,6 +172,7 @@ export function RegistrarUsuario() {
                         )}
                     </AnimatePresence>
 
+                    {/* Asegúrate de conectar tu handleSubmit aquí */}
                     <form onSubmit={handleSubmit} noValidate>
                         <div className="row g-3 mb-3">
                             <div className="col-md-6 ios-input-group">

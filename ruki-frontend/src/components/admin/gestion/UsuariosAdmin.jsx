@@ -29,7 +29,6 @@ export function UsuariosAdmin() {
     const cargarDatos = async () => {
         try {
             const data = await obtenerUsuarios();
-            // Ordenamos para que los más recientes salgan primero (opcional, si el backend no lo hace)
             const usersOrdenados = Array.isArray(data) ? data.sort((a, b) => b.id - a.id) : [];
             setUsuarios(usersOrdenados);
         } catch (error) {
@@ -103,9 +102,6 @@ export function UsuariosAdmin() {
         setFormulario({ firstName: "", lastName: "", email: "", password: "" });
     };
 
-    /*
-        Función para formatear la fecha de registro
-    */
     const formatearFecha = (fechaString) => {
         if (!fechaString) return '—';
         const opciones = { year: 'numeric', month: 'short', day: 'numeric' };
@@ -114,6 +110,13 @@ export function UsuariosAdmin() {
 
     return (
         <div className="users-premium-wrapper">
+
+            {/* LUCES DE FONDO (CYAN/PURPLE NEON) */}
+            <div className="usr-glow-container">
+                <div className="usr-glow-blob usr-blob-cyan"></div>
+                <div className="usr-glow-blob usr-blob-purple"></div>
+            </div>
+
             <div className="container py-4 position-relative">
                 
                 <motion.header 
@@ -149,7 +152,7 @@ export function UsuariosAdmin() {
                         <div className="usr-card">
                             <div className="usr-card-header d-flex justify-content-between align-items-center">
                                 <div>
-                                    <i className={`fas ${editingId ? 'fa-user-edit text-primary' : 'fa-user-plus text-dark'} me-2`}></i>
+                                    <i className={`fas ${editingId ? 'fa-user-edit text-primary' : 'fa-user-plus'} me-2`}></i>
                                     {editingId ? "Editando Usuario" : "Nuevo Usuario"}
                                 </div>
                                 {editingId && <span className="usr-badge badge-dark">ID: {editingId}</span>}
@@ -214,7 +217,7 @@ export function UsuariosAdmin() {
                     <motion.div className="col-lg-8" variants={cardVariants}>
                         <div className="usr-card h-100 d-flex flex-column">
                             <div className="usr-card-header d-flex justify-content-between align-items-center">
-                                <div><i className="fas fa-address-book me-2 text-secondary"></i> Base de Datos de Usuarios</div>
+                                <div><i className="fas fa-address-book me-2 opacity-50"></i> Base de Datos de Usuarios</div>
                                 <span className="usr-badge badge-light-blue">{usuarios.length} REGISTROS</span>
                             </div>
                             
@@ -262,8 +265,6 @@ export function UsuariosAdmin() {
                                                         </td>
                                                         <td className="text-end pe-4">
                                                             <div className="d-flex justify-content-end gap-2">
-
-                                                                {/* BOTÓN PARA EDITAR */}
                                                                 <motion.button 
                                                                     whileHover={{ scale: 1.1 }} 
                                                                     whileTap={{ scale: 0.9 }} 
@@ -277,7 +278,6 @@ export function UsuariosAdmin() {
                                                                     </svg>
                                                                 </motion.button>
                                                                 
-                                                                {/* BOTÓN PARA ELIMINAR */}
                                                                 <motion.button 
                                                                     whileHover={{ scale: 1.1 }} 
                                                                     whileTap={{ scale: 0.9 }} 

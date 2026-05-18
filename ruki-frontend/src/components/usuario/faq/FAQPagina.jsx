@@ -2,10 +2,6 @@ import React, { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import './FAQPagina.css';
 
-/*
-  Diccionario de datos con iconos
-   SVG Nativos Integrados
-*/
 const faqSections = [
   {
     id: 'cambios',
@@ -78,6 +74,12 @@ export default function FAQPagina() {
   return (
     <main className="ruki-faq-wrapper" id="faq">
       
+      {/* LUCES DE FONDO (GLOW) */}
+      <div className="faq-glow-container">
+          <div className="faq-glow-blob faq-blob-blue"></div>
+          <div className="faq-glow-blob faq-blob-teal"></div>
+      </div>
+
       {/* HERO SECTION */}
       <section className="faq-hero-section">
         <motion.div 

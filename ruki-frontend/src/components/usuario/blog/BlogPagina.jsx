@@ -38,6 +38,12 @@ export default function BlogPagina() {
   return (
     <main className="ruki-blog-wrapper">
       
+      {/* LUCES DE FONDO (GLOW) */}
+      <div className="blog-glow-container">
+          <div className="blog-glow-blob blog-blob-cyan"></div>
+          <div className="blog-glow-blob blog-blob-indigo"></div>
+      </div>
+      
       {/* HERO SECTION DE BLOG */}
       <section className="blog-hero-section">
         <motion.div 
@@ -62,11 +68,7 @@ export default function BlogPagina() {
           {posts.map((post) => (
             <motion.div className="col-12 col-lg-10 mx-auto" key={post.id} variants={itemVariants}>
               <Link to={post.link} className="text-decoration-none">
-                  <motion.article 
-                      className="blog-card"
-                      whileHover={{ y: -6, boxShadow: "0 20px 40px rgba(0,0,0,0.08)" }}
-                      transition={{ duration: 0.3 }}
-                  >
+                  <article className="blog-card">
                     <div className="row g-0 h-100">
                       
                       {/* IMAGEN DE LA NOTICIA */}
@@ -99,7 +101,7 @@ export default function BlogPagina() {
                       </div>
 
                     </div>
-                  </motion.article>
+                  </article>
               </Link>
             </motion.div>
           ))}

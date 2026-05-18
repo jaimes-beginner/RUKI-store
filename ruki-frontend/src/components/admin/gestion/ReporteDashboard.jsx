@@ -6,9 +6,6 @@ import { obtenerUsuarios } from "../../../services/UsuarioService";
 import { obtenerPedidoPorId, obtenerTodosLosPedidos } from "../../../services/PedidoService"; 
 import './ReporteDashboard.css'; 
 
-/* 
-    Funciones auxiliares para normalizar datos de pedidos 
-*/
 function normalizeStatus(value) {
     return String(value ?? "").split('"').join("").split("'").join("").trim().toUpperCase();
 }
@@ -131,7 +128,6 @@ export function ReporteDashboard() {
             return status === "PENDIENTE" || status === "PENDING";
         }).length;
 
-        // SOLUCIÓN: Agregados estados "PAID" y "SHIPPED" para calcular ingresos correctamente
         const ingresosTotales = pedidos.filter((p) => {
             const status = normalizeStatus(p?.estado ?? p?.status);
             return ["COMPLETADO", "COMPLETED", "DELIVERED", "PAID", "SHIPPED"].includes(status);
@@ -147,6 +143,13 @@ export function ReporteDashboard() {
 
     return (
         <div className="admin-dashboard-wrapper">
+            
+            {/* LUCES DE FONDO (BLUE/GREEN NEON) */}
+            <div className="admin-glow-container">
+                <div className="admin-glow-blob admin-blob-blue"></div>
+                <div className="admin-glow-blob admin-blob-green"></div>
+            </div>
+
             <div className="container px-4 px-md-5 py-4">
                 
                 {/* ENCABEZADO */}
@@ -181,7 +184,7 @@ export function ReporteDashboard() {
                                 <div>
                                     <div className="d-flex justify-content-between align-items-start mb-3">
                                         <div className="admin-label">Inventario Total</div>
-                                        <div className="admin-icon"><i className="fas fa-box-open text-primary"></i></div>
+                                        <div className="admin-icon"><i className="fas fa-box-open" style={{color: '#0a84ff'}}></i></div>
                                     </div>
                                     <div className="admin-kpi-number">{totalProductos}</div>
                                     <div className="admin-kpi-subtitle">Productos registrados</div>
@@ -197,7 +200,7 @@ export function ReporteDashboard() {
                                 <div>
                                     <div className="d-flex justify-content-between align-items-start mb-3">
                                         <div className="admin-label">Base de Usuarios</div>
-                                        <div className="admin-icon"><i className="fas fa-users text-info"></i></div>
+                                        <div className="admin-icon"><i className="fas fa-users" style={{color: '#5ac8fa'}}></i></div>
                                     </div>
                                     <div className="admin-kpi-number">{totalUsuarios}</div>
                                     <div className="admin-kpi-subtitle">Cuentas activas</div>
@@ -273,13 +276,15 @@ export function ReporteDashboard() {
                                 </div>
                                 <div className="card-body p-0 flex-grow-1">
                                     <div className="admin-table-wrapper">
-                                        <table className="table table-borderless admin-table mb-0">
-                                            <thead>
+                                        {/* Agregué 'table-dark' y 'table-hover' de Bootstrap, 
+                                            pero también el estilo inline para forzar fondo transparente */}
+                                        <table className="table table-borderless table-dark table-hover admin-table mb-0" style={{ backgroundColor: 'transparent' }}>
+                                            <thead style={{ backgroundColor: '#0a0a0a' }}>
                                                 <tr>
-                                                    <th className="ps-4">ID</th>
-                                                    <th>Fecha</th>
-                                                    <th>Total</th>
-                                                    <th className="text-end pe-4">Estado</th>
+                                                    <th className="ps-4" style={{ color: '#86868b', backgroundColor: 'transparent' }}>ID</th>
+                                                    <th style={{ color: '#86868b', backgroundColor: 'transparent' }}>Fecha</th>
+                                                    <th style={{ color: '#86868b', backgroundColor: 'transparent' }}>Total</th>
+                                                    <th className="text-end pe-4" style={{ color: '#86868b', backgroundColor: 'transparent' }}>Estado</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -291,12 +296,13 @@ export function ReporteDashboard() {
                                                         const orderDate = getOrderDate(p);
                                                         return (
                                                             <tr key={p.id} className="admin-table-row">
-                                                                <td className="ps-4 fw-bold text-dark">#{p.id}</td>
-                                                                <td className="text-secondary">
+                                                                {/* Forzamos el fondo transparente en los TDs para que se vea el gris de la tarjeta */}
+                                                                <td className="ps-4 fw-bold text-white" style={{ backgroundColor: 'transparent', borderBottom: '1px solid #1f1f1f' }}>#{p.id}</td>
+                                                                <td className="text-secondary" style={{ backgroundColor: 'transparent', borderBottom: '1px solid #1f1f1f' }}>
                                                                     {orderDate ? new Date(orderDate).toLocaleDateString("es-CL", {day:'2-digit', month:'short'}) : "—"}
                                                                 </td>
-                                                                <td className="fw-bold text-dark">{formatearPrecio(getOrderTotal(p))}</td>
-                                                                <td className="text-end pe-4">
+                                                                <td className="fw-bold text-white" style={{ backgroundColor: 'transparent', borderBottom: '1px solid #1f1f1f' }}>{formatearPrecio(getOrderTotal(p))}</td>
+                                                                <td className="text-end pe-4" style={{ backgroundColor: 'transparent', borderBottom: '1px solid #1f1f1f' }}>
                                                                     {isDone ? <span className="admin-badge badge-ok">OK</span> : 
                                                                      isCanceled ? <span className="admin-badge badge-out">CANCELADO</span> : 
                                                                      <span className="admin-badge badge-low">PENDIENTE</span>}
@@ -305,7 +311,7 @@ export function ReporteDashboard() {
                                                         );
                                                     })
                                                 ) : (
-                                                    <tr><td colSpan="4" className="text-center py-5 text-muted">Sin actividad reciente</td></tr>
+                                                    <tr><td colSpan="4" className="text-center py-5 text-muted" style={{ backgroundColor: 'transparent' }}>Sin actividad reciente</td></tr>
                                                 )}
                                             </tbody>
                                         </table>
@@ -345,13 +351,13 @@ export function ReporteDashboard() {
                                     <AnimatePresence>
                                         {errorPedido && (
                                             <motion.div initial={{opacity:0, height:0}} animate={{opacity:1, height:'auto'}} exit={{opacity:0, height:0}} className="admin-alert error mb-3">
-                                                {errorPedido}
+                                                <i className="fas fa-exclamation-triangle me-2"></i> {errorPedido}
                                             </motion.div>
                                         )}
                                         {pedidoDetalle && (
                                             <motion.div initial={{opacity:0, scale: 0.95}} animate={{opacity:1, scale: 1}} exit={{opacity:0}} className="admin-tracker-result">
-                                                <div className="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
-                                                    <span className="fw-bold text-dark fs-6">Orden #{pedidoDetalle.id}</span>
+                                                <div className="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom" style={{ borderColor: '#222' }}>
+                                                    <span className="fw-bold text-white fs-6">Orden #{pedidoDetalle.id}</span>
                                                     <span className="fw-bold text-accent fs-6">{formatearPrecio(getOrderTotal(pedidoDetalle))}</span>
                                                 </div>
                                                 <div className="d-flex justify-content-between align-items-center mb-3">
@@ -368,7 +374,7 @@ export function ReporteDashboard() {
                                                             <div key={itemKey} className="tracker-item-row">
                                                                 <div className="tracker-item-name text-truncate">
                                                                     {productos.find(p => p.id === (d?.productoId ?? d?.productId))?.name || `Prod #${d?.productoId ?? d?.productId}`}
-                                                                    <div className="text-muted" style={{fontSize: '10px'}}>ID: {d?.productoId ?? d?.productId}</div>
+                                                                    <div className="text-secondary mt-1" style={{fontSize: '10px'}}>ID: {d?.productoId ?? d?.productId}</div>
                                                                 </div>
                                                                 <div className="tracker-item-qty">x{quantity}</div>
                                                                 <div className="tracker-item-price">{formatearPrecio(lineTotal)}</div>
@@ -387,8 +393,8 @@ export function ReporteDashboard() {
                     {/* BARRA DE SALUD DEL INVENTARIO */}
                     <motion.div className="admin-card p-4" variants={cardVariants}>
                         <div className="d-flex justify-content-between align-items-end mb-2">
-                            <h6 className="fw-bolder text-dark mb-0" style={{ letterSpacing: "-0.02em" }}>Salud del Inventario Global</h6>
-                            <span className="admin-label text-success mb-0">{pctOk}% Óptimo</span>
+                            <h6 className="fw-bolder text-white mb-0" style={{ letterSpacing: "-0.02em" }}>Salud del Inventario Global</h6>
+                            <span className="admin-label text-success mb-0" style={{ color: '#30d158' }}>{pctOk}% Óptimo</span>
                         </div>
                         <p className="fw-medium mb-3" style={{ fontSize: "13px", color: "#86868b" }}>
                             {productosBajoStock.length} productos requieren reabastecimiento (stock &lt; 5 unidades).

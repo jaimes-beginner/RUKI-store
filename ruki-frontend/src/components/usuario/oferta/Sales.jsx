@@ -130,6 +130,12 @@ export default function Sales() {
     return (
         <main className="sale-wrapper">
             
+            {/* LAS LUCES ROJAS DE NEÓN */}
+            <div className="sale-glow-container">
+                <div className="sale-glow-blob sale-blob-red"></div>
+                <div className="sale-glow-blob sale-blob-crimson"></div>
+            </div>
+
             {/* HERO BANNER */}
             <section className="sale-hero-section">
                 <motion.div 
@@ -149,12 +155,12 @@ export default function Sales() {
                     
                     {/* PANEL DE FILTROS LATERAL (GLASSMORPHISM) */}
                     <aside className="col-lg-3 d-none d-lg-block">
-                        <div className="sale-filter-sidebar p-4 rounded-4 position-sticky" style={{ top: '180px' }}>
-                            <h3 className="fw-bolder mb-4 text-dark" style={{ letterSpacing: '-0.02em' }}>Filtros</h3>
+                        <div className="sale-filter-sidebar p-4 position-sticky" style={{ top: '180px' }}>
+                            <h3 className="fw-bolder mb-4 text-white" style={{ letterSpacing: '-0.02em' }}>Filtros</h3>
                             
                             {/* TALLAS */}
                             <div className="sale-filter-group mb-4">
-                                <h4 className="text-muted small fw-bold mb-3" style={{ letterSpacing: '1px', fontSize: '0.75rem' }}>TALLA</h4>
+                                <h4 className="small fw-bold mb-3" style={{ letterSpacing: '1px', fontSize: '0.75rem', color: '#a1a1a6' }}>TALLA</h4>
                                 <div className="sale-size-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                                     {['XS', 'S', 'M', 'L', 'XL', 'Única'].map(size => (
                                         <motion.button 
@@ -162,13 +168,8 @@ export default function Sales() {
                                             whileTap={{ scale: 0.95 }} 
                                             key={size} 
                                             type="button" 
-                                            className={`py-2 rounded-3 fw-semibold transition-all ${filtros.size === size ? 'bg-danger text-white shadow-sm' : 'bg-transparent text-dark'}`}
+                                            className={`sale-size-btn ${filtros.size === size ? 'active' : ''}`}
                                             onClick={() => handleFilterChange('size', size)}
-                                            style={{
-                                                border: filtros.size === size ? '1.5px solid #ff3b30' : '1.5px solid #d2d2d7',
-                                                backgroundColor: filtros.size === size ? '#ff3b30' : 'transparent',
-                                                transition: 'all 0.2s ease'
-                                            }}
                                         >
                                             {size}
                                         </motion.button>
@@ -178,19 +179,13 @@ export default function Sales() {
 
                             {/* CATEGORÍAS */}
                             <div className="sale-filter-group">
-                                <h4 className="text-muted small fw-bold mb-3" style={{ letterSpacing: '1px', fontSize: '0.75rem' }}>CATEGORÍAS</h4>
+                                <h4 className="small fw-bold mb-3" style={{ letterSpacing: '1px', fontSize: '0.75rem', color: '#a1a1a6' }}>CATEGORÍAS</h4>
                                 <ul className="list-unstyled p-0 m-0 d-flex flex-column gap-2 sale-scrollable-list">
                                     {[{ id: '', name: 'Todo en Oferta' }, ...categorias].map(cat => (
                                         <li key={cat.id || 'todos'}>
                                             <button
-                                                className={`w-100 text-start px-3 py-2 rounded-3 border-0 transition-all ${filtros.categoryId === cat.id ? 'text-white fw-medium shadow-sm' : 'bg-transparent text-secondary'}`}
+                                                className={`sale-cat-btn ${filtros.categoryId === cat.id ? 'active' : ''}`}
                                                 onClick={() => handleFilterChange('categoryId', cat.id)}
-                                                style={{ 
-                                                    transition: 'all 0.2s ease',
-                                                    backgroundColor: filtros.categoryId === cat.id ? '#ff3b30' : 'transparent'
-                                                }}
-                                                onMouseOver={(e) => { if (filtros.categoryId !== cat.id) e.currentTarget.style.backgroundColor = 'rgba(255, 59, 48, 0.08)' }}
-                                                onMouseOut={(e) => { if (filtros.categoryId !== cat.id) e.currentTarget.style.backgroundColor = 'transparent' }}
                                             >
                                                 {cat.name}
                                             </button>
@@ -204,7 +199,7 @@ export default function Sales() {
                     {/* ÁREA DE PRODUCTOS */}
                     <div className="col-lg-9">
                         <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
-                            <span className="fw-semibold text-secondary" style={{fontSize: '14px'}}>
+                            <span className="fw-semibold" style={{fontSize: '14px', color: '#a1a1a6'}}>
                                 Mostrando {products.length} ofertas
                             </span>
                             <select 
@@ -222,19 +217,19 @@ export default function Sales() {
                             <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '40vh' }}>
                                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center">
                                     <i className="fas fa-circle-notch fa-spin fa-2x mb-3 text-danger"></i>
-                                    <p className="text-muted fw-bold">Cargando ofertas...</p>
+                                    <p className="fw-bold" style={{color: '#a1a1a6'}}>Cargando ofertas...</p>
                                 </motion.div>
                             </div>
                         ) : error ? (
-                            <div className="alert alert-danger text-center py-4">
+                            <div className="alert alert-danger text-center py-4 bg-transparent border-danger text-danger">
                                 <i className="fas fa-exclamation-triangle me-2"></i> {error}
                             </div>
                         ) : products.length === 0 ? (
                             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="sale-empty-state text-center py-5">
-                                <i className="fas fa-tags fa-3x mb-3 text-secondary"></i>
-                                <h4>No hay ofertas activas</h4>
-                                <p className="text-muted">Prueba cambiando los filtros de búsqueda.</p>
-                                <button className="btn btn-outline-danger mt-2" onClick={() => setFiltros({ categoryId: '', size: '', sort: 'discountDesc' })}>
+                                <i className="fas fa-tags fa-3x mb-3" style={{color: '#444'}}></i>
+                                <h4 className="text-white">No hay ofertas activas</h4>
+                                <p>Prueba cambiando los filtros de búsqueda.</p>
+                                <button className="btn btn-outline-light mt-2" onClick={() => setFiltros({ categoryId: '', size: '', sort: 'discountDesc' })}>
                                     Limpiar Filtros
                                 </button>
                             </motion.div>
@@ -252,16 +247,16 @@ export default function Sales() {
                                                 
                                                 {/* ETIQUETAS UNIFICADAS */}
                                                 <div className="sale-badge-container d-flex flex-column align-items-start gap-2">
-                                                    <span className="sale-card-badge shadow-sm" style={{ backgroundColor: '#ff3b30', color: '#ffffff', borderColor: '#ff3b30' }}>
+                                                    <span className="sale-card-badge shadow-sm" style={{ backgroundColor: 'rgba(255, 59, 48, 0.9)', color: '#ffffff', borderColor: 'rgba(255,59,48,0.5)' }}>
                                                         OFERTA -{calcularDescuento(product.basePrice, product.salePrice)}%
                                                     </span>
                                                     {product.stock > 0 && product.stock <= 5 && (
-                                                        <span className="sale-card-badge warning shadow-sm" style={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', color: '#ff9500' }}>
+                                                        <span className="sale-card-badge warning shadow-sm" style={{ backgroundColor: 'rgba(255, 149, 0, 0.9)', color: '#ffffff' }}>
                                                             ¡ÚLTIMOS {product.stock}!
                                                         </span>
                                                     )}
                                                     {product.stock === 0 && (
-                                                        <span className="sale-card-badge error shadow-sm" style={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', color: '#ff3b30' }}>
+                                                        <span className="sale-card-badge error shadow-sm" style={{ backgroundColor: 'rgba(255, 59, 48, 0.9)', color: '#ffffff' }}>
                                                             AGOTADO
                                                         </span>
                                                     )}
@@ -300,7 +295,7 @@ export default function Sales() {
                                                 </div>
                                                 
                                                 <h3 className="sale-product-title">{product.name}</h3>
-                                                <p className="sale-product-desc text-muted mb-2" style={{ fontSize: '0.85rem', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                                                <p className="sale-product-desc mb-2">
                                                     {product.description || "Oferta exclusiva RUKI."}
                                                 </p>
                                                 
@@ -311,21 +306,6 @@ export default function Sales() {
                                                 
                                                 <div style={{ flexGrow: 1 }}></div>
 
-                                                <motion.button 
-                                                    whileTap={product.stock > 0 ? { scale: 0.95 } : {}}
-                                                    className={`sale-btn-primary mt-auto w-100 ${product.stock === 0 ? 'disabled' : ''}`}
-                                                    onClick={() => {
-                                                        addToCart(product, 1);
-                                                        mostrarToast(`¡${product.name} añadido!`, 'success');
-                                                    }}
-                                                    disabled={product.stock === 0}
-                                                >
-                                                    {product.stock === 0 ? (
-                                                        <><i className="fas fa-times-circle me-2"></i> AGOTADO</>
-                                                    ) : (
-                                                        <><i className="fas fa-shopping-bag me-2"></i> AÑADIR APROVECHANDO OFERTA</>
-                                                    )}
-                                                </motion.button>
                                             </div>
                                         </article>
                                     </motion.div>

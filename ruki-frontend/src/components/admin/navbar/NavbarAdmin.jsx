@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Navbar, Nav, Container, Dropdown, Badge } from 'react-bootstrap';
+import { Navbar, Nav, Container, Badge } from 'react-bootstrap';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -11,10 +11,6 @@ export function NavbarAdmin() {
     const [fecha, setFecha] = useState("");
     const [adminMenuOpen, setAdminMenuOpen] = useState(false);
 
-    /*
-        Generar un reloj / fecha en tiempo 
-        real para rellenar la barra
-    */
     useEffect(() => {
         const actualizarFecha = () => {
             const hoy = new Date();
@@ -23,9 +19,6 @@ export function NavbarAdmin() {
         };
         actualizarFecha();
 
-        /*
-            Actualiza cada minuto
-        */
         const intervalo = setInterval(actualizarFecha, 60000); 
         return () => clearInterval(intervalo);
     }, []);
@@ -40,7 +33,7 @@ export function NavbarAdmin() {
     return (
         <header className="admin-header-wrapper">
 
-            {/* BARRA SUPERIOR */}
+            {/* BARRA SUPERIOR OSCURA SÓLIDA */}
             <Navbar variant="dark" className="py-4 admin-top-navbar">
                 <Container fluid className="admin-topbar d-flex justify-content-between align-items-center px-4 px-lg-5">
                     
@@ -50,7 +43,7 @@ export function NavbarAdmin() {
                             <span className="server-status-dot pulse"></span>
                             <span className="server-status-text">SISTEMAS OPERATIVOS</span>
                         </div>
-                        <div className="server-date-text text-muted">
+                        <div className="server-date-text">
                             <i className="far fa-clock me-1"></i> {fecha}
                         </div>
                     </div> 
@@ -63,7 +56,8 @@ export function NavbarAdmin() {
                         </motion.div>
                     </Navbar.Brand>
                     
-                    {/* MENÚ ADMIN  */}
+                    {/* MENÚ ADMIN (DERECHA) */}
+                    <div className="admin-topbar-side d-flex justify-content-end align-items-center gap-3">
                         <div className="position-relative">
                             <button 
                                 className="admin-dropdown-toggle bg-transparent text-decoration-none p-0 border-0 d-flex align-items-center gap-2"
@@ -124,13 +118,15 @@ export function NavbarAdmin() {
                                 )}
                             </AnimatePresence>
                         </div>
+                    </div>
                 </Container>
             </Navbar>
 
-            {/* BARRA INFERIOR DE NAVEGACIÓN */}
+            {/* BARRA INFERIOR SÓLIDA */}
             <Navbar className="py-2 admin-bottom-navbar">
                 <Container fluid className="px-4 px-lg-5">
                     <Nav className="mx-auto gap-2 gap-md-4 gap-lg-5">
+                        
                         <NavLink to="/admin/reporte-dashboard" className={({ isActive }) => `admin-nav-link text-decoration-none ${isActive ? 'nav-active' : ''}`}>
                             <i className="fas fa-chart-pie me-2 d-none d-md-inline"></i>DASHBOARD
                         </NavLink>
@@ -143,6 +139,10 @@ export function NavbarAdmin() {
                         <NavLink to="/pedidos-admin" className={({ isActive }) => `admin-nav-link text-decoration-none ${isActive ? 'nav-active' : ''}`}>
                             <i className="fas fa-truck-fast me-2 d-none d-md-inline"></i>LOGÍSTICA
                         </NavLink>
+                        <NavLink to="/pos-admin" className={({ isActive }) => `admin-nav-link text-decoration-none ${isActive ? 'nav-active' : ''}`}>
+                            <i className="fas fa-cash-register me-2 d-none d-md-inline"></i>POS / TIENDA
+                        </NavLink>
+                   
                     </Nav>
                 </Container>
             </Navbar>

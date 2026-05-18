@@ -4,36 +4,27 @@ import { obtenerMiPerfil, actualizarUsuario, crearDireccion, obtenerDireccionesP
 import { Modal } from 'react-bootstrap';
 import { motion, AnimatePresence } from 'framer-motion';
 import './Perfil.css';
+import { regiones } from '../../../data/Regiones';
 
 export function Perfil() {
     const { usuario } = useAuth();
-    
-    /*
-        Estados de datos
-    */
+
     const [perfil, setPerfil] = useState(null);
     const [direcciones, setDirecciones] = useState([]);
-    
-    /*
-        Estados de edición de perfil
-    */
+
     const [editMode, setEditMode] = useState(false);
     const [formData, setFormData] = useState({ firstName: '', lastName: '', password: '' });
-    
-    /*
-        Estados de nueva dirección
-    */
+
     const [showAddressModal, setShowAddressModal] = useState(false);
+
+    // El formulario ahora inicia limpio, listo para los dropdowns
     const [addressForm, setAddressForm] = useState({
         street: '', city: '', region: '', zipCode: '', referenceInfo: ''
     });
 
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState(false);
-    
-    /*
-        Estado del Toast (Notificaciones)
-    */
+
     const [toast, setToast] = useState({ mostrar: false, mensaje: '', tipo: '' });
 
     const mostrarToast = (mensaje, tipo) => {
@@ -56,7 +47,7 @@ export function Perfil() {
             setDirecciones(addressData);
             setFormData({ firstName: profileData.firstName, lastName: profileData.lastName, password: '' });
         } catch (err) {
-            mostrarToast('Error al cargar los datos', 'danger');
+            mostrarToast('Error al cargar los datos', 'error');
         } finally {
             setLoading(false);
         }
@@ -74,7 +65,7 @@ export function Perfil() {
             setEditMode(false);
             await cargarDatos();
         } catch (err) {
-            mostrarToast(err.message || 'Error al actualizar', 'danger');
+            mostrarToast(err.message || 'Error al actualizar', 'error');
         } finally {
             setActionLoading(false);
         }
@@ -85,20 +76,17 @@ export function Perfil() {
         setActionLoading(true);
         try {
             await crearDireccion({ ...addressForm, userId: perfil.id });
-            mostrarToast('Dirección agregada', 'success');
+            mostrarToast('Dirección agregada con éxito', 'success');
             setShowAddressModal(false);
             setAddressForm({ street: '', city: '', region: '', zipCode: '', referenceInfo: '' });
             await cargarDatos();
         } catch (err) {
-            mostrarToast(err.message || 'Error al agregar dirección', 'danger');
+            mostrarToast(err.message || 'Error al agregar dirección', 'error');
         } finally {
             setActionLoading(false);
         }
     };
 
-    /*
-        Variantes de animación
-    */
     const containerVariants = {
         hidden: { opacity: 0 },
         visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
@@ -114,12 +102,12 @@ export function Perfil() {
         visible: { opacity: 1, x: 0 }
     };
 
+    const comunasDisponibles = regiones.find(r => r.nombre === addressForm.region)?.comunas || [];
+
     if (loading) {
         return (
-            <div className="profile-loading-screen">
-                <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}>
-                    <i className="fas fa-circle-notch fa-spin fa-3x" style={{ color: '#0a84ff' }}></i>
-                </motion.div>
+            <div className="profile-main-wrapper d-flex justify-content-center align-items-center">
+                <i className="fas fa-circle-notch fa-spin fa-3x" style={{ color: '#0a84ff' }}></i>
             </div>
         );
     }
@@ -127,10 +115,16 @@ export function Perfil() {
     return (
         <div className="profile-main-wrapper">
 
+            {/* LUCES DE FONDO DE PERFIL */}
+            <div className="profile-glow-container">
+                <div className="profile-glow-blob profile-blob-blue"></div>
+                <div className="profile-glow-blob profile-blob-purple"></div>
+            </div>
+
             <div className="container mt-5 mb-5 position-relative" style={{ zIndex: 1 }}>
-                
+
                 {/* CABECERA */}
-                <motion.div 
+                <motion.div
                     className="profile-page-header-glass"
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -140,7 +134,7 @@ export function Perfil() {
                     <p>Gestiona tu <strong>perfil</strong> y tus <strong>direcciones de envío</strong>.</p>
                 </motion.div>
 
-                <motion.div 
+                <motion.div
                     className="row g-4"
                     variants={containerVariants}
                     initial="hidden"
@@ -151,13 +145,13 @@ export function Perfil() {
                         <div className="profile-card-glass h-100">
                             <div className="profile-header-glass d-flex justify-content-between align-items-center">
                                 <div>
-                                    <i className="fas fa-user-circle me-2" style={{ color: '#0a84ff' }}></i> 
+                                    <i className="fas fa-user-circle me-2" style={{ color: '#0a84ff' }}></i>
                                     Información Personal
                                 </div>
-                                <motion.button 
+                                <motion.button
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
-                                    className="btn-edit-toggle" 
+                                    className="btn-edit-toggle"
                                     onClick={() => setEditMode(!editMode)}
                                 >
                                     {editMode ? 'Cancelar' : 'Editar'}
@@ -165,41 +159,53 @@ export function Perfil() {
                             </div>
                             <div className="card-body p-4">
                                 <form onSubmit={handleUpdateProfile}>
-                                    <div className="mb-3">
+                                    <div className="ios-input-group mb-3">
                                         <label className="ios-label">Nombre</label>
-                                        <input type="text" className="ios-input-glass w-100" disabled={!editMode} required
-                                               value={formData.firstName} onChange={(e) => setFormData({...formData, firstName: e.target.value})} />
-                                    </div>
-                                    <div className="mb-3">
-                                        <label className="ios-label">Apellido</label>
-                                        <input type="text" className="ios-input-glass w-100" disabled={!editMode} required
-                                               value={formData.lastName} onChange={(e) => setFormData({...formData, lastName: e.target.value})} />
-                                    </div>
-                                    <div className="mb-3">
-                                        <label className="ios-label">Correo Electrónico</label>
-                                        <input type="email" className="ios-input-glass w-100" disabled value={perfil.email} />
-                                        <div className="input-helper-text mt-1">
-                                            <i className="fas fa-lock me-1"></i>No editable
+                                        <div className="ios-input-wrapper">
+                                            <i className="fas fa-user input-icon"></i>
+                                            <input type="text" className="ios-input-glass w-100" disabled={!editMode} required
+                                                value={formData.firstName} onChange={(e) => setFormData({ ...formData, firstName: e.target.value })} />
                                         </div>
                                     </div>
-                                    
+                                    <div className="ios-input-group mb-3">
+                                        <label className="ios-label">Apellido</label>
+                                        <div className="ios-input-wrapper">
+                                            <i className="fas fa-id-badge input-icon"></i>
+                                            <input type="text" className="ios-input-glass w-100" disabled={!editMode} required
+                                                value={formData.lastName} onChange={(e) => setFormData({ ...formData, lastName: e.target.value })} />
+                                        </div>
+                                    </div>
+                                    <div className="ios-input-group mb-3">
+                                        <label className="ios-label">Correo Electrónico</label>
+                                        <div className="ios-input-wrapper">
+                                            <i className="fas fa-envelope input-icon"></i>
+                                            <input type="email" className="ios-input-glass w-100" disabled value={perfil.email} />
+                                        </div>
+                                        <div className="input-helper-text mt-1">
+                                            <i className="fas fa-lock me-1"></i>No editable por seguridad
+                                        </div>
+                                    </div>
+
                                     <AnimatePresence>
                                         {editMode && (
-                                            <motion.div 
-                                                initial={{ opacity: 0, height: 0 }} 
-                                                animate={{ opacity: 1, height: 'auto' }} 
+                                            <motion.div
+                                                initial={{ opacity: 0, height: 0 }}
+                                                animate={{ opacity: 1, height: 'auto' }}
                                                 exit={{ opacity: 0, height: 0 }}
-                                                className="edit-mode-section"
+                                                style={{ overflow: 'hidden' }}
                                             >
-                                                <div className="mb-4 pt-3 border-top-subtle">
+                                                <div className="ios-input-group mb-4 mt-4 pt-4 border-top border-dark">
                                                     <label className="ios-label highlight-label">Nueva Contraseña</label>
-                                                    <input type="password" className="ios-input-glass w-100" placeholder="Dejar en blanco para conservar"
-                                                           value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} />
+                                                    <div className="ios-input-wrapper">
+                                                        <i className="fas fa-key input-icon"></i>
+                                                        <input type="password" className="ios-input-glass w-100" placeholder="Dejar en blanco para conservar"
+                                                            value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} />
+                                                    </div>
                                                 </div>
-                                                <motion.button 
+                                                <motion.button
                                                     whileTap={{ scale: 0.95 }}
-                                                    type="submit" 
-                                                    className="ios-btn ios-btn-dark w-100" 
+                                                    type="submit"
+                                                    className="ios-btn ios-btn-dark w-100"
                                                     disabled={actionLoading}
                                                 >
                                                     {actionLoading ? <><i className="fas fa-spinner fa-spin me-2"></i>GUARDANDO...</> : "GUARDAR CAMBIOS"}
@@ -217,14 +223,14 @@ export function Perfil() {
                         <div className="profile-card-glass h-100 d-flex flex-column">
                             <div className="profile-header-glass d-flex justify-content-between align-items-center">
                                 <div>
-                                    <i className="fas fa-map-marker-alt me-2" style={{ color: '#ff3b30' }}></i> 
+                                    <i className="fas fa-map-marker-alt me-2" style={{ color: '#ff3b30' }}></i>
                                     Mis Direcciones
                                 </div>
                                 <span className="ios-badge-glass-subtle">
                                     {direcciones.length} REGISTRADAS
                                 </span>
                             </div>
-                            
+
                             <div className="card-body p-0 flex-grow-1">
                                 {direcciones.length === 0 ? (
                                     <div className="empty-address-state">
@@ -251,11 +257,11 @@ export function Perfil() {
                                     </motion.div>
                                 )}
                             </div>
-                            
-                            <div className="p-4 border-top-subtle">
-                                <motion.button 
+
+                            <div className="p-4 border-top border-dark">
+                                <motion.button
                                     whileTap={{ scale: 0.98 }}
-                                    className="ios-btn ios-btn-outline w-100" 
+                                    className="ios-btn ios-btn-outline w-100"
                                     onClick={() => setShowAddressModal(true)}
                                 >
                                     <i className="fas fa-plus me-2"></i> AGREGAR NUEVA DIRECCIÓN
@@ -265,7 +271,7 @@ export function Perfil() {
                     </motion.div>
                 </motion.div>
 
-                {/* MODAL NUEVA DIRECCIÓN CON GLASSMORPHISM */}
+                {/* MODAL NUEVA DIRECCIÓN (SOFISTICADO) */}
                 <Modal show={showAddressModal} onHide={() => setShowAddressModal(false)} centered contentClassName="profile-modal-glass">
                     <div className="p-4">
                         <div className="d-flex justify-content-between align-items-center mb-4">
@@ -275,34 +281,70 @@ export function Perfil() {
                             </button>
                         </div>
                         <form onSubmit={handleAddAddress}>
-                            <div className="mb-3">
-                                <label className="ios-label">Calle y Número</label>
-                                <input type="text" className="ios-input-glass w-100" required placeholder="Ej: Av. Providencia 1234"
-                                       onChange={e => setAddressForm({...addressForm, street: e.target.value})} />
+                            <div className="ios-input-group mb-3">
+                                <label className="ios-label">Calle y Número *</label>
+                                <div className="ios-input-wrapper">
+                                    <i className="fas fa-route input-icon"></i>
+                                    <input type="text" className="ios-input-glass w-100" required placeholder="Ej: Av. Providencia 1234"
+                                        value={addressForm.street} onChange={e => setAddressForm({ ...addressForm, street: e.target.value })} />
+                                </div>
                             </div>
+
                             <div className="row g-3 mb-3">
-                                <div className="col-6">
-                                    <label className="ios-label">Comuna / Ciudad</label>
-                                    <input type="text" className="ios-input-glass w-100" required placeholder="Ej: Providencia"
-                                           onChange={e => setAddressForm({...addressForm, city: e.target.value})} />
+                                <div className="col-6 ios-input-group">
+                                    <label className="ios-label">Región *</label>
+                                    <div className="ios-input-wrapper">
+                                        <i className="fas fa-map input-icon"></i>
+                                        <select
+                                            className="ios-select-glass w-100"
+                                            required
+                                            value={addressForm.region}
+                                            onChange={e => setAddressForm({ ...addressForm, region: e.target.value, city: '' })}
+                                        >
+                                            <option value="">Seleccionar...</option>
+                                            {regiones.map(r => (
+                                                <option key={r.nombre} value={r.nombre}>{r.nombre}</option>
+                                            ))}
+                                        </select>
+                                    </div>
                                 </div>
-                                <div className="col-6">
-                                    <label className="ios-label">Región</label>
-                                    <input type="text" className="ios-input-glass w-100" required placeholder="Ej: RM"
-                                           onChange={e => setAddressForm({...addressForm, region: e.target.value})} />
+                                <div className="col-6 ios-input-group">
+                                    <label className="ios-label">Comuna *</label>
+                                    <div className="ios-input-wrapper">
+                                        <i className="fas fa-city input-icon"></i>
+                                        <select
+                                            className="ios-select-glass w-100"
+                                            required
+                                            disabled={!addressForm.region}
+                                            value={addressForm.city}
+                                            onChange={e => setAddressForm({ ...addressForm, city: e.target.value })}
+                                        >
+                                            <option value="" style={{ color: '#a1a1a6', background: '#111111' }}>Seleccionar...</option>
+                                            {(regiones.find(r => (r.region || r.nombre) === addressForm.region)?.comunas || []).map((c, i) => (
+                                                <option key={i} value={c} style={{ color: '#ffffff', background: '#111111' }}>
+                                                    {c}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
-                            <div className="mb-3">
+
+                            <div className="ios-input-group mb-3">
                                 <label className="ios-label">Código Postal (Opcional)</label>
-                                <input type="text" className="ios-input-glass w-100" placeholder="Ej: 7500000"
-                                       onChange={e => setAddressForm({...addressForm, zipCode: e.target.value})} />
+                                <div className="ios-input-wrapper">
+                                    <i className="fas fa-mail-bulk input-icon"></i>
+                                    <input type="text" className="ios-input-glass w-100" placeholder="Ej: 7500000"
+                                        value={addressForm.zipCode} onChange={e => setAddressForm({ ...addressForm, zipCode: e.target.value })} />
+                                </div>
                             </div>
-                            <div className="mb-4">
+                            <div className="ios-input-group mb-4">
                                 <label className="ios-label">Referencias (Opcional)</label>
                                 <textarea className="ios-input-glass w-100" rows="2" placeholder="Ej: Casa esquina, portón negro..."
-                                          onChange={e => setAddressForm({...addressForm, referenceInfo: e.target.value})}></textarea>
+                                    style={{ resize: 'none', paddingLeft: '16px' }}
+                                    value={addressForm.referenceInfo} onChange={e => setAddressForm({ ...addressForm, referenceInfo: e.target.value })}></textarea>
                             </div>
-                            
+
                             <div className="d-flex gap-2">
                                 <motion.button whileTap={{ scale: 0.95 }} type="button" className="ios-btn ios-btn-outline w-100" onClick={() => setShowAddressModal(false)}>
                                     CANCELAR
@@ -319,22 +361,18 @@ export function Perfil() {
                 <div className="profile-toast-container">
                     <AnimatePresence>
                         {toast.mostrar && (
-                            <motion.div 
+                            <motion.div
                                 className="profile-ios-toast-glass"
                                 initial={{ opacity: 0, y: 50, scale: 0.9 }}
                                 animate={{ opacity: 1, y: 0, scale: 1 }}
                                 exit={{ opacity: 0, y: 20, scale: 0.9 }}
                                 transition={{ type: "spring", stiffness: 300, damping: 25 }}
                             >
-                                <div className="d-flex p-2 align-items-center">
-                                    <div className="toast-body-text">
-                                        {toast.tipo === 'success' ? 
-                                            <i className="fas fa-check-circle text-success me-2 fs-5 align-middle"></i> : 
-                                            <i className="fas fa-exclamation-triangle text-danger me-2 fs-5 align-middle"></i>
-                                        }
-                                        {toast.mensaje}
-                                    </div>
-                                </div>
+                                {toast.tipo === 'success' ?
+                                    <i className="fas fa-check-circle text-success me-3 fs-5"></i> :
+                                    <i className="fas fa-exclamation-triangle text-danger me-3 fs-5"></i>
+                                }
+                                <div>{toast.mensaje}</div>
                             </motion.div>
                         )}
                     </AnimatePresence>

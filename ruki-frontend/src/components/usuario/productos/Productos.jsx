@@ -111,8 +111,13 @@ export default function Productos() {
         );
     }
 
-    return (
+return (
         <main className="productos-wrapper">
+
+            <div className="prod-glow-container">
+                <div className="prod-glow-blob prod-blob-blue"></div>
+                <div className="prod-glow-blob prod-blob-purple"></div>
+            </div>
 
             {/* HERO BANNER */}
             <section className="prod-hero-section">
@@ -132,12 +137,12 @@ export default function Productos() {
 
                     {/* PANEL DE FILTROS LATERAL */}
                     <aside className="col-lg-3 d-none d-lg-block">
-                        <div className="prod-filter-sidebar position-sticky p-4" style={{ top: '100px' }}>
-                            <h3 className="fw-bolder mb-4 text-dark" style={{ letterSpacing: '-0.02em' }}>Filtros</h3>
+                        <div className="prod-filter-sidebar position-sticky p-4" style={{ top: '180px' }}>
+                            <h3 className="fw-bolder mb-4 text-white" style={{ letterSpacing: '-0.02em' }}>Filtros</h3>
 
                             {/* TALLAS (Grid de 2x3) */}
                             <div className="prod-filter-group mb-4">
-                                <h4 className="text-muted small fw-bold mb-3" style={{ letterSpacing: '1px', fontSize: '0.75rem' }}>TALLA</h4>
+                                <h4 className="small fw-bold mb-3" style={{ letterSpacing: '1px', fontSize: '0.75rem', color: '#a1a1a6' }}>TALLA</h4>
 
                                 <div className="prod-size-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                                     {['XS', 'S', 'M', 'L', 'XL', 'Única'].map(size => (
@@ -146,13 +151,8 @@ export default function Productos() {
                                             whileTap={{ scale: 0.95 }}
                                             key={size}
                                             type="button"
-                                            className="py-2 rounded-3 fw-semibold transition-all"
+                                            className={`prod-size-btn ${filtros.size === size ? 'active' : ''}`}
                                             onClick={() => handleFilterChange('size', size)}
-                                            style={{
-                                                backgroundColor: filtros.size === size ? '#1d1d1f' : '#ffffff',
-                                                color: filtros.size === size ? '#ffffff' : '#1d1d1f',
-                                                border: filtros.size === size ? '1.5px solid #1d1d1f' : '1.5px solid #d2d2d7',
-                                            }}
                                         >
                                             {size}
                                         </motion.button>
@@ -162,19 +162,14 @@ export default function Productos() {
 
                             {/* CATEGORÍAS */}
                             <div className="prod-filter-group">
-                                <h4 className="text-muted small fw-bold mb-3" style={{ letterSpacing: '1px', fontSize: '0.75rem' }}>CATEGORÍAS</h4>
+                                <h4 className="small fw-bold mb-3" style={{ letterSpacing: '1px', fontSize: '0.75rem', color: '#a1a1a6' }}>CATEGORÍAS</h4>
 
                                 <ul className="list-unstyled p-0 m-0 d-flex flex-column gap-2 prod-scrollable-list">
                                     {[{ id: '', name: 'Todos' }, ...categorias].map(cat => (
                                         <li key={cat.id || 'todos'}>
                                             <button
-                                                className={`w-100 text-start px-3 py-2 rounded-3 border-0 transition-all ${filtros.categoryId === cat.id ? 'text-white fw-medium shadow-sm' : 'bg-transparent text-secondary'}`}
+                                                className={`prod-cat-btn ${filtros.categoryId === cat.id ? 'active' : ''}`}
                                                 onClick={() => handleFilterChange('categoryId', cat.id)}
-                                                style={{ 
-                                                    backgroundColor: filtros.categoryId === cat.id ? '#1d1d1f' : 'transparent'
-                                                }}
-                                                onMouseOver={(e) => { if (filtros.categoryId !== cat.id) e.currentTarget.style.backgroundColor = '#f5f5f7' }}
-                                                onMouseOut={(e) => { if (filtros.categoryId !== cat.id) e.currentTarget.style.backgroundColor = 'transparent' }}
                                             >
                                                 {cat.name}
                                             </button>
@@ -189,7 +184,7 @@ export default function Productos() {
                     {/* ÁREA DE PRODUCTOS */}
                     <div className="col-lg-9">
                         <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
-                            <span className="fw-semibold text-secondary" style={{ fontSize: '14px' }}>
+                            <span className="fw-semibold" style={{ fontSize: '14px', color: '#a1a1a6' }}>
                                 Mostrando {productosReales.length} productos
                             </span>
 
@@ -208,16 +203,16 @@ export default function Productos() {
                         {loading ? (
                             <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '40vh' }}>
                                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center">
-                                    <i className="fas fa-circle-notch fa-spin fa-2x mb-3 text-secondary"></i>
-                                    <p className="text-muted fw-bold">Actualizando catálogo...</p>
+                                    <i className="fas fa-circle-notch fa-spin fa-2x mb-3 text-white"></i>
+                                    <p className="fw-bold" style={{ color: '#a1a1a6' }}>Actualizando catálogo...</p>
                                 </motion.div>
                             </div>
                         ) : productosReales.length === 0 ? (
                             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="prod-empty-state text-center py-5">
-                                <i className="fas fa-search fa-3x mb-3" style={{ color: '#d2d2d7' }}></i>
-                                <h4>No hay resultados</h4>
-                                <p className="text-muted">No encontramos productos que coincidan con tus filtros.</p>
-                                <button className="btn btn-outline-secondary mt-2" onClick={() => setFiltros({ categoryId: '', size: '', sort: 'newest' })}>
+                                <i className="fas fa-search fa-3x mb-3" style={{ color: '#444' }}></i>
+                                <h4 className="text-white">No hay resultados</h4>
+                                <p>No encontramos productos que coincidan con tus filtros.</p>
+                                <button className="btn btn-outline-light mt-2" onClick={() => setFiltros({ categoryId: '', size: '', sort: 'newest' })}>
                                     Limpiar Filtros
                                 </button>
                             </motion.div>
@@ -237,7 +232,7 @@ export default function Productos() {
                                                 {/* CONTENEDOR ÚNICO DE ETIQUETAS */}
                                                 <div className="prod-badge-container d-flex flex-column align-items-start gap-2">
                                                     {product.sale && product.basePrice > 0 && (
-                                                        <span className="prod-card-badge shadow-sm text-white" style={{ backgroundColor: '#ff3b30', borderColor: '#ff3b30' }}>
+                                                        <span className="prod-card-badge shadow-sm" style={{ backgroundColor: '#ff3b30', color: '#fff' }}>
                                                             OFERTA -{Math.round(((product.basePrice - product.salePrice) / product.basePrice) * 100)}%
                                                         </span>
                                                     )}
@@ -289,7 +284,7 @@ export default function Productos() {
                                                 </div>
 
                                                 <h3 className="prod-product-title mt-2">{product.name}</h3>
-                                                <p className="prod-product-desc text-muted mb-2" style={{ fontSize: '0.85rem', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                                                <p className="prod-product-desc mb-2">
                                                     {product.description || "Equipamiento RUKI."}
                                                 </p>
 
@@ -298,31 +293,14 @@ export default function Productos() {
                                                     {product.sale ? (
                                                         <div className="d-flex align-items-center gap-2">
                                                             <span className="text-danger fw-bold fs-5">${Number(product.salePrice).toLocaleString('es-CL')}</span>
-                                                            <span className="text-muted text-decoration-line-through small">${Number(product.basePrice).toLocaleString('es-CL')}</span>
+                                                            <span className="text-decoration-line-through small" style={{ color: '#666' }}>${Number(product.basePrice).toLocaleString('es-CL')}</span>
                                                         </div>
                                                     ) : (
-                                                        <span className="fw-bold fs-5 text-dark">${Number(product.basePrice).toLocaleString('es-CL')}</span>
+                                                        <span className="fw-bold fs-5 text-white">${Number(product.basePrice).toLocaleString('es-CL')}</span>
                                                     )}
                                                 </div>
 
                                                 <div style={{ flexGrow: 1 }}></div>
-
-                                                {/* BOTÓN AÑADIR AL CARRITO */}
-                                                <motion.button
-                                                    whileTap={product.stock > 0 ? { scale: 0.95 } : {}}
-                                                    className={`prod-btn-primary mt-auto w-100 ${product.stock === 0 ? 'disabled' : ''}`}
-                                                    onClick={() => {
-                                                        addToCart(product, 1);
-                                                        mostrarToast(`¡${product.name} añadido!`, 'success');
-                                                    }}
-                                                    disabled={product.stock === 0}
-                                                >
-                                                    {product.stock === 0 ? (
-                                                        <><i className="fas fa-times-circle me-2"></i> SIN STOCK</>
-                                                    ) : (
-                                                        <><i className="fas fa-shopping-bag me-2"></i> AÑADIR AL CARRITO</>
-                                                    )}
-                                                </motion.button>
                                             </div>
                                         </article>
                                     </motion.div>
