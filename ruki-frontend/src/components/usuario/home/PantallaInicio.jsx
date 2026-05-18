@@ -64,7 +64,7 @@ function PantallaInicio() {
                                     </Link>
                                 </div>
                             ) : (
-                                <Link to={usuario?.role === 'ADMIN' ? '/admin/reporte-dashboard' : '/perfil/pedidos'} className="saas-btn saas-btn-secondary">
+                                <Link to={usuario?.role === 'ADMIN' ? '/faq/reporte-dashboard' : '/mis-pedidos'} className="saas-btn saas-btn-secondary">
                                     <i className="fas fa-user-circle me-2"></i> Mi Panel de Control
                                 </Link>
                             )}

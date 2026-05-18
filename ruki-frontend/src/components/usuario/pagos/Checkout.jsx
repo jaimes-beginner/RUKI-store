@@ -86,37 +86,51 @@ export function Checkout() {
 
     if (cart.length === 0) {
         return (
-            <motion.div
-                className="container mt-5 text-center checkout-empty"
-                initial="hidden" animate="visible" variants={pageVariants}
-            >
-                <div className="checkout-empty-icon mb-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-secondary opacity-50">
-                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                        <line x1="3" y1="6" x2="21" y2="6"></line>
-                        <path d="M16 10a4 4 0 0 1-8 0"></path>
-                    </svg>
+            <main className="checkout-wrapper">
+                <div className="chk-glow-container">
+                    <div className="chk-glow-blob chk-blob-blue"></div>
+                    <div className="chk-glow-blob chk-blob-purple"></div>
                 </div>
-                <h2 className="fw-bolder">Tu carrito está vacío</h2>
-                <p className="text-secondary mb-4">Agrega algunos productos increíbles antes de pasar por caja.</p>
-                <button className="ios-btn-outline" onClick={() => navigate('/productos')}>
-                    Volver a la tienda
-                </button>
-            </motion.div>
+                
+                <motion.div
+                    className="container text-center checkout-empty"
+                    initial="hidden" animate="visible" variants={pageVariants}
+                >
+                    <div className="checkout-empty-icon mb-4 mx-auto">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-secondary opacity-50">
+                            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <path d="M16 10a4 4 0 0 1-8 0"></path>
+                        </svg>
+                    </div>
+                    <h2 className="fw-bolder text-white">Tu carrito está vacío</h2>
+                    <p className="text-secondary mb-4">Agrega algunos productos increíbles antes de pasar por caja.</p>
+                    <button className="ios-btn-outline" onClick={() => navigate('/productos')}>
+                        Volver al Catálogo
+                    </button>
+                </motion.div>
+            </main>
         );
     }
 
     return (
         <main className="checkout-wrapper">
+            
+            {/* LUCES DE FONDO (BLUE/PURPLE) */}
+            <div className="chk-glow-container">
+                <div className="chk-glow-blob chk-blob-blue"></div>
+                <div className="chk-glow-blob chk-blob-purple"></div>
+            </div>
+
             <motion.div
                 className="container pt-5 pb-5"
                 initial="hidden" animate="visible" variants={pageVariants}
             >
                 {/* CABECERA */}
                 <div className="d-flex align-items-center justify-content-between mb-4">
-                    <h2 className="fw-bolder text-dark m-0">Finalizar Compra</h2>
+                    <h2 className="fw-bolder text-white m-0">Finalizar Compra</h2>
                     <span className="secure-badge d-flex align-items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="me-2 text-success">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="me-2">
                             <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                             <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                         </svg>
@@ -133,7 +147,7 @@ export function Checkout() {
                             exit={{ opacity: 0, height: 0 }}
                             className="alert ios-alert d-flex align-items-center mb-4 fw-bold small"
                         >
-                            <i className="fas fa-exclamation-triangle me-2"></i>
+                            <i className="fas fa-exclamation-triangle me-2 fs-5"></i>
                             {error}
                         </motion.div>
                     )}
@@ -144,20 +158,20 @@ export function Checkout() {
                     {/* COLUMNA IZQUIERDA (DATOS Y DIRECCIÓN) */}
                     <div className="col-lg-7 pe-lg-4">
 
-                        {/* PASO 1: DATOS DE CONTACTO */}
+                        {/* DATOS DE CONTACTO */}
                         <div className="checkout-card mb-4">
                             <div className="d-flex align-items-center mb-4">
                                 <div className="step-number">1</div>
-                                <h5 className="fw-bolder m-0 ms-3 text-dark" style={{ letterSpacing: '-0.02em' }}>Datos de Contacto</h5>
+                                <h5 className="fw-bolder m-0 ms-3 text-white" style={{ letterSpacing: '-0.02em' }}>Datos de Contacto</h5>
                             </div>
 
                             <div className="contact-info-box">
                                 <div className="d-flex align-items-center">
-                                    <div className="bg-white rounded-circle d-flex justify-content-center align-items-center me-3 shadow-sm" style={{ width: '40px', height: '40px' }}>
-                                        <i className="fas fa-user text-secondary"></i>
+                                    <div className="rounded-circle d-flex justify-content-center align-items-center me-3 shadow-sm" style={{ width: '44px', height: '44px', background: 'rgba(255,255,255,0.1)' }}>
+                                        <i className="fas fa-user text-white"></i>
                                     </div>
                                     <div>
-                                        <p className="m-0 fw-bold text-dark">{usuario?.firstName} {usuario?.lastName}</p>
+                                        <p className="m-0 fw-bold text-white">{usuario?.firstName} {usuario?.lastName}</p>
                                         <p className="m-0 text-secondary small">{usuario?.email}</p>
                                     </div>
                                 </div>
@@ -168,13 +182,13 @@ export function Checkout() {
                         <div className="checkout-card mb-4">
                             <div className="d-flex align-items-center mb-4">
                                 <div className="step-number">2</div>
-                                <h5 className="fw-bolder m-0 ms-3 text-dark" style={{ letterSpacing: '-0.02em' }}>Dirección de Envío</h5>
+                                <h5 className="fw-bolder m-0 ms-3 text-white" style={{ letterSpacing: '-0.02em' }}>Dirección de Envío</h5>
                             </div>
 
                             {direcciones.length === 0 ? (
                                 <div className="alert ios-alert small mb-0 d-flex align-items-center">
-                                    <i className="fas fa-exclamation-triangle me-2 text-warning"></i>
-                                    No tienes direcciones registradas. Por favor, agrega una en tu perfil.
+                                    <i className="fas fa-exclamation-triangle me-2"></i>
+                                    No tienes direcciones registradas. Por favor, agrega una en tu perfil antes de continuar.
                                 </div>
                             ) : (
                                 <div className="address-grid">
@@ -186,7 +200,7 @@ export function Checkout() {
                                         >
                                             <div className="d-flex justify-content-between align-items-start">
                                                 <div>
-                                                    <p className="fw-bold mb-1 text-dark d-flex align-items-center">
+                                                    <p className="fw-bold mb-1 text-white d-flex align-items-center">
                                                         <i className="fas fa-map-marker-alt text-secondary me-2"></i>
                                                         {dir.street}
                                                     </p>
@@ -212,10 +226,10 @@ export function Checkout() {
                         </div>
                     </div>
 
-                    {/* COLUMNA DERECHA (RESUMEN DEL PEDIDO)        */}
+                    {/* COLUMNA DERECHA (RESUMEN DEL PEDIDO) */}
                     <div className="col-lg-5">
                         <div className="checkout-card summary-card sticky-top" style={{ top: '100px' }}>
-                            <h5 className="fw-bold mb-4">Resumen del Pedido</h5>
+                            <h5 className="fw-bold mb-4 text-white">Resumen del Pedido</h5>
 
                             <div className="summary-items-container mb-4">
                                 {cart.map((item, index) => (
@@ -235,37 +249,37 @@ export function Checkout() {
                                             </span>
                                         </div>
                                         <div className="flex-grow-1 ms-3">
-                                            <p className="fw-semibold mb-0 small text-dark">{item.name}</p>
+                                            <p className="fw-semibold mb-0 small text-white">{item.name}</p>
                                             <p className="text-secondary small m-0">Talla: {item.selectedSize}</p>
                                         </div>
-                                        <div className="fw-bold small text-dark">
+                                        <div className="fw-bold small text-white">
                                             ${((Number(item.precioFinal) || Number(item.cartPrice) || Number(item.basePrice) || 0) * item.cantidad).toLocaleString('es-CL')}
                                         </div>
                                     </motion.div>
                                 ))}
                             </div>
 
-                            <div className="summary-totals border-top pt-3">
+                            <div className="summary-totals pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }}>
                                 {/* SUBTOTAL NETO */}
-                                <div className="d-flex justify-content-between mb-2 small text-secondary">
+                                <div className="d-flex justify-content-between mb-2 small text-secondary fw-medium">
                                     <span>Subtotal (Neto)</span>
-                                    <span>${(cartSubtotal || 0).toLocaleString('es-CL')}</span>
+                                    <span className="text-white opacity-75">${(cartSubtotal || 0).toLocaleString('es-CL')}</span>
                                 </div>
                                 
                                 {/* IVA */}
-                                <div className="d-flex justify-content-between mb-2 small text-secondary">
+                                <div className="d-flex justify-content-between mb-2 small text-secondary fw-medium">
                                     <span>IVA (19%)</span>
-                                    <span>${(cartIva || 0).toLocaleString('es-CL')}</span>
+                                    <span className="text-white opacity-75">${(cartIva || 0).toLocaleString('es-CL')}</span>
                                 </div>
                                 
                                 {/* ENVÍO */}
-                                <div className="d-flex justify-content-between mb-3 small text-secondary">
+                                <div className="d-flex justify-content-between mb-3 small text-secondary fw-medium">
                                     <span>Envío</span>
-                                    <span>Calculado en Stripe</span>
+                                    <span className="text-white opacity-75">Calculado en Stripe</span>
                                 </div>
                                 
                                 {/* TOTAL A PAGAR */}
-                                <div className="d-flex justify-content-between border-top pt-3 mb-4 fw-bolder fs-5 text-dark">
+                                <div className="d-flex justify-content-between pt-3 mb-4 fw-bolder fs-5 text-white" style={{ borderTop: '2px dashed rgba(255,255,255,0.15)' }}>
                                     <span>Total a Pagar</span>
                                     <span>${(cartTotalAmount || 0).toLocaleString('es-CL')}</span>
                                 </div>
@@ -279,7 +293,7 @@ export function Checkout() {
                                 {loading ? (
                                     <><i className="fas fa-circle-notch fa-spin me-2"></i> Procesando...</>
                                 ) : (
-                                    <><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="me-2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg> Pagar con Stripe</>
+                                    <><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="me-2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg> Pagar con Stripe</>
                                 )}
                             </button>
 

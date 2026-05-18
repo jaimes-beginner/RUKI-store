@@ -217,9 +217,9 @@ function Header() {
                               {/* DETALLES (Nombre, Talla y Precio Real) */}
                               <div className="flex-grow-1">
                                 <h6 className="ios-cart-title fw-bold text-dark mb-0">{item.name}</h6>
-                                <small className="text-muted d-block mb-1" style={{fontSize: '0.8rem'}}>Talla: <span className="fw-semibold text-dark">{item.selectedSize}</span></small>
+                                <small className="text-secondary d-block mb-1 " style={{fontSize: '0.8rem'}}>Talla: <span className="fw-semibold text-secondary">{item.selectedSize}</span></small>
                                 
-                                <p className="ios-cart-price mb-2 fw-semibold text-primary">
+                                <p className="ios-cart-price mb-2 fw-semibold text-white">
                                   ${(Number(item.precioFinal) || Number(item.cartPrice) || Number(item.basePrice) || 0).toLocaleString('es-CL')}
                                 </p>
                                 
@@ -263,7 +263,7 @@ function Header() {
                       <div className="mb-3" style={{ borderTop: '1px dashed rgba(0,0,0,0.15)' }}></div>
 
                       {/* TOTAL A PAGAR */}
-                      <div className="d-flex justify-content-between mb-4 fw-bolder text-dark fs-4" style={{ letterSpacing: '-0.02em' }}>
+                      <div className="d-flex justify-content-between mb-4 fw-bolder text-white fs-4" style={{ letterSpacing: '-0.02em' }}>
                         <span>Total</span>
                         <span>${(cartTotalAmount || 0).toLocaleString('es-CL')}</span>
                       </div>

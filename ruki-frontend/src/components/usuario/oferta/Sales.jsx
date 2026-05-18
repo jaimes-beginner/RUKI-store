@@ -18,16 +18,10 @@ const itemVariants = {
 export default function Sales() {
     const { addToCart } = useCart(); 
 
-    /*
-        Estados base
-    */
     const [allProducts, setAllProducts] = useState([]); 
     const [products, setProducts] = useState([]);       
     const [categorias, setCategorias] = useState([]);
 
-    /*
-        Estado de filtros
-    */
     const [filtros, setFiltros] = useState({
         categoryId: '',
         size: '',
@@ -44,9 +38,6 @@ export default function Sales() {
         setTimeout(() => setToast(prev => ({ ...prev, mostrar: false })), 3000);
     };
 
-    /*
-        Cargar categorías y ofertas
-    */
     useEffect(() => {
         const cargarDatos = async () => {
             try {
@@ -66,9 +57,6 @@ export default function Sales() {
         cargarDatos();
     }, []);
 
-    /*
-        Lógica de filtrado local
-    */
     useEffect(() => {
         let filtrados = [...allProducts];
 
@@ -153,7 +141,7 @@ export default function Sales() {
             <div className="container px-4 px-lg-5 pb-5">
                 <div className="row g-5">
                     
-                    {/* PANEL DE FILTROS LATERAL (GLASSMORPHISM) */}
+                    {/* PANEL DE FILTROS LATERAL */}
                     <aside className="col-lg-3 d-none d-lg-block">
                         <div className="sale-filter-sidebar p-4 position-sticky" style={{ top: '180px' }}>
                             <h3 className="fw-bolder mb-4 text-white" style={{ letterSpacing: '-0.02em' }}>Filtros</h3>
@@ -235,17 +223,19 @@ export default function Sales() {
                             </motion.div>
                         ) : (
                             <motion.div 
+                                // 💡 SOLUCIÓN 1: Esta KEY dinámica obliga a Framer Motion a reiniciar el Stagger completo
+                                key={`${filtros.sort}-${filtros.categoryId}-${filtros.size}-${products.length}`}
                                 className="row g-4"
                                 variants={containerVariants}
                                 initial="hidden"
                                 animate="visible"
                             >
-                                {products.map((product) => (
-                                    <motion.div key={product.id} className="col-12 col-sm-6 col-md-4" variants={itemVariants}>
+                                {products.map((product, index) => (
+                                    // 💡 SOLUCIÓN 2: Agregamos el index al key por si la base de datos envía IDs repetidos
+                                    <motion.div key={`${product.id}-${index}`} className="col-12 col-sm-6 col-md-4" variants={itemVariants}>
                                         <article className="sale-card d-flex flex-column">
                                             <div className="sale-image-wrap">
                                                 
-                                                {/* ETIQUETAS UNIFICADAS */}
                                                 <div className="sale-badge-container d-flex flex-column align-items-start gap-2">
                                                     <span className="sale-card-badge shadow-sm" style={{ backgroundColor: 'rgba(255, 59, 48, 0.9)', color: '#ffffff', borderColor: 'rgba(255,59,48,0.5)' }}>
                                                         OFERTA -{calcularDescuento(product.basePrice, product.salePrice)}%
@@ -265,7 +255,7 @@ export default function Sales() {
                                                 <Link to={`/producto/${product.id}`}>
                                                     <AnimatePresence mode="wait">
                                                         <motion.img 
-                                                            key={getDisplayImage(product)}
+                                                            key={`${product.id}-${getDisplayImage(product)}`}
                                                             src={getDisplayImage(product)} 
                                                             alt={product.name}
                                                             initial={{ opacity: 0 }}
@@ -280,14 +270,14 @@ export default function Sales() {
 
                                             <div className="sale-card-info d-flex flex-column flex-grow-1">
                                                 <div className="sale-thumbs">
-                                                    {getGallery(product).length > 1 && getGallery(product).map((thumb, index) => (
+                                                    {getGallery(product).length > 1 && getGallery(product).map((thumb, idx) => (
                                                         <button
-                                                            key={`${product.id}-${index}`}
+                                                            key={`${product.id}-${idx}`}
                                                             type="button"
-                                                            className={`sale-thumb-btn ${getSelectedIndex(product.id) === index ? 'is-active' : ''}`}
-                                                            onMouseEnter={() => handleSelectImage(product.id, index)}
-                                                            onClick={() => handleSelectImage(product.id, index)}
-                                                            aria-label={`Mostrar miniatura ${index + 1}`}
+                                                            className={`sale-thumb-btn ${getSelectedIndex(product.id) === idx ? 'is-active' : ''}`}
+                                                            onMouseEnter={() => handleSelectImage(product.id, idx)}
+                                                            onClick={() => handleSelectImage(product.id, idx)}
+                                                            aria-label={`Mostrar miniatura ${idx + 1}`}
                                                         >
                                                             <img src={thumb} alt="miniatura" />
                                                         </button>
@@ -305,7 +295,6 @@ export default function Sales() {
                                                 </div>
                                                 
                                                 <div style={{ flexGrow: 1 }}></div>
-
                                             </div>
                                         </article>
                                     </motion.div>

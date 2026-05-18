@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom'; 
 import { useAuth } from '../../../contexts/AuthContext';
 import { obtenerMiPerfil, actualizarUsuario, crearDireccion, obtenerDireccionesPorUsuario } from '../../../services/UsuarioService';
 import { Modal } from 'react-bootstrap';
@@ -8,16 +9,16 @@ import { regiones } from '../../../data/Regiones';
 
 export function Perfil() {
     const { usuario } = useAuth();
+    const navigate = useNavigate(); 
 
     const [perfil, setPerfil] = useState(null);
     const [direcciones, setDirecciones] = useState([]);
 
     const [editMode, setEditMode] = useState(false);
-    const [formData, setFormData] = useState({ firstName: '', lastName: '', password: '' });
+    
+    const [formData, setFormData] = useState({ firstName: '', lastName: '' });
 
     const [showAddressModal, setShowAddressModal] = useState(false);
-
-    // El formulario ahora inicia limpio, listo para los dropdowns
     const [addressForm, setAddressForm] = useState({
         street: '', city: '', region: '', zipCode: '', referenceInfo: ''
     });
@@ -45,7 +46,7 @@ export function Perfil() {
             ]);
             setPerfil(profileData);
             setDirecciones(addressData);
-            setFormData({ firstName: profileData.firstName, lastName: profileData.lastName, password: '' });
+            setFormData({ firstName: profileData.firstName, lastName: profileData.lastName });
         } catch (err) {
             mostrarToast('Error al cargar los datos', 'error');
         } finally {
@@ -58,8 +59,6 @@ export function Perfil() {
         setActionLoading(true);
         try {
             const updatePayload = { ...formData };
-            if (!updatePayload.password) delete updatePayload.password;
-
             await actualizarUsuario(perfil.id, updatePayload);
             mostrarToast('Perfil actualizado con éxito', 'success');
             setEditMode(false);
@@ -104,18 +103,11 @@ export function Perfil() {
 
     const comunasDisponibles = regiones.find(r => r.nombre === addressForm.region)?.comunas || [];
 
-    if (loading) {
-        return (
-            <div className="profile-main-wrapper d-flex justify-content-center align-items-center">
-                <i className="fas fa-circle-notch fa-spin fa-3x" style={{ color: '#0a84ff' }}></i>
-            </div>
-        );
-    }
 
     return (
         <div className="profile-main-wrapper">
 
-            {/* LUCES DE FONDO DE PERFIL */}
+            {/* LUCES DE FONDO DE PERFIL (Cargan Inmediatamente) */}
             <div className="profile-glow-container">
                 <div className="profile-glow-blob profile-blob-blue"></div>
                 <div className="profile-glow-blob profile-blob-purple"></div>
@@ -123,7 +115,7 @@ export function Perfil() {
 
             <div className="container mt-5 mb-5 position-relative" style={{ zIndex: 1 }}>
 
-                {/* CABECERA */}
+                {/* CABECERA (Carga Inmediatamente) */}
                 <motion.div
                     className="profile-page-header-glass"
                     initial={{ opacity: 0, y: -20 }}
@@ -134,144 +126,161 @@ export function Perfil() {
                     <p>Gestiona tu <strong>perfil</strong> y tus <strong>direcciones de envío</strong>.</p>
                 </motion.div>
 
-                <motion.div
-                    className="row g-4"
-                    variants={containerVariants}
-                    initial="hidden"
-                    animate="visible"
-                >
-                    {/* COLUMNA IZQUIERDA CON INFORMACIÓN PERSONAL */}
-                    <motion.div className="col-md-5" variants={cardVariants}>
-                        <div className="profile-card-glass h-100">
-                            <div className="profile-header-glass d-flex justify-content-between align-items-center">
-                                <div>
-                                    <i className="fas fa-user-circle me-2" style={{ color: '#0a84ff' }}></i>
-                                    Información Personal
+                {loading ? (
+                    <div className="d-flex flex-column justify-content-center align-items-center" style={{ minHeight: '40vh' }}>
+                        <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} className="text-center">
+                            <i className="fas fa-circle-notch fa-spin fa-3x mb-3" style={{ color: '#600aff' }}></i>
+                            <p className="text-secondary fw-semibold">Sincronizando tus datos...</p>
+                        </motion.div>
+                    </div>
+                ) : (
+                    <motion.div
+                        className="row g-4"
+                        variants={containerVariants}
+                        initial="hidden"
+                        animate="visible"
+                    >
+                        {/* COLUMNA IZQUIERDA CON INFORMACIÓN PERSONAL */}
+                        <motion.div className="col-md-5" variants={cardVariants}>
+                            <div className="profile-card-glass h-100">
+                                <div className="profile-header-glass d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i className="fas fa-user-circle me-2" style={{ color: '#600aff' }}></i>
+                                        Información Personal
+                                    </div>
+                                    <motion.button
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        className="btn-edit-toggle"
+                                        onClick={() => setEditMode(!editMode)}
+                                    >
+                                        {editMode ? 'Cancelar' : 'Editar'}
+                                    </motion.button>
                                 </div>
-                                <motion.button
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    className="btn-edit-toggle"
-                                    onClick={() => setEditMode(!editMode)}
-                                >
-                                    {editMode ? 'Cancelar' : 'Editar'}
-                                </motion.button>
-                            </div>
-                            <div className="card-body p-4">
-                                <form onSubmit={handleUpdateProfile}>
-                                    <div className="ios-input-group mb-3">
-                                        <label className="ios-label">Nombre</label>
-                                        <div className="ios-input-wrapper">
-                                            <i className="fas fa-user input-icon"></i>
-                                            <input type="text" className="ios-input-glass w-100" disabled={!editMode} required
-                                                value={formData.firstName} onChange={(e) => setFormData({ ...formData, firstName: e.target.value })} />
+                                <div className="card-body p-4">
+                                    <form onSubmit={handleUpdateProfile}>
+                                        <div className="ios-input-group mb-3">
+                                            <label className="ios-label">Nombre</label>
+                                            <div className="ios-input-wrapper">
+                                                <i className="fas fa-user input-icon"></i>
+                                                <input type="text" className="ios-input-glass w-100" disabled={!editMode} required
+                                                    value={formData.firstName} onChange={(e) => setFormData({ ...formData, firstName: e.target.value })} />
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div className="ios-input-group mb-3">
-                                        <label className="ios-label">Apellido</label>
-                                        <div className="ios-input-wrapper">
-                                            <i className="fas fa-id-badge input-icon"></i>
-                                            <input type="text" className="ios-input-glass w-100" disabled={!editMode} required
-                                                value={formData.lastName} onChange={(e) => setFormData({ ...formData, lastName: e.target.value })} />
+                                        <div className="ios-input-group mb-3">
+                                            <label className="ios-label">Apellido</label>
+                                            <div className="ios-input-wrapper">
+                                                <i className="fas fa-id-badge input-icon"></i>
+                                                <input type="text" className="ios-input-glass w-100" disabled={!editMode} required
+                                                    value={formData.lastName} onChange={(e) => setFormData({ ...formData, lastName: e.target.value })} />
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div className="ios-input-group mb-3">
-                                        <label className="ios-label">Correo Electrónico</label>
-                                        <div className="ios-input-wrapper">
-                                            <i className="fas fa-envelope input-icon"></i>
-                                            <input type="email" className="ios-input-glass w-100" disabled value={perfil.email} />
+                                        <div className="ios-input-group mb-3">
+                                            <label className="ios-label">Correo Electrónico</label>
+                                            <div className="ios-input-wrapper">
+                                                <i className="fas fa-envelope input-icon"></i>
+                                                <input type="email" className="ios-input-glass w-100" disabled value={perfil.email} />
+                                            </div>
+                                            <div className="input-helper-text mt-1">
+                                                <i className="fas fa-lock me-1"></i>No editable por seguridad
+                                            </div>
                                         </div>
-                                        <div className="input-helper-text mt-1">
-                                            <i className="fas fa-lock me-1"></i>No editable por seguridad
-                                        </div>
-                                    </div>
 
-                                    <AnimatePresence>
-                                        {editMode && (
-                                            <motion.div
-                                                initial={{ opacity: 0, height: 0 }}
-                                                animate={{ opacity: 1, height: 'auto' }}
-                                                exit={{ opacity: 0, height: 0 }}
-                                                style={{ overflow: 'hidden' }}
+                                        {/* BOTÓN PARA RECUPERAR CONTRASEÑA (Fuera del EditMode para que siempre esté accesible) */}
+                                        <div className="ios-input-group mb-4 mt-4 pt-4 border-top border-dark" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
+                                            <label className="ios-label">Seguridad</label>
+                                            <motion.button
+                                                type="button"
+                                                whileTap={{ scale: 0.95 }}
+                                                className="ios-btn ios-btn-outline w-100 d-flex justify-content-center align-items-center"
+                                                onClick={() => navigate('/forgot-password')}
                                             >
-                                                <div className="ios-input-group mb-4 mt-4 pt-4 border-top border-dark">
-                                                    <label className="ios-label highlight-label">Nueva Contraseña</label>
-                                                    <div className="ios-input-wrapper">
-                                                        <i className="fas fa-key input-icon"></i>
-                                                        <input type="password" className="ios-input-glass w-100" placeholder="Dejar en blanco para conservar"
-                                                            value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} />
-                                                    </div>
-                                                </div>
-                                                <motion.button
-                                                    whileTap={{ scale: 0.95 }}
-                                                    type="submit"
-                                                    className="ios-btn ios-btn-dark w-100"
-                                                    disabled={actionLoading}
-                                                >
-                                                    {actionLoading ? <><i className="fas fa-spinner fa-spin me-2"></i>GUARDANDO...</> : "GUARDAR CAMBIOS"}
-                                                </motion.button>
-                                            </motion.div>
-                                        )}
-                                    </AnimatePresence>
-                                </form>
-                            </div>
-                        </div>
-                    </motion.div>
-
-                    {/* COLUMNA DERECHA CON LAS DIRECCIONES */}
-                    <motion.div className="col-md-7" variants={cardVariants}>
-                        <div className="profile-card-glass h-100 d-flex flex-column">
-                            <div className="profile-header-glass d-flex justify-content-between align-items-center">
-                                <div>
-                                    <i className="fas fa-map-marker-alt me-2" style={{ color: '#ff3b30' }}></i>
-                                    Mis Direcciones
-                                </div>
-                                <span className="ios-badge-glass-subtle">
-                                    {direcciones.length} REGISTRADAS
-                                </span>
-                            </div>
-
-                            <div className="card-body p-0 flex-grow-1">
-                                {direcciones.length === 0 ? (
-                                    <div className="empty-address-state">
-                                        <div className="empty-icon-glass">
-                                            <i className="fas fa-home fa-2x"></i>
+                                                <i className="fas fa-key me-2"></i> Cambiar mi contraseña
+                                            </motion.button>
+                                            <div className="input-helper-text mt-2 text-center opacity-75">
+                                                Te enviaremos un enlace seguro a tu correo.
+                                            </div>
                                         </div>
-                                        <p>No tienes direcciones registradas.</p>
+
+                                        <AnimatePresence>
+                                            {editMode && (
+                                                <motion.div
+                                                    initial={{ opacity: 0, height: 0 }}
+                                                    animate={{ opacity: 1, height: 'auto' }}
+                                                    exit={{ opacity: 0, height: 0 }}
+                                                    style={{ overflow: 'hidden' }}
+                                                >
+                                                    <motion.button
+                                                        whileTap={{ scale: 0.95 }}
+                                                        type="submit"
+                                                        className="ios-btn ios-btn-dark w-100"
+                                                        disabled={actionLoading}
+                                                    >
+                                                        {actionLoading ? <><i className="fas fa-spinner fa-spin me-2"></i>GUARDANDO...</> : "GUARDAR CAMBIOS"}
+                                                    </motion.button>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
+                                    </form>
+                                </div>
+                            </div>
+                        </motion.div>
+
+                        {/* COLUMNA DERECHA CON LAS DIRECCIONES */}
+                        <motion.div className="col-md-7" variants={cardVariants}>
+                            <div className="profile-card-glass h-100 d-flex flex-column">
+                                <div className="profile-header-glass d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i className="fas fa-map-marker-alt me-2" style={{ color: '#7327ff' }}></i>
+                                        Mis Direcciones
                                     </div>
-                                ) : (
-                                    <motion.div className="address-list" variants={containerVariants} initial="hidden" animate="visible">
-                                        {direcciones.map((dir) => (
-                                            <motion.div key={dir.id} className="address-item" variants={listItemVariants}>
-                                                <div>
-                                                    <div className="address-street">{dir.street}</div>
-                                                    <div className="address-details">
-                                                        {dir.city}, {dir.region} {dir.referenceInfo ? ` • ${dir.referenceInfo}` : ''}
+                                    <span className="ios-badge-glass-subtle">
+                                        {direcciones.length} REGISTRADAS
+                                    </span>
+                                </div>
+
+                                <div className="card-body p-0 flex-grow-1">
+                                    {direcciones.length === 0 ? (
+                                        <div className="empty-address-state">
+                                            <div className="empty-icon-glass">
+                                                <i className="fas fa-home fa-2x"></i>
+                                            </div>
+                                            <p>No tienes direcciones registradas.</p>
+                                        </div>
+                                    ) : (
+                                        <motion.div className="address-list" variants={containerVariants} initial="hidden" animate="visible">
+                                            {direcciones.map((dir) => (
+                                                <motion.div key={dir.id} className="address-item" variants={listItemVariants}>
+                                                    <div>
+                                                        <div className="address-street">{dir.street}</div>
+                                                        <div className="address-details">
+                                                            {dir.city}, {dir.region} {dir.referenceInfo ? ` • ${dir.referenceInfo}` : ''}
+                                                        </div>
                                                     </div>
-                                                </div>
-                                                <span className="ios-badge-zipcode">
-                                                    C.P: {dir.zipCode || 'N/A'}
-                                                </span>
-                                            </motion.div>
-                                        ))}
-                                    </motion.div>
-                                )}
-                            </div>
+                                                    <span className="ios-badge-zipcode">
+                                                        C.P: {dir.zipCode || 'N/A'}
+                                                    </span>
+                                                </motion.div>
+                                            ))}
+                                        </motion.div>
+                                    )}
+                                </div>
 
-                            <div className="p-4 border-top border-dark">
-                                <motion.button
-                                    whileTap={{ scale: 0.98 }}
-                                    className="ios-btn ios-btn-outline w-100"
-                                    onClick={() => setShowAddressModal(true)}
-                                >
-                                    <i className="fas fa-plus me-2"></i> AGREGAR NUEVA DIRECCIÓN
-                                </motion.button>
+                                <div className="p-4 border-top border-dark" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
+                                    <motion.button
+                                        whileTap={{ scale: 0.98 }}
+                                        className="ios-btn ios-btn-outline w-100"
+                                        onClick={() => setShowAddressModal(true)}
+                                    >
+                                        <i className="fas fa-plus me-2"></i> AGREGAR NUEVA DIRECCIÓN
+                                    </motion.button>
+                                </div>
                             </div>
-                        </div>
+                        </motion.div>
                     </motion.div>
-                </motion.div>
+                )}
 
-                {/* MODAL NUEVA DIRECCIÓN (SOFISTICADO) */}
+                {/* MODAL NUEVA DIRECCIÓN */}
                 <Modal show={showAddressModal} onHide={() => setShowAddressModal(false)} centered contentClassName="profile-modal-glass">
                     <div className="p-4">
                         <div className="d-flex justify-content-between align-items-center mb-4">

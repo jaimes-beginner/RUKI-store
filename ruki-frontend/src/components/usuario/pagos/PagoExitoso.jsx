@@ -15,7 +15,8 @@ export function PagoExitoso() {
             Vaciamos el carrito al cargar la pantalla de éxito
         */
         clearCart();
-    }, []); // IMPORTANTE: [] previene el bucle infinito
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     /*
         Variantes de animación 
@@ -48,8 +49,10 @@ export function PagoExitoso() {
         <main className="success-page-wrapper">
             
             {/* LUCES AMBIENTALES DE ÉXITO */}
-            <div className="success-ambient-blob blob-success-left"></div>
-            <div className="success-ambient-blob blob-success-right"></div>
+            <div className="success-glow-container">
+                <div className="success-glow-blob blob-success-green"></div>
+                <div className="success-glow-blob blob-success-cyan"></div>
+            </div>
 
             <motion.div 
                 className="success-card"
@@ -64,11 +67,11 @@ export function PagoExitoso() {
                     </svg>
                 </motion.div>
                 
-                <motion.h2 className="fw-bolder text-dark mb-3" variants={itemVariants}>
+                <motion.h2 className="fw-bolder text-white mb-3" variants={itemVariants}>
                     ¡Pago Exitoso!
                 </motion.h2>
                 
-                <motion.p className="text-secondary mb-4 px-3" variants={itemVariants}>
+                <motion.p className="mb-4 px-3" style={{ color: '#a1a1a6', fontWeight: '500' }} variants={itemVariants}>
                     Tu compra se ha procesado correctamente y ya estamos preparando tu pedido. Te enviaremos un correo con los detalles de envío.
                 </motion.p>
                 
@@ -79,11 +82,11 @@ export function PagoExitoso() {
                     </motion.div>
                 )}
                 
-                <motion.div className="d-flex flex-column gap-3 px-3" variants={itemVariants}>
-                    <button className="checkout-btn-dark w-100 py-3" onClick={() => navigate('/productos')}>
+                <motion.div className="d-flex flex-column gap-3 px-3 mt-4" variants={itemVariants}>
+                    <button className="success-btn-primary w-100" onClick={() => navigate('/productos')}>
                         Seguir comprando
                     </button>
-                    <button className="ios-btn-outline w-100 py-3" onClick={() => navigate('/')}>
+                    <button className="success-btn-outline w-100" onClick={() => navigate('/')}>
                         Volver al inicio
                     </button>
                 </motion.div>
