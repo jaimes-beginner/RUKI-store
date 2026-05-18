@@ -38,7 +38,6 @@ public class Order {
     /* 
         Solo guardamos el ID de la dirección
     */
-    @Column(nullable = false)
     private Long shippingAddressId;
 
     @Enumerated(EnumType.STRING)
