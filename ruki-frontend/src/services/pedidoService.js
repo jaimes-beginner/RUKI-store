@@ -109,3 +109,24 @@ export async function actualizarEstadoPedido(id, status) {
     if (!response.ok) throw new Error("Error al actualizar el estado del pedido");
     return response.json();
 }
+
+/*
+    Función asincrona para Administradores en tienda física
+    que registra la venta inmediatamente como pagada y entregada.
+*/
+export async function crearPedidoFisico(orderData) {
+    const response = await fetch(`${API_BASE_URL}/api-ruki/orders/physical`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${getToken()}`
+        },
+        body: JSON.stringify(orderData),
+    });
+
+    if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.message || "Error al procesar la venta en tienda física");
+    }
+    return response.json();
+}
