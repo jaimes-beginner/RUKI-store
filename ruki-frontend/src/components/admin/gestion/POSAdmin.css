@@ -1,0 +1,195 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+/* ========================================= */
+/* WRAPPER PRINCIPAL Y GLOW (Verde/Oro)      */
+/* ========================================= */
+.pos-wrapper {
+    position: relative;
+    min-height: 100vh;
+    background-color: #020202; /* Fondo ultra oscuro */
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+    padding-bottom: 60px;
+    overflow-x: hidden;
+    color: #ffffff;
+}
+
+.pos-glow-container {
+    position: fixed; 
+    inset: 0;
+    z-index: 0;
+    pointer-events: none; 
+    overflow: hidden;
+}
+
+.pos-glow-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(140px);
+    opacity: 0.15; 
+    animation: pulseGlowPos 10s infinite alternate;
+}
+
+/* Verde de éxito y Amarillo/Oro de transacciones */
+.pos-blob-green { width: 45vw; height: 45vw; background: #30d158; top: -10%; left: -10%; }
+.pos-blob-gold { width: 35vw; height: 35vw; background: #ffd60a; bottom: 10%; right: -5%; animation-delay: -3s; }
+
+@keyframes pulseGlowPos {
+    from { transform: scale(1) translate(0,0); }
+    to { transform: scale(1.1) translate(5%, 5%); }
+}
+
+.container-fluid { position: relative; z-index: 1; }
+
+/* ========================================= */
+/* TARJETAS GLOBALES (GLASSMORPHISM)         */
+/* ========================================= */
+.pos-card {
+    position: relative;
+    background: rgba(20, 20, 20, 0.45);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-radius: 24px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+}
+
+.pos-card-header {
+    padding: 18px 24px; 
+    font-weight: 800; 
+    color: #ffffff; 
+    font-size: 16px; 
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08); 
+    background: rgba(0, 0, 0, 0.2);
+    letter-spacing: -0.02em;
+}
+
+/* ========================================= */
+/* BUSCADOR (INPUTS DARK)                    */
+/* ========================================= */
+.pos-input-wrapper { position: relative; width: 100%; max-width: 300px; }
+.pos-input-icon {
+    position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #666666; font-size: 14px; pointer-events: none;
+}
+.pos-input {
+    background: rgba(0, 0, 0, 0.5); 
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 100px; 
+    color: #ffffff;
+    padding: 10px 16px 10px 44px;
+    font-size: 13px; font-weight: 500; transition: all 0.3s ease; width: 100%;
+}
+.pos-input::placeholder { color: #555555; }
+.pos-input:focus {
+    background: #000000; border-color: #ffd60a; outline: none; box-shadow: 0 0 0 3px rgba(255, 214, 10, 0.2);
+}
+
+/* ========================================= */
+/* PRODUCTOS (GRID DARK GLASS)               */
+/* ========================================= */
+.pos-product-card {
+    transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+    border-radius: 20px;
+    overflow: hidden;
+    cursor: pointer;
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.pos-product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5) !important;
+    border-color: rgba(255, 255, 255, 0.15);
+    background-color: rgba(255, 255, 255, 0.06);
+}
+.pos-product-img-wrapper {
+    overflow: hidden;
+    position: relative;
+    border-radius: 20px 20px 0 0;
+    background-color: #111111;
+}
+.pos-product-img {
+    height: 120px;
+    width: 100%;
+    object-fit: cover;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: transform 0.4s ease;
+}
+.pos-product-card:hover .pos-product-img { transform: scale(1.05); }
+
+/* Status de Stock en tarjetas */
+.stock-badge-ok { background: rgba(48, 209, 88, 0.15); color: #30d158; padding: 4px 10px; border-radius: 100px; }
+.stock-badge-out { background: rgba(255, 69, 58, 0.15); color: #ff453a; padding: 4px 10px; border-radius: 100px; }
+
+/* ========================================= */
+/* TICKET DE CAJA (LISTA)                    */
+/* ========================================= */
+.pos-ticket-item {
+    transition: background-color 0.2s ease;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+.pos-ticket-item:hover { background-color: rgba(255, 255, 255, 0.03); }
+.pos-ticket-item:last-child { border-bottom: none; }
+
+/* ========================================= */
+/* BOTONES MODERNOS                          */
+/* ========================================= */
+.pos-btn-primary {
+    background: #ffffff; color: #000000; border: none; border-radius: 14px; padding: 14px; font-weight: 800; font-size: 13px; box-shadow: 0 4px 12px rgba(255,255,255,0.1); transition: all 0.2s;
+}
+.pos-btn-primary:hover:not(:disabled) { background: #d2d2d7; box-shadow: 0 6px 16px rgba(255,255,255,0.2); transform: translateY(-1px); }
+.pos-btn-primary:disabled { background: rgba(255, 255, 255, 0.1); color: #666; box-shadow: none; cursor: not-allowed; }
+
+.pos-btn-success {
+    background: #30d158; color: #ffffff; border: none; border-radius: 14px; padding: 14px; font-weight: 800; font-size: 13px; box-shadow: 0 4px 12px rgba(48, 209, 88, 0.2); transition: all 0.2s;
+}
+.pos-btn-success:hover:not(:disabled) { background: #28a745; box-shadow: 0 6px 16px rgba(48, 209, 88, 0.4); transform: translateY(-1px); }
+.pos-btn-success:disabled { background: rgba(255, 255, 255, 0.1); color: #666; box-shadow: none; cursor: not-allowed; }
+
+.pos-btn-outline {
+    background: transparent; color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 14px; padding: 14px; font-weight: 700; font-size: 13px; transition: all 0.2s;
+}
+.pos-btn-outline:hover { background: rgba(255, 255, 255, 0.1); border-color: #ffffff; }
+
+/* ========================================= */
+/* MODAL RÁPIDO DE TALLAS & PAGO (DARK)      */
+/* ========================================= */
+.pos-modal-backdrop {
+    position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 1060; display: flex; align-items: center; justify-content: center;
+}
+.pos-modal-content {
+    background: rgba(20, 20, 20, 0.9); border-radius: 24px; padding: 24px; width: 90%; max-width: 380px; box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff; backdrop-filter: blur(40px);
+}
+
+.pos-modal-content .btn-close { filter: invert(1) grayscale(100%) brightness(200%); }
+
+.pos-size-btn {
+    border: 1px solid rgba(255, 255, 255, 0.15); background: rgba(255, 255, 255, 0.05); color: #ffffff; font-weight: 700; font-size: 13px; border-radius: 12px; padding: 10px 16px; transition: all 0.2s ease;
+}
+.pos-size-btn:hover:not(:disabled) { background: rgba(255, 255, 255, 0.15); border-color: #ffffff; }
+.pos-size-btn:disabled { background: rgba(255, 255, 255, 0.02); color: #666666; border-color: rgba(255, 255, 255, 0.05); cursor: not-allowed; }
+
+/* ========================================= */
+/* TOASTS                                    */
+/* ========================================= */
+.pos-toast-container { position: fixed; top: 24px; right: 24px; z-index: 1100; }
+.pos-toast {
+    padding: 14px 24px; border-radius: 16px; font-size: 14px; font-weight: 600; display: flex; align-items: center; 
+    background: #111111; color: #ffffff; box-shadow: 0 10px 40px rgba(0,0,0,0.4); border: 1px solid #333333;
+}
+.pos-toast.success { border-bottom: 3px solid #34c759; }
+.pos-toast.error { border-bottom: 3px solid #ff3b30; }
+
+/* ========================================= */
+/* SCROLLBARS                                */
+/* ========================================= */
+.pos-scrollable::-webkit-scrollbar { width: 6px; }
+.pos-scrollable::-webkit-scrollbar-track { background: transparent; }
+.pos-scrollable::-webkit-scrollbar-thumb { background-color: rgba(255, 255, 255, 0.15); border-radius: 10px; }
+.pos-scrollable::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.3); }
+
+/* ========================================= */
+/* RESPONSIVE                                */
+/* ========================================= */
+@media (max-width: 992px) {
+    .pos-toast-container { right: 16px; left: 16px; display: flex; justify-content: center; }
+}

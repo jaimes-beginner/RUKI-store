@@ -8,24 +8,21 @@
   display: flex;
   flex-direction: column;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: #000000; /* Fondo 100% negro sólido */
 }
 
 .ruki-header .ruki-top-navbar {
   position: relative;
   z-index: 10;
-  background-color: rgba(0, 0, 0, 0.845) !important;
-  backdrop-filter: saturate(180%) blur(20px);
-  -webkit-backdrop-filter: saturate(180%) blur(20px);
-  border-bottom: 0.5px solid rgba(255, 255, 255, 0.1);
+  background-color: #000000 !important;
+  border-bottom: 1px solid #1f1f1f; /* Línea de separación sutil */
 }
 
 .ruki-header .ruki-bottom-navbar {
   position: relative;
   z-index: 5; 
-  background-color: rgba(0, 0, 0, 0.741) !important;
-  backdrop-filter: saturate(180%) blur(20px);
-  -webkit-backdrop-filter: saturate(180%) blur(20px);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); 
+  background-color: #0a0a0a !important; /* Ligeramente más claro para diferenciar jerarquía */
+  border-bottom: 1px solid #1f1f1f;
 }
 
 .ruki-header .ruki-topbar { position: relative; }
@@ -41,19 +38,18 @@
   font-size: 0.85rem;
   padding: 8px 16px !important;
   border-radius: 100px;
-  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+  transition: all 0.2s ease-in-out;
   white-space: nowrap; 
 }
 
 .ruki-nav-link:hover {
-  background-color: rgba(255, 255, 255, 0.15) !important; 
+  background-color: #1d1d1f !important; 
   color: #ffffff !important; 
 }
 
 .ruki-nav-link.nav-active {
   background-color: #ffffff !important; 
-  color: #1d1d1f !important; 
-  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.15);
+  color: #000000 !important; 
 }
 
 .ruki-header .user-avatar-mini {
@@ -71,15 +67,16 @@
 
 .ruki-header .user-dropdown-toggle::after { display: none; }
 
+/* ========================================= */
+/* MENÚ DE USUARIO DESPLEGABLE (DARK)        */
+/* ========================================= */
 .ruki-header .user-dropdown-menu-glass {
-  border: 1px solid rgba(255,255,255,0.1) !important;
-  border-radius: 16px !important;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2) !important;
+  border: 1px solid #333333 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8) !important; /* Sombra más dura para resaltar en fondo oscuro */
   padding: 8px !important;
   font-family: 'Inter', sans-serif;
-  backdrop-filter: blur(30px);
-  -webkit-backdrop-filter: blur(30px);
-  background-color: rgba(40, 40, 42, 0.85) !important;
+  background-color: #111111 !important; /* Gris oscuro sólido (mismo de las tarjetas) */
   z-index: 1060 !important; 
   min-width: 220px;
   margin-top: 12px !important;
@@ -90,73 +87,79 @@
   transition: all 0.2s;
   font-weight: 600;
   font-size: 13px;
-  color: #e5e5ea !important;
+  color: #a1a1a6 !important;
 }
-.ruki-header .user-dropdown-item:hover { background-color: rgba(255, 255, 255, 0.1) !important; color: #ffffff !important; }
-.ruki-header .user-divider { border-color: rgba(255,255,255,0.1); margin: 4px 0; }
+.ruki-header .user-dropdown-item:hover { background-color: #333333 !important; color: #ffffff !important; }
+.ruki-header .user-divider { border-color: #333333; margin: 4px 0; }
 
 .ios-cart-btn {
   cursor: pointer; position: relative; padding: 4px; display: inline-flex; align-items: center; justify-content: center;
 }
-.ios-cart-badge { position: absolute; top: -4px; right: -8px; font-size: 0.65rem; border: 2px solid #212529; }
+.ios-cart-badge { position: absolute; top: -4px; right: -8px; font-size: 0.65rem; border: 2px solid #000000; }
 
+/* ========================================= */
+/* SIDEBAR CARRITO (DARK MODE)               */
+/* ========================================= */
 .ruki-cart-backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  z-index: 1045; 
+  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.7); z-index: 1045; 
 }
 
 .ruki-cart-sidebar {
-  position: fixed;
-  top: 0;
-  right: 0;
-  width: 100%;
-  max-width: 420px;
-  height: 100vh;
-  background: #ffffff;
-  z-index: 1050; 
-  display: flex;
-  flex-direction: column;
-  box-shadow: -12px 0 40px rgba(0, 0, 0, 0.1);
+  position: fixed; top: 0; right: 0; width: 100%; max-width: 420px; height: 100vh; 
+  background: #0a0a0a; /* Fondo negro profundo */
+  z-index: 1050; display: flex; flex-direction: column; 
+  box-shadow: -12px 0 40px rgba(0, 0, 0, 0.5); 
   font-family: 'Inter', sans-serif;
+  color: #ffffff;
 }
 
-.ios-offcanvas { font-family: 'Inter', sans-serif !important; border-left: none !important; box-shadow: -8px 0 32px rgba(0, 0, 0, 0.08); }
-.ios-offcanvas-header { border-bottom: 1.5px solid rgba(0,0,0,0.05); padding: 20px; }
-.ios-empty-cart-icon { margin-bottom: 1rem; display: inline-flex; align-items: center; justify-content: center; width: 80px; height: 80px; border-radius: 40px; background-color: #f5f5f7; }
-.ios-cart-item { border-bottom: 1.5px solid rgba(0,0,0,0.05); padding: 16px 20px; }
+.ios-offcanvas-header { 
+    border-bottom: 1px solid #1f1f1f; 
+    padding: 20px; 
+}
+.ios-offcanvas-header h5 { color: #ffffff !important; }
+.ios-offcanvas-header .btn-close { filter: invert(1) grayscale(100%) brightness(200%); } /* Volver blanca la X nativa de Bootstrap */
+
+.ios-empty-cart-icon { 
+    margin-bottom: 1rem; display: inline-flex; align-items: center; justify-content: center; 
+    width: 80px; height: 80px; border-radius: 40px; background-color: #111111; border: 1px solid #1f1f1f;
+}
+
+.ios-cart-item { border-bottom: 1px solid #1f1f1f; padding: 16px 20px; }
 .ios-cart-item:last-child { border-bottom: none; }
-.ios-cart-img-wrapper { padding: 4px; background-color: #f5f5f7; border-radius: 12px; margin-right: 16px; border: 1.5px solid #e5e5ea; }
-.ios-cart-img { width: 64px; height: 64px; object-fit: cover; border-radius: 8px; }
-.ios-cart-title { font-size: 13px; letter-spacing: -0.01em; }
-.ios-cart-price { font-size: 12px; color: #86868b; }
-.ios-cart-qty { font-size: 12px; width: 12px; text-align: center; margin: 0 12px; font-weight: 700; color: #1d1d1f; }
-.ios-cart-footer { padding: 20px; background-color: rgba(251, 251, 253, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-top: 1.5px solid rgba(0,0,0,0.05); }
 
-.ios-btn-icon {
-  background-color: #fbfbfd; color: #1d1d1f; border: 1.5px solid #d2d2d7; border-radius: 8px; width: 28px; height: 28px;
-  display: inline-flex; align-items: center; justify-content: center; font-size: 14px; transition: all 0.2s; cursor: pointer; padding: 0;
+.ios-cart-img-wrapper { 
+    padding: 4px; background-color: #111111; border-radius: 12px; margin-right: 16px; border: 1px solid #1f1f1f; 
 }
-.ios-btn-icon:hover:not(:disabled) { background-color: #1d1d1f; color: #ffffff; border-color: #1d1d1f; }
-.ios-btn-icon:disabled { background-color: #e5e5ea; color: #86868b; border-color: #e5e5ea; cursor: not-allowed; }
+.ios-cart-img { width: 64px; height: 64px; object-fit: cover; border-radius: 8px; }
+
+.ios-cart-title { font-size: 13px; letter-spacing: -0.01em; color: #ffffff !important; }
+.ios-cart-price { font-size: 12px; color: #0a84ff; /* Acento azul RUKI */ }
+.ios-cart-qty { font-size: 12px; width: 12px; text-align: center; margin: 0 12px; font-weight: 700; color: #ffffff; }
+
+/* Controles de cantidad (+/-) en el carrito */
+.ios-btn-icon {
+  background-color: #111111; color: #ffffff; border: 1px solid #333333; border-radius: 8px; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; transition: all 0.2s; cursor: pointer; padding: 0;
+}
+.ios-btn-icon:hover:not(:disabled) { background-color: #ffffff; color: #000000; border-color: #ffffff; }
+.ios-btn-icon:disabled { background-color: #111111; color: #444444; border-color: #1f1f1f; cursor: not-allowed; }
+
+/* Footer (Resumen de pago) del carrito */
+.ios-cart-footer { padding: 20px; background-color: #020202; border-top: 1px solid #1f1f1f; }
 
 .ios-btn-dark { 
-  background-color: #1d1d1f; color: #ffffff; font-weight: 600; font-family: 'Inter', sans-serif;
-  border-radius: 14px; padding: 14px; border: none; transition: all 0.2s;
+  background-color: #ffffff; color: #000000; font-weight: 800; font-family: 'Inter', sans-serif; border-radius: 14px; padding: 14px; border: none; transition: all 0.2s;
 }
-.ios-btn-dark:hover { background-color: #000000; transform: translateY(-1px); }
-.ios-btn-outline { 
-  background-color: #ffffff; color: #1d1d1f; font-weight: 600; font-family: 'Inter', sans-serif;
-  border-radius: 12px; padding: 12px; border: 1.5px solid #d2d2d7; transition: all 0.2s;
-}
-.ios-btn-outline:hover { background-color: #f5f5f7; }
+.ios-btn-dark:hover { background-color: #d2d2d7; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(255,255,255,0.2); }
 
+.ios-btn-outline { 
+  background-color: transparent; color: #ffffff; font-weight: 600; font-family: 'Inter', sans-serif; border-radius: 12px; padding: 12px; border: 1px solid #333333; transition: all 0.2s;
+}
+.ios-btn-outline:hover { background-color: #111111; border-color: #ffffff; }
+
+/* ========================================= */
+/* RESPONSIVE                                */
+/* ========================================= */
 @media (max-width: 768px) {
   .ruki-header .ruki-topbar { flex-direction: column; gap: 10px; padding-inline: 12px !important; }
   .ruki-header .ruki-brand-centered { position: static; transform: none; }
@@ -171,6 +174,5 @@
     -webkit-overflow-scrolling: touch; 
   }
   .ruki-scroll-nav::-webkit-scrollbar { display: none; }
-  
   .ruki-nav-link { font-size: 0.78rem; padding: 6px 12px !important; }
 }

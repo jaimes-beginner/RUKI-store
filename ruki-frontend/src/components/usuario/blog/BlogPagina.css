@@ -1,23 +1,65 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 .ruki-blog-wrapper {
-    background-color: #fcfcfd;
+    background-color: #020202; /* Fondo ultra oscuro casi negro */
     min-height: 100vh;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    color: #1d1d1f;
+    color: #ffffff;
+    position: relative;
+    padding-bottom: 60px;
 }
 
+/* ========================================= */
+/* GLOW BLOBS (Luces de fondo Cyan/Indigo)   */
+/* ========================================= */
+.blog-glow-container {
+    position: fixed; 
+    inset: 0;
+    z-index: 0;
+    pointer-events: none; 
+    overflow: hidden;
+}
+
+.blog-glow-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.20; 
+    animation: pulseGlowBlog 10s infinite alternate;
+}
+
+/* Tonos Cyan y Violeta para dar una sensación Tecnológica/Editorial */
+.blog-blob-cyan { width: 45vw; height: 45vw; background: #330a94; top: -10%; left: -10%; }
+.blog-blob-indigo { width: 35vw; height: 35vw; background: #330a94; bottom: 10%; right: -5%; animation-delay: -2s; }
+
+@keyframes pulseGlowBlog {
+    from { transform: scale(1) translate(0,0); }
+    to { transform: scale(1.1) translate(3%, 3%); }
+}
+
+.blog-hero-section,
+.container {
+    position: relative;
+    z-index: 1;
+}
+
+/* ========================================= */
+/* HERO SECTION                              */
+/* ========================================= */
 .ruki-blog-wrapper .blog-hero-section {
     width: 100%;
-    padding: 60px 20px 40px;
-    background: linear-gradient(180deg, #f5f5f7 0%, #fcfcfd 100%);
+    padding: 80px 20px 60px;
+    background: transparent;
     text-align: center;
     margin-bottom: 40px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .ruki-blog-wrapper .blog-hero-badge {
     display: inline-block;
-    background: #1d1d1f;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     color: #ffffff;
     font-size: 11px;
     font-weight: 800;
@@ -25,32 +67,46 @@
     padding: 6px 12px;
     border-radius: 20px;
     margin-bottom: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .ruki-blog-wrapper .blog-hero-title {
     font-size: clamp(36px, 5vw, 56px);
     font-weight: 900;
     letter-spacing: -0.04em;
-    color: #1d1d1f;
+    color: #ffffff;
     margin-bottom: 12px;
 }
 
 .ruki-blog-wrapper .blog-hero-subtitle {
     font-size: clamp(14px, 2vw, 18px);
-    color: #86868b;
+    color: #a1a1a6;
     font-weight: 500;
     max-width: 600px;
     margin: 0 auto;
 }
 
+/* ========================================= */
+/* CARTAS DE BLOG (GLASSMORPHISM)            */
+/* ========================================= */
 .ruki-blog-wrapper .blog-card {
-    background: #ffffff;
+    background: rgba(20, 20, 20, 0.4); 
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
     border-radius: 24px;
-    border: 1px solid rgba(0, 0, 0, 0.151);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
     overflow: hidden;
     height: 100%;
     cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.ruki-blog-wrapper .blog-card:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-6px);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.4);
+    background: rgba(30, 30, 30, 0.5);
 }
 
 .ruki-blog-wrapper .blog-image-wrap {
@@ -58,6 +114,8 @@
     min-height: 250px;
     position: relative;
     overflow: hidden;
+    border-right: 1px solid rgba(255, 255, 255, 0.05); /* Separa sutilmente la img del texto */
+    background: rgba(0, 0, 0, 0.3);
 }
 
 .ruki-blog-wrapper .blog-img {
@@ -68,10 +126,12 @@
     top: 0;
     left: 0;
     transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+    opacity: 0.9;
 }
 
 .ruki-blog-wrapper .blog-card:hover .blog-img {
     transform: scale(1.05); 
+    opacity: 1;
 }
 
 .ruki-blog-wrapper .blog-card-body {
@@ -93,23 +153,14 @@
     text-transform: uppercase;
 }
 
-.ruki-blog-wrapper .blog-category {
-    color: #0a84ff; 
-}
-
-.ruki-blog-wrapper .blog-dot {
-    color: #d2d2d7;
-}
-
-.ruki-blog-wrapper .blog-date {
-    color: #86868b;
-    font-weight: 600;
-}
+.ruki-blog-wrapper .blog-category { color: #740aff; }
+.ruki-blog-wrapper .blog-dot { color: #444444; }
+.ruki-blog-wrapper .blog-date { color: #86868b; font-weight: 600; }
 
 .ruki-blog-wrapper .blog-post-title {
     font-size: clamp(24px, 3vw, 32px);
     font-weight: 800;
-    color: #1d1d1f;
+    color: #ffffff;
     line-height: 1.2;
     margin-bottom: 16px;
     letter-spacing: -0.02em;
@@ -117,7 +168,7 @@
 
 .ruki-blog-wrapper .blog-post-excerpt {
     font-size: 15px;
-    color: #86868b;
+    color: #a1a1a6;
     line-height: 1.6;
     margin-bottom: 24px;
     font-weight: 400;
@@ -126,30 +177,21 @@
 .ruki-blog-wrapper .blog-read-more {
     font-size: 13px;
     font-weight: 700;
-    color: #1d1d1f;
+    color: #ffffff;
     display: inline-flex;
     align-items: center;
     transition: color 0.2s;
 }
 
-.ruki-blog-wrapper .blog-card:hover .blog-read-more {
-    color: #0a84ff;
-}
-
-.ruki-blog-wrapper .blog-read-more i {
-    transition: transform 0.2s;
-}
-
-.ruki-blog-wrapper .blog-card:hover .blog-read-more i {
-    transform: translateX(4px); 
-}
+.ruki-blog-wrapper .blog-card:hover .blog-read-more { color: #7e2eff; }
+.ruki-blog-wrapper .blog-read-more svg { transition: transform 0.2s; }
+.ruki-blog-wrapper .blog-card:hover .blog-read-more svg { transform: translateX(4px); }
 
 @media (max-width: 768px) {
-    .ruki-blog-wrapper .blog-card-body {
-        padding: 24px;
-    }
-    
+    .ruki-blog-wrapper .blog-card-body { padding: 24px; }
     .ruki-blog-wrapper .blog-image-wrap {
         min-height: 220px;
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     }
 }

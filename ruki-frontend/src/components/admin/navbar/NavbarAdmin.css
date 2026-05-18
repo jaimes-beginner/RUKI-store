@@ -3,184 +3,102 @@
 .admin-header-wrapper {
     width: 100%;
     position: sticky;
-    top: 0px; /* TRUCO ANTI-SOMBRAS BLEEDING EDGE */
-    z-index: 1060; /* Debe ganarle a todo */
+    top: 0px; 
+    z-index: 1060; 
     display: flex;
     flex-direction: column;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: #000000; /* Fondo 100% negro sólido */
 }
 
 .admin-header-wrapper .admin-top-navbar {
     position: relative;
     z-index: 10; 
-    background-color: rgba(0, 0, 0, 0.845) !important;
-    backdrop-filter: saturate(180%) blur(20px);
-    -webkit-backdrop-filter: saturate(180%) blur(20px);
-    border-bottom: 0.5px solid rgba(255, 255, 255, 0.1);
+    background-color: #000000 !important;
+    border-bottom: 1px solid #1f1f1f; /* Línea sólida y sutil */
 }
 
-.admin-header-wrapper .admin-topbar {
-    position: relative;
+.admin-header-wrapper .admin-bottom-navbar {
+    position: relative; 
+    z-index: 5; 
+    background-color: #0a0a0a !important; /* Ligeramente más claro para separar jerarquías */
+    border-bottom: 1px solid #1f1f1f;
 }
-.admin-header-wrapper .admin-topbar-side {
-    flex: 1;
-    min-width: 0;
-}
+
+.admin-header-wrapper .admin-topbar { position: relative; }
+.admin-header-wrapper .admin-topbar-side { flex: 1; min-width: 0; }
 .admin-header-wrapper .admin-brand-centered {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    margin: 0;
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); margin: 0;
 }
-.admin-header-wrapper .admin-logo {
-    height: 34px;
-    width: auto;
-    display: block;
-}
-.admin-header-wrapper .admin-badge-pill {
-    font-size: 10px;
-    letter-spacing: 0.05em;
-    padding: 4px 8px;
-}
+.admin-header-wrapper .admin-logo { height: 34px; width: auto; display: block; }
+.admin-header-wrapper .admin-badge-pill { font-size: 10px; letter-spacing: 0.05em; padding: 4px 8px; }
 
-.admin-header-wrapper .server-status-text {
-    font-size: 11px;
-    font-weight: 800;
-    color: #ffffff;
-    letter-spacing: 0.05em;
-}
-.admin-header-wrapper .server-date-text {
-    font-size: 11px;
-    font-weight: 600;
-    color: #86868b;
-}
-.admin-header-wrapper .server-status-dot {
-    width: 8px;
-    height: 8px;
-    background-color: #32d74b;
-    border-radius: 50%;
-    display: inline-block;
-}
+/* Info del Servidor */
+.admin-header-wrapper .server-status-text { font-size: 11px; font-weight: 800; color: #ffffff; letter-spacing: 0.05em; }
+.admin-header-wrapper .server-date-text { font-size: 11px; font-weight: 600; color: #86868b; }
+.admin-header-wrapper .server-status-dot { width: 8px; height: 8px; background-color: #32d74b; border-radius: 50%; display: inline-block; }
+
 @keyframes pulseStatus {
     0% { box-shadow: 0 0 0 0 rgba(50, 215, 75, 0.4); }
     70% { box-shadow: 0 0 0 6px rgba(50, 215, 75, 0); }
     100% { box-shadow: 0 0 0 0 rgba(50, 215, 75, 0); }
 }
-.admin-header-wrapper .pulse {
-    animation: pulseStatus 2s infinite;
-}
+.admin-header-wrapper .pulse { animation: pulseStatus 2s infinite; }
 
-.admin-header-wrapper .admin-notification-bell {
-    position: relative;
-    color: #a1a1a6;
-    font-size: 18px;
-    cursor: pointer;
-    transition: color 0.2s;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.05);
-}
-.admin-header-wrapper .admin-notification-bell:hover { color: #ffffff; background: rgba(255, 255, 255, 0.1); }
-.admin-header-wrapper .notification-dot {
-    position: absolute; top: 6px; right: 8px; width: 6px; height: 6px; background-color: #ff3b30; border-radius: 50%; border: 1px solid #1c1c1e;
-}
-
+/* Avatar y Perfil */
 .admin-header-wrapper .admin-avatar-mini {
-    width: 32px;
-    height: 32px;
-    background: linear-gradient(135deg, #ff3b30, #ff9500);
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: 800;
-    font-size: 14px;
+    width: 32px; height: 32px; background: linear-gradient(135deg, #ff3b30, #ff9500); /* Degradado de alerta/admin */
+    border-radius: 10px; display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 800; font-size: 14px;
 }
-.admin-header-wrapper .admin-dropdown-toggle::after { display: none; /* Ocultar flecha nativa de bootstrap */ }
+.admin-header-wrapper .admin-dropdown-toggle::after { display: none; }
 
+/* ========================================= */
+/* MENÚ DESPLEGABLE (SOLID DARK)             */
+/* ========================================= */
 .admin-header-wrapper .admin-dropdown-menu-glass {
-    border: 1px solid rgba(255,255,255,0.1) !important;
-    border-radius: 16px !important;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2) !important;
+    border: 1px solid #333333 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8) !important;
     padding: 8px !important;
     font-family: 'Inter', sans-serif;
-    backdrop-filter: blur(30px);
-    -webkit-backdrop-filter: blur(30px);
-    background-color: rgba(40, 40, 42, 0.85) !important;
+    background-color: #111111 !important; /* Gris oscuro sólido */
     z-index: 1060 !important; 
     min-width: 220px;
     margin-top: 12px !important;
 }
 .admin-header-wrapper .admin-dropdown-item {
-    border-radius: 8px;
-    transition: all 0.2s;
-    font-weight: 600;
-    font-size: 13px;
-    color: #e5e5ea !important;
+    border-radius: 8px; transition: all 0.2s; font-weight: 600; font-size: 13px; color: #a1a1a6 !important;
 }
-.admin-header-wrapper .admin-dropdown-item:hover {
-    background-color: rgba(255, 255, 255, 0.1) !important;
-    color: #ffffff !important;
-}
-.admin-header-wrapper .admin-divider { border-color: rgba(255,255,255,0.1); margin: 4px 0; }
+.admin-header-wrapper .admin-dropdown-item:hover { background-color: #333333 !important; color: #ffffff !important; }
+.admin-header-wrapper .admin-divider { border-color: #333333; margin: 4px 0; }
 
-.admin-header-wrapper .admin-bottom-navbar {
-    position: relative; 
-    z-index: 5; 
-    background-color: rgba(0, 0, 0, 0.741) !important;
-    backdrop-filter: saturate(180%) blur(20px);
-    -webkit-backdrop-filter: saturate(180%) blur(20px);
-    border-top: 1px solid #212529 !important; 
-    border-bottom: 1px solid rgba(0,0,0,0.2);
-}
-
+/* ========================================= */
+/* ENLACES DE NAVEGACIÓN                     */
+/* ========================================= */
 .admin-header-wrapper .admin-nav-link {
     color: #a1a1a6 !important;
     font-weight: 700;
     font-size: 0.8rem;
     padding: 8px 16px !important;
     border-radius: 100px;
-    transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+    transition: all 0.2s ease-in-out;
     display: flex;
     align-items: center;
 }
 .admin-header-wrapper .admin-nav-link:hover {
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: #1d1d1f !important;
     color: #ffffff !important;
 }
 .admin-header-wrapper .admin-nav-link.nav-active {
     background-color: #ffffff !important;
     color: #000000 !important;
-    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
 }
 
 @media (max-width: 768px) {
-    .admin-header-wrapper .admin-topbar {
-        flex-direction: column;
-        gap: 12px;
-        padding-inline: 12px !important;
-    }
-    .admin-header-wrapper .admin-brand-centered {
-        position: static;
-        transform: none;
-    }
-    .admin-header-wrapper .admin-topbar-side {
-        width: 100%;
-        justify-content: center !important;
-    }
-    .admin-header-wrapper .admin-bottom-navbar .nav {
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 0.5rem !important;
-    }
-    .admin-header-wrapper .admin-nav-link {
-        font-size: 0.75rem;
-        padding: 6px 12px !important;
-    }
+    .admin-header-wrapper .admin-topbar { flex-direction: column; gap: 12px; padding-inline: 12px !important; }
+    .admin-header-wrapper .admin-brand-centered { position: static; transform: none; }
+    .admin-header-wrapper .admin-topbar-side { width: 100%; justify-content: center !important; }
+    .admin-header-wrapper .admin-bottom-navbar .nav { flex-wrap: wrap; justify-content: center; gap: 0.5rem !important; }
+    .admin-header-wrapper .admin-nav-link { font-size: 0.75rem; padding: 6px 12px !important; }
 }

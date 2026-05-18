@@ -1,48 +1,94 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 .ruki-faq-wrapper {
-    background-color: #fcfcfd;
+    background-color: #020202; /* Fondo ultra oscuro casi negro */
     min-height: 100vh;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    color: #1d1d1f;
+    color: #ffffff;
+    position: relative;
+    padding-bottom: 60px;
 }
 
+/* ========================================= */
+/* GLOW BLOBS (Luces de soporte Azul/Teal)   */
+/* ========================================= */
+.faq-glow-container {
+    position: fixed; 
+    inset: 0;
+    z-index: 0;
+    pointer-events: none; 
+    overflow: hidden;
+}
+
+.faq-glow-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.20; 
+    animation: pulseGlowFaq 10s infinite alternate;
+}
+
+/* Colores que transmiten confianza y soporte */
+.faq-blob-blue { width: 45vw; height: 45vw; background: #0a84ff; top: -10%; left: -10%; }
+.faq-blob-teal { width: 35vw; height: 35vw; background: #30d158; bottom: 10%; right: -5%; animation-delay: -2s; }
+
+@keyframes pulseGlowFaq {
+    from { transform: scale(1) translate(0,0); }
+    to { transform: scale(1.1) translate(3%, 3%); }
+}
+
+.faq-hero-section,
+.container {
+    position: relative;
+    z-index: 1;
+}
+
+/* ========================================= */
+/* HERO SECTION                              */
+/* ========================================= */
 .ruki-faq-wrapper .faq-hero-section {
     width: 100%;
-    padding: 60px 20px 40px;
-    background: linear-gradient(180deg, #f5f5f7 0%, #fcfcfd 100%);
+    padding: 80px 20px 60px;
+    background: transparent;
     text-align: center;
     margin-bottom: 40px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .ruki-faq-wrapper .faq-hero-badge {
     display: inline-block;
-    background: #0a84ff; 
-    color: #ffffff;
+    background: rgba(10, 132, 255, 0.15);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: #0a84ff;
     font-size: 11px;
     font-weight: 800;
     letter-spacing: 0.08em;
     padding: 6px 12px;
     border-radius: 20px;
     margin-bottom: 16px;
+    border: 1px solid rgba(10, 132, 255, 0.3);
 }
 
 .ruki-faq-wrapper .faq-hero-title {
     font-size: clamp(32px, 5vw, 48px);
     font-weight: 900;
     letter-spacing: -0.04em;
-    color: #1d1d1f;
+    color: #ffffff;
     margin-bottom: 12px;
 }
 
 .ruki-faq-wrapper .faq-hero-subtitle {
     font-size: clamp(14px, 2vw, 16px);
-    color: #86868b;
+    color: #a1a1a6;
     font-weight: 500;
     max-width: 600px;
     margin: 0 auto;
 }
 
+/* ========================================= */
+/* TABS DE NAVEGACIÓN (GLASS)                */
+/* ========================================= */
 .ruki-faq-wrapper .faq-tabs-grid {
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -51,8 +97,10 @@
 }
 
 .ruki-faq-wrapper .faq-tab-btn {
-    background: #ffffff;
-    border: 1px solid #e5e5ea;
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 16px;
     padding: 20px 12px;
     display: flex;
@@ -60,127 +108,94 @@
     align-items: center;
     justify-content: center;
     gap: 12px;
-    color: #86868b;
+    color: #a1a1a6;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.02);
 }
 
-.ruki-faq-wrapper .faq-tab-icon {
-    font-size: 24px;
-    color: #a1a1a6;
-    transition: color 0.3s;
-}
-
-.ruki-faq-wrapper .faq-tab-label {
-    font-size: 12px;
-    font-weight: 700;
-    text-align: center;
-    line-height: 1.2;
-}
+.ruki-faq-wrapper .faq-tab-icon { font-size: 24px; color: #666666; transition: color 0.3s; }
+.ruki-faq-wrapper .faq-tab-label { font-size: 12px; font-weight: 700; text-align: center; line-height: 1.2; }
 
 .ruki-faq-wrapper .faq-tab-btn:hover {
-    border-color: #d2d2d7;
-    background: #fbfbfd;
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
 }
 
 .ruki-faq-wrapper .faq-tab-btn.is-active {
-    background: #1d1d1f;
-    border-color: #1d1d1f;
+    background: rgba(10, 132, 255, 0.15);
+    border-color: rgba(10, 132, 255, 0.4);
     color: #ffffff;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 8px 24px rgba(10, 132, 255, 0.15);
 }
 
-.ruki-faq-wrapper .faq-tab-btn.is-active .faq-tab-icon {
-    color: #ffffff;
-}
+.ruki-faq-wrapper .faq-tab-btn.is-active .faq-tab-icon { color: #0a84ff; }
 
+/* ========================================= */
+/* PANEL DE CONTENIDO Y ACORDEÓN (GLASS)     */
+/* ========================================= */
 .ruki-faq-wrapper .faq-content-panel {
-    background: #ffffff;
-    border: 1px solid rgba(0, 0, 0, 0.123);
+    background: rgba(20, 20, 20, 0.4);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 24px;
     padding: 40px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.03);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
     margin-bottom: 40px;
 }
 
 .ruki-faq-wrapper .faq-accordion-list {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    max-width: 800px;
-    margin: 0 auto;
+    display: flex; flex-direction: column; gap: 16px; max-width: 800px; margin: 0 auto;
 }
 
 .ruki-faq-wrapper .faq-accordion-item {
-    background: #fbfbfd;
-    border: 1px solid #e5e5ea;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 16px;
     padding: 20px 24px;
     transition: all 0.3s ease;
 }
 
+.ruki-faq-wrapper .faq-accordion-item:hover { border-color: rgba(255, 255, 255, 0.1); }
+
 .ruki-faq-wrapper .faq-accordion-item.is-open {
-    background: #ffffff;
-    border-color: #d2d2d7;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.04);
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
 }
 
 .ruki-faq-wrapper .faq-accordion-trigger {
-    width: 100%;
-    background: transparent;
-    border: none;
-    padding: 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    cursor: pointer;
-    text-align: left;
-    gap: 16px;
+    width: 100%; background: transparent; border: none; padding: 0; display: flex; justify-content: space-between; align-items: center; cursor: pointer; text-align: left; gap: 16px; color: #ffffff;
 }
 
-.ruki-faq-wrapper .faq-question-text {
-    font-size: 16px;
-    font-weight: 700;
-    color: #1d1d1f;
-    line-height: 1.4;
-}
+.ruki-faq-wrapper .faq-question-text { font-size: 16px; font-weight: 700; line-height: 1.4; }
 
 .ruki-faq-wrapper .faq-plus-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: #e5e5ea;
-    color: #1d1d1f;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    flex-shrink: 0;
-    transition: background 0.3s, color 0.3s;
+    width: 32px; height: 32px; border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; flex-shrink: 0; transition: all 0.3s;
 }
 
 .ruki-faq-wrapper .faq-accordion-item.is-open .faq-plus-icon {
-    background: #1d1d1f;
+    background: #00000041;
     color: #ffffff;
 }
 
 .ruki-faq-wrapper .faq-accordion-content p {
-    margin: 0;
-    font-size: 14px;
-    color: #555555;
-    line-height: 1.6;
+    margin: 0; font-size: 14px; color: #a1a1a6; line-height: 1.6;
 }
 
-.ruki-faq-wrapper .faq-contact-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 24px;
-}
+/* ========================================= */
+/* CONTACTO GRID (GLASS)                     */
+/* ========================================= */
+.ruki-faq-wrapper .faq-contact-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
 
 .ruki-faq-wrapper .faq-channel-card {
-    background: #fbfbfd;
-    border: 1px solid #e5e5ea;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 20px;
     padding: 32px 24px;
     text-align: center;
@@ -188,80 +203,48 @@
 }
 
 .ruki-faq-wrapper .faq-channel-card:hover {
-    background: #ffffff;
-    box-shadow: 0 12px 32px rgba(0,0,0,0.05);
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.15);
     transform: translateY(-4px);
 }
 
 .ruki-faq-wrapper .channel-icon-wrap {
-    width: 56px;
-    height: 56px;
-    border-radius: 16px;
-    background: #0a84ff;
-    color: #ffffff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    margin: 0 auto 20px;
+    width: 56px; height: 56px; border-radius: 16px;
+    background: #0a84ff; color: #ffffff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; margin: 0 auto 20px;
+    box-shadow: 0 4px 12px rgba(10, 132, 255, 0.3);
 }
-.ruki-faq-wrapper .channel-icon-wrap.whatsapp { background: #34c759; }
-.ruki-faq-wrapper .channel-icon-wrap.phone { background: #1d1d1f; }
+.ruki-faq-wrapper .channel-icon-wrap.whatsapp { background: #34c759; box-shadow: 0 4px 12px rgba(52, 199, 89, 0.3); }
+.ruki-faq-wrapper .channel-icon-wrap.phone { background: #ffffff; color: #000000; box-shadow: 0 4px 12px rgba(255, 255, 255, 0.15); }
 
-.ruki-faq-wrapper .faq-channel-card h4 {
-    font-size: 18px;
-    font-weight: 800;
-    color: #1d1d1f;
-    margin-bottom: 12px;
-}
-
-.ruki-faq-wrapper .channel-desc {
-    font-size: 13px;
-    color: #86868b;
-    margin-bottom: 24px;
-    line-height: 1.5;
-}
+.ruki-faq-wrapper .faq-channel-card h4 { font-size: 18px; font-weight: 800; color: #ffffff; margin-bottom: 12px; }
+.ruki-faq-wrapper .channel-desc { font-size: 13px; color: #a1a1a6; margin-bottom: 24px; line-height: 1.5; }
 
 .ruki-faq-wrapper .channel-btn {
-    width: 100%;
-    background: #1d1d1f;
-    color: #ffffff;
-    border: none;
-    border-radius: 12px;
-    padding: 12px;
-    font-weight: 700;
-    font-size: 13px;
-    transition: all 0.2s;
+    width: 100%; background: #ffffff; color: #000000; border: none; border-radius: 12px; padding: 12px; font-weight: 700; font-size: 13px; transition: all 0.2s;
 }
-.ruki-faq-wrapper .channel-btn:hover { background: #000000; }
+.ruki-faq-wrapper .channel-btn:hover { background: #e5e5ea; transform: translateY(-2px); }
 
 .ruki-faq-wrapper .channel-btn.outline {
-    background: transparent;
-    color: #1d1d1f;
-    border: 1.5px solid #d2d2d7;
+    background: transparent; color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.2);
 }
-.ruki-faq-wrapper .channel-btn.outline:hover { background: #f5f5f7; border-color: #1d1d1f; }
+.ruki-faq-wrapper .channel-btn.outline:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.4); }
 
-.ruki-faq-wrapper .channel-link-text {
-    background: none; border: none; color: #0a84ff; font-size: 12px; font-weight: 600; text-decoration: underline; cursor: pointer; padding: 0;
-}
+.ruki-faq-wrapper .channel-link-text { background: none; border: none; color: #0a84ff; font-size: 12px; font-weight: 600; text-decoration: underline; cursor: pointer; padding: 0; transition: color 0.2s; }
+.ruki-faq-wrapper .channel-link-text:hover { color: #5ac8fa; }
+.ruki-faq-wrapper .channel-note { font-size: 11px; color: #666666; margin-top: 16px; font-weight: 500; }
 
-.ruki-faq-wrapper .channel-note {
-    font-size: 11px;
-    color: #a1a1a6;
-    margin-top: 16px;
-    font-weight: 500;
-}
-
-.ruki-faq-wrapper .faq-legal-section {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 24px;
-}
+/* ========================================= */
+/* SECCIÓN LEGAL (GLASS)                     */
+/* ========================================= */
+.ruki-faq-wrapper .faq-legal-section { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
 
 .ruki-faq-wrapper .faq-legal-card {
-    background: #fbfbfd;
-    border: 1px solid #e5e5ea;
+    background: rgba(20, 20, 20, 0.4);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 20px;
     padding: 32px;
     scroll-margin-top: 120px;
@@ -269,58 +252,32 @@
 
 .ruki-faq-wrapper .faq-legal-badge {
     display: inline-block;
-    background: #e5e5ea;
-    color: #1d1d1f;
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
     font-size: 10px;
     font-weight: 800;
     padding: 4px 10px;
     border-radius: 6px;
     letter-spacing: 0.05em;
     margin-bottom: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
-.ruki-faq-wrapper .faq-legal-card h3 {
-    font-size: 18px;
-    font-weight: 800;
-    color: #1d1d1f;
-    margin-bottom: 12px;
-}
-
-.ruki-faq-wrapper .faq-legal-card p {
-    font-size: 13px;
-    color: #86868b;
-    margin: 0;
-    line-height: 1.6;
-}
+.ruki-faq-wrapper .faq-legal-card h3 { font-size: 18px; font-weight: 800; color: #ffffff; margin-bottom: 12px; }
+.ruki-faq-wrapper .faq-legal-card p { font-size: 13px; color: #a1a1a6; margin: 0; line-height: 1.6; }
 
 @media (max-width: 992px) {
-    .ruki-faq-wrapper .faq-tabs-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-    .ruki-faq-wrapper .faq-contact-grid {
-        grid-template-columns: 1fr;
-    }
+    .ruki-faq-wrapper .faq-tabs-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .ruki-faq-wrapper .faq-contact-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 768px) {
-    .ruki-faq-wrapper .faq-tabs-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-    .ruki-faq-wrapper .faq-content-panel {
-        padding: 24px;
-    }
-    .ruki-faq-wrapper .faq-legal-section {
-        grid-template-columns: 1fr;
-    }
+    .ruki-faq-wrapper .faq-tabs-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .ruki-faq-wrapper .faq-content-panel { padding: 24px; }
+    .ruki-faq-wrapper .faq-legal-section { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 480px) {
-    .ruki-faq-wrapper .faq-tabs-grid {
-        grid-template-columns: 1fr;
-    }
-    .ruki-faq-wrapper .faq-tab-btn {
-        flex-direction: row;
-        justify-content: flex-start;
-        padding: 16px 20px;
-    }
+    .ruki-faq-wrapper .faq-tabs-grid { grid-template-columns: 1fr; }
+    .ruki-faq-wrapper .faq-tab-btn { flex-direction: row; justify-content: flex-start; padding: 16px 20px; }
 }

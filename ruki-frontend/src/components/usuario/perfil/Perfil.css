@@ -3,265 +3,182 @@
 .profile-main-wrapper {
     position: relative;
     font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
-    background-color: #f5f5f7; /* Fondo gris claro típico de iOS/MacOS */
-    min-height: 80vh;
+    background-color: #020202; /* Fondo ultra oscuro casi negro */
+    min-height: 100vh;
+    color: #ffffff;
+    overflow-x: hidden;
+    padding-bottom: 60px;
 }
 
 /* ========================================= */
-/* TARJETAS LIMPIAS (CERO GLASSMORPHISM)     */
+/* GLOW BLOBS (Luces de Perfil Azul/Púrpura) */
+/* ========================================= */
+.profile-glow-container {
+    position: fixed; 
+    inset: 0;
+    z-index: 0;
+    pointer-events: none; 
+    overflow: hidden;
+}
+
+.profile-glow-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(140px);
+    opacity: 0.25; 
+    animation: pulseGlowProfile 10s infinite alternate;
+}
+
+.profile-blob-blue { width: 45vw; height: 45vw; background: #330a94; top: -10%; left: -10%; }
+.profile-blob-purple { width: 35vw; height: 35vw; background: #330a94; bottom: 10%; right: -5%; animation-delay: -3s; }
+
+@keyframes pulseGlowProfile {
+    from { transform: scale(1) translate(0,0); }
+    to { transform: scale(1.1) translate(5%, 5%); }
+}
+
+/* ========================================= */
+/* TARJETAS GLASSMORPHISM                    */
 /* ========================================= */
 .profile-page-header-glass {
+    position: relative; z-index: 1;
     margin-bottom: 24px;
-    padding: 24px;
-    background: #ffffff; /* Blanco sólido y limpio */
-    border: 1px solid rgba(0, 0, 0, 0.130);
-    border-radius: 24px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+    padding: 32px 24px;
+    background: transparent;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .profile-page-header-glass h1 {
-    font-weight: 800;
-    color: #1d1d1f;
-    letter-spacing: -0.04em;
-    font-size: clamp(28px, 4vw, 36px);
-    margin: 0 0 4px 0;
+    font-weight: 900; color: #ffffff; letter-spacing: -0.04em;
+    font-size: clamp(32px, 4vw, 42px); margin: 0 0 8px 0;
 }
 
-.profile-page-header-glass p {
-    color: #86868b;
-    font-weight: 500;
-    font-size: 16px;
-    margin: 0;
-}
+.profile-page-header-glass p { color: #a1a1a6; font-weight: 500; font-size: 16px; margin: 0; }
+.profile-page-header-glass p strong { color: #ffffff; font-weight: 700; }
 
 .profile-card-glass {
-    background: #ffffff; /* Blanco sólido */
+    background: rgba(20, 20, 20, 0.5);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
     border-radius: 24px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
-    border: 1px solid rgba(0, 0, 0, 0.130);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     overflow: hidden;
 }
 
 .profile-header-glass {
-    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-    padding: 16px 24px;
-    font-weight: 700;
-    color: #1d1d1f;
-    font-size: 15px;
-    letter-spacing: -0.01em;
-    background: #fbfbfd; /* Un tono levísimamente gris para la cabecera */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 20px 24px; font-weight: 700; color: #ffffff;
+    font-size: 15px; letter-spacing: -0.01em;
+    background: rgba(0, 0, 0, 0.2); 
 }
 
 /* ========================================= */
-/* FORMULARIOS Y BOTONES (SIMPLIFICADOS)     */
+/* FORMULARIOS Y BOTONES (DARK MODE)         */
 /* ========================================= */
-.ios-label {
-    font-size: 11px;
-    font-weight: 700;
-    color: #86868b;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 6px;
-    display: block;
-}
-
+.ios-label { font-size: 11px; font-weight: 800; color: #a1a1a6; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; display: block; }
 .highlight-label { color: #0a84ff; }
 
-.ios-input-glass {
-    font-family: inherit;
-    font-size: 14px;
-    background: #f5f5f7; /* Fondo sólido gris claro */
-    border: 1px solid transparent;
-    border-radius: 12px;
-    color: #1d1d1f;
-    padding: 12px 14px;
-    transition: all 0.2s ease; /* Transición normal, ya no rompe nada */
+.ios-input-wrapper { position: relative; }
+.input-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #666666; font-size: 14px; pointer-events: none; transition: color 0.3s; }
+
+.ios-input-glass, .ios-select-glass {
+    font-family: inherit; font-size: 14px;
+    background: rgba(0, 0, 0, 0.5); 
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px; color: #ffffff;
+    padding: 14px 16px 14px 44px; /* Espacio para el ícono */
+    transition: all 0.3s ease; width: 100%;
+    appearance: none;
 }
 
-.ios-input-glass:focus {
-    background: #ffffff;
-    border-color: #0a84ff;
-    outline: none;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+.ios-input-glass::placeholder { color: #555555; }
+
+.ios-select-glass {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23a1a1a6'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 14px center; background-size: 18px; cursor: pointer;
+    color-scheme: dark;
 }
 
-.ios-input-glass:disabled {
-    background: #ebebec;
-    color: #86868b;
-    cursor: not-allowed;
+.ios-input-glass:focus, .ios-select-glass:focus {
+    background: #000000; border-color: #0a84ff; outline: none; box-shadow: 0 0 0 4px rgba(10, 132, 255, 0.2);
 }
+.ios-input-glass:focus + .input-icon, .ios-select-glass:focus + .input-icon, .ios-input-wrapper:focus-within .input-icon { color: #0a84ff; }
 
-.input-helper-text {
-    font-size: 11px;
-    color: #86868b;
-    font-weight: 600;
-}
+.ios-input-glass:disabled, .ios-select-glass:disabled { background: rgba(255, 255, 255, 0.03); color: #666666; cursor: not-allowed; }
 
-.ios-btn {
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: 700;
-    border-radius: 14px;
-    padding: 12px 16px;
-    transition: all 0.2s ease;
-    letter-spacing: 0.02em;
-    cursor: pointer;
-    border: none;
-}
+.input-helper-text { font-size: 11px; color: #666666; font-weight: 600; }
 
-.ios-btn-dark {
-    background: #1d1d1f;
-    color: #ffffff;
-}
+.ios-btn { font-family: inherit; font-size: 13px; font-weight: 800; border-radius: 14px; padding: 14px 16px; transition: all 0.2s ease; cursor: pointer; border: none; }
+.ios-btn-dark { background: #ffffff; color: #000000; }
+.ios-btn-dark:hover:not(:disabled) { background: #d2d2d7; transform: translateY(-2px); box-shadow: 0 4px 20px rgba(255, 255, 255, 0.15); }
+.ios-btn-dark:disabled { background: rgba(255, 255, 255, 0.1); color: #666; cursor: not-allowed; }
 
-.ios-btn-dark:hover:not(:disabled) {
-    background: #000000;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.01);
-}
-
-.ios-btn-outline {
-    background: #ffffff;
-    color: #1d1d1f;
-    border: 1px solid rgba(0, 0, 0, 0.15);
-}
-
-.ios-btn-outline:hover {
-    background: #f5f5f7;
-}
+.ios-btn-outline { background: transparent; color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.2); }
+.ios-btn-outline:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.4); }
 
 .btn-edit-toggle {
-    background: rgba(10, 132, 255, 0.1);
-    border: none;
-    padding: 6px 12px;
-    border-radius: 100px;
-    font-weight: 700;
-    font-size: 12px;
-    color: #0a84ff;
-    transition: background-color 0.2s;
+    background: rgba(10, 132, 255, 0.15); border: 1px solid rgba(10, 132, 255, 0.3); padding: 6px 14px; border-radius: 100px;
+    font-weight: 700; font-size: 12px; color: #0a84ff; transition: all 0.2s;
 }
-
-.btn-edit-toggle:hover {
-    background: rgba(10, 132, 255, 0.2);
-}
+.btn-edit-toggle:hover { background: rgba(10, 132, 255, 0.25); color: #ffffff; }
 
 /* ========================================= */
 /* DIRECCIONES Y ESTADOS VACÍOS              */
 /* ========================================= */
 .ios-badge-glass-subtle {
-    background: #ebebec;
-    color: #1d1d1f;
-    font-size: 10px;
-    font-weight: 800;
-    padding: 4px 10px;
-    border-radius: 100px;
-    letter-spacing: 0.05em;
+    background: rgba(255, 255, 255, 0.1); color: #ffffff; font-size: 10px; font-weight: 800; padding: 4px 10px; border-radius: 100px; letter-spacing: 0.05em; border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.empty-address-state {
-    text-align: center;
-    padding: 4rem 1rem;
-    color: #86868b;
-    font-weight: 600;
-    font-size: 14px;
-}
-
+.empty-address-state { text-align: center; padding: 4rem 1rem; color: #a1a1a6; font-weight: 600; font-size: 14px; }
 .empty-icon-glass {
-    width: 64px;
-    height: 64px;
-    background: #f5f5f7;
-    border-radius: 20px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 16px;
-    color: #d2d2d7;
+    width: 64px; height: 64px; background: rgba(255, 255, 255, 0.05); border-radius: 20px;
+    display: inline-flex; align-items: center; justify-content: center; margin-bottom: 16px; color: #666666; border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.address-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px 24px;
-    transition: background 0.2s ease;
-}
+.address-item { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; transition: background 0.2s ease; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+.address-item:hover { background: rgba(255, 255, 255, 0.03); }
+.address-item:last-child { border-bottom: none; }
 
-.address-item:hover {
-    background: #fbfbfd;
-}
-
-.address-item:not(:last-child) {
-    border-bottom: 1px solid rgba(0, 0, 0, 0.04);
-}
-
-.address-street {
-    font-weight: 700;
-    color: #1d1d1f;
-    font-size: 15px;
-    letter-spacing: -0.01em;
-}
-
-.address-details {
-    font-size: 13px;
-    color: #86868b;
-    font-weight: 500;
-    margin-top: 4px;
-}
+.address-street { font-weight: 700; color: #ffffff; font-size: 15px; letter-spacing: -0.01em; }
+.address-details { font-size: 13px; color: #a1a1a6; font-weight: 500; margin-top: 4px; }
 
 .ios-badge-zipcode {
-    background: #f5f5f7;
-    border: 1px solid rgba(0,0,0,0.06);
-    color: #1d1d1f;
-    font-size: 11px;
-    font-weight: 700;
-    padding: 4px 10px;
-    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.1); color: #a1a1a6; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 8px;
 }
 
 /* ========================================= */
-/* MODAL Y TOASTS                            */
+/* MODAL DARK GLASS                          */
 /* ========================================= */
 .profile-modal-glass {
-    background: #ffffff !important;
-    border: none !important;
+    background: rgba(20, 20, 20, 0.85) !important;
+    backdrop-filter: blur(40px) !important;
+    -webkit-backdrop-filter: blur(40px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
     border-radius: 28px !important;
-    box-shadow: 0 24px 60px rgba(0,0,0,0.15) !important;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.6) !important;
     font-family: inherit;
+    color: #ffffff;
 }
 
-.modal-custom-title {
-    font-weight: 800;
-    color: #1d1d1f;
-    letter-spacing: -0.03em;
-}
+.modal-custom-title { font-weight: 800; color: #ffffff; letter-spacing: -0.03em; }
 
 .btn-close-glass {
-    background: #f5f5f7;
-    border: none;
-    width: 32px;
-    height: 32px;
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #1d1d1f;
-    transition: background-color 0.2s;
+    background: rgba(255, 255, 255, 0.1); border: none; width: 32px; height: 32px; border-radius: 16px;
+    display: flex; align-items: center; justify-content: center; color: #ffffff; transition: background-color 0.2s;
 }
+.btn-close-glass:hover { background: rgba(255, 255, 255, 0.2); }
 
-.btn-close-glass:hover {
-    background: #ebebec;
-}
-
-.profile-toast-container {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    z-index: 1100;
-}
-
+/* ========================================= */
+/* TOASTS                                    */
+/* ========================================= */
+.profile-toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 1100; }
 .profile-ios-toast-glass {
-    background: #1d1d1f; /* Toast oscuro sólido */
-    border-radius: 20px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
-    padding: 8px 16px;
-    color: white;
+    background: rgba(30, 30, 30, 0.9); backdrop-filter: blur(20px); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4); padding: 12px 20px; color: white; display: flex; align-items: center; font-weight: 700; font-size: 14px;
 }
+
+@media (max-width: 768px) {
+    .profile-toast-container { right: 16px; left: 16px; display: flex; justify-content: center; bottom: 16px;}
+}
+
