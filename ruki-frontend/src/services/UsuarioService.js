@@ -123,6 +123,23 @@ export async function obtenerDireccionesPorUsuario(userId) {
 }
 
 /*
+    Función asincrona para obtener todas 
+    las direcciones activas de un usuario 
+*/
+export async function obtenerDireccionesActivasPorUsuario(userId) {
+
+    const response = await fetch(`${API_BASE_URL}/api-ruki/addresses/user/${userId}/active`, {
+        method: "GET",
+        headers: { 
+            "Authorization": `Bearer ${getToken()}`,
+            "Content-Type": "application/json"
+        }
+    });
+    if (!response.ok) throw new Error("Error al obtener las direcciones activas");
+    return await response.json();
+}
+
+/*
     Función asincrona para actualizar los 
     datos de una dirección específica
 */
