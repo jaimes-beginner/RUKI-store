@@ -23,6 +23,7 @@ export function PedidosAdmin() {
     const [pedidoSeleccionado, setPedidoSeleccionado] = useState(null);
     const [nuevoEstado, setNuevoEstado] = useState("");
     const [direccionCompleta, setDireccionCompleta] = useState("Cargando dirección...");
+    const [showEstadoModal, setShowEstadoModal] = useState(false);
 
     useEffect(() => {
         cargarDatos();
@@ -88,6 +89,13 @@ export function PedidosAdmin() {
         e.preventDefault();
         if (!pedidoSeleccionado) return;
 
+        setShowEstadoModal(true);
+    };
+
+    const confirmarActualizarEstado = async () => {
+        if (!pedidoSeleccionado) return;
+
+        setShowEstadoModal(false);
         setLoading(true);
         try {
             await actualizarEstadoPedido(pedidoSeleccionado.id, nuevoEstado);
@@ -148,9 +156,10 @@ export function PedidosAdmin() {
                     <AnimatePresence>
                         {toast.mostrar && (
                             <motion.div 
-                                initial={{ opacity: 0, scale: 0.9, y: -20 }} 
-                                animate={{ opacity: 1, scale: 1, y: 0 }} 
+                                initial={{ opacity: 0, scale: 0.9, y: -20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.9, y: -20 }}
+                                transition={{ type: "spring", stiffness: 300, damping: 25 }}
                                 className={`ord-toast ${toast.tipo === "danger" ? "error" : "success"}`}
                             >
                                 <i className={`fas ${toast.tipo === "danger" ? "fa-exclamation-triangle" : "fa-check-circle"} me-2 fs-5`}></i>
@@ -159,6 +168,36 @@ export function PedidosAdmin() {
                         )}
                     </AnimatePresence>
                 </div>
+
+                <AnimatePresence>
+                    {showEstadoModal && (
+                        <div className="ord-modal-backdrop" onClick={() => setShowEstadoModal(false)}>
+                            <motion.div
+                                className="ord-modal-content text-center"
+                                initial={{ scale: 0.9, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                exit={{ scale: 0.9, opacity: 0 }}
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                <div className="mb-3">
+                                    <i className="fas fa-truck fa-3x mb-3 text-white"></i>
+                                    <h4 className="fw-bolder text-white mb-2">Confirmar actualización</h4>
+                                    <p className="text-secondary mb-0">
+                                        ¿Deseas cambiar el estado de la orden #{pedidoSeleccionado?.id} a {nuevoEstado}?
+                                    </p>
+                                </div>
+                                <div className="d-flex gap-2 mt-4">
+                                    <button className="flex-fill ord-btn-outline" onClick={() => setShowEstadoModal(false)}>
+                                        Cancelar
+                                    </button>
+                                    <button className="flex-fill ord-btn-primary" onClick={confirmarActualizarEstado} disabled={loading}>
+                                        Confirmar
+                                    </button>
+                                </div>
+                            </motion.div>
+                        </div>
+                    )}
+                </AnimatePresence>
 
                 <motion.div className="row g-4 align-items-start" variants={containerVariants} initial="hidden" animate="visible">
                     

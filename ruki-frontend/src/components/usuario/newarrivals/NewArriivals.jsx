@@ -216,15 +216,18 @@ export default function NewArrivals() {
                             <span className="fw-semibold" style={{fontSize: '14px', color: '#a1a1a6'}}>
                                 Mostrando {products.length} productos
                             </span>
-                            <select 
-                                className="na-sort-select"
-                                value={filtros.sort}
-                                onChange={(e) => handleFilterChange('sort', e.target.value)}
-                            >
-                                <option value="newest">Más recientes</option>
-                                <option value="priceAsc">Precio: Menor a Mayor</option>
-                                <option value="priceDesc">Precio: Mayor a Menor</option>
-                            </select>
+                            {/* SELECTOR DE ORDENAMIENTO ESTILIZADO */}
+                            <div className="prod-sort-wrapper">
+                                <select
+                                    className="prod-sort-select"
+                                    value={filtros.sort}
+                                    onChange={(e) => handleFilterChange('sort', e.target.value)}
+                                >
+                                    <option value="newest">Más recientes</option>
+                                    <option value="priceAsc">Precio: Menor a Mayor</option>
+                                    <option value="priceDesc">Precio: Mayor a Menor</option>
+                                </select>
+                            </div>
                         </div>
 
                         {loading ? (

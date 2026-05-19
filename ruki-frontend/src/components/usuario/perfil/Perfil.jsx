@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
-import { obtenerMiPerfil, actualizarUsuario, crearDireccion, obtenerDireccionesPorUsuario, eliminarDireccion } from '../../../services/UsuarioService';
+import { obtenerMiPerfil, actualizarUsuario, crearDireccion, obtenerDireccionesActivasPorUsuario, eliminarDireccion } from '../../../services/UsuarioService';
 import { Modal } from 'react-bootstrap';
 import { motion, AnimatePresence } from 'framer-motion';
 import './Perfil.css';
@@ -15,7 +15,6 @@ export function Perfil() {
     const [direcciones, setDirecciones] = useState([]);
 
     const [editMode, setEditMode] = useState(false);
-
     const [formData, setFormData] = useState({ firstName: '', lastName: '' });
 
     const [showAddressModal, setShowAddressModal] = useState(false);
@@ -23,9 +22,12 @@ export function Perfil() {
         street: '', city: '', region: '', zipCode: '', referenceInfo: ''
     });
 
+    // Estados para el Modal de Eliminación (Glassmorphism)
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [addressToDelete, setAddressToDelete] = useState(null);
+
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState(false);
-
     const [toast, setToast] = useState({ mostrar: false, mensaje: '', tipo: '' });
 
     const mostrarToast = (mensaje, tipo) => {
@@ -42,7 +44,7 @@ export function Perfil() {
         try {
             const [profileData, addressData] = await Promise.all([
                 obtenerMiPerfil(),
-                obtenerDireccionesPorUsuario(usuario.id)
+                obtenerDireccionesActivasPorUsuario(usuario.id) // Usando el endpoint de Soft Delete
             ]);
             setPerfil(profileData);
             setDirecciones(addressData);
@@ -86,13 +88,16 @@ export function Perfil() {
         }
     };
 
-    const handleDeleteAddress = async (id) => {
-        if (!window.confirm("¿Estás seguro de eliminar esta dirección?")) return;
+    // Nueva función consolidada para confirmar la eliminación
+    const confirmDeleteAddress = async () => {
+        if (!addressToDelete) return;
         setActionLoading(true);
         try {
-            await eliminarDireccion(id);
+            await eliminarDireccion(addressToDelete);
             mostrarToast('Dirección eliminada correctamente', 'success');
-            await cargarDatos(); // Recargamos la lista
+            setShowDeleteModal(false); // Cerramos el modal rojo
+            setAddressToDelete(null);  // Limpiamos el ID seleccionado
+            await cargarDatos();       // Refrescamos la UI
         } catch (err) {
             mostrarToast(err.message || 'Error al eliminar dirección', 'error');
         } finally {
@@ -117,11 +122,10 @@ export function Perfil() {
 
     const comunasDisponibles = regiones.find(r => r.nombre === addressForm.region)?.comunas || [];
 
-
     return (
         <div className="profile-main-wrapper">
 
-            {/* LUCES DE FONDO DE PERFIL (Cargan Inmediatamente) */}
+            {/* LUCES DE FONDO DE PERFIL */}
             <div className="profile-glow-container">
                 <div className="profile-glow-blob profile-blob-blue"></div>
                 <div className="profile-glow-blob profile-blob-purple"></div>
@@ -129,7 +133,7 @@ export function Perfil() {
 
             <div className="container mt-5 mb-5 position-relative" style={{ zIndex: 1 }}>
 
-                {/* CABECERA (Carga Inmediatamente) */}
+                {/* CABECERA */}
                 <motion.div
                     className="profile-page-header-glass"
                     initial={{ opacity: 0, y: -20 }}
@@ -143,7 +147,7 @@ export function Perfil() {
                 {loading ? (
                     <div className="d-flex flex-column justify-content-center align-items-center" style={{ minHeight: '40vh' }}>
                         <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} className="text-center">
-                            <i className="fas fa-circle-notch fa-spin fa-3x mb-3" style={{ color: '#600aff' }}></i>
+                            <i className="fas fa-circle-notch fa-spin fa-3x mb-3" style={{ color: '#0a84ff' }}></i>
                             <p className="text-secondary fw-semibold">Sincronizando tus datos...</p>
                         </motion.div>
                     </div>
@@ -154,12 +158,12 @@ export function Perfil() {
                         initial="hidden"
                         animate="visible"
                     >
-                        {/* COLUMNA IZQUIERDA CON INFORMACIÓN PERSONAL */}
+                        {/* COLUMNA IZQUIERDA: INFORMACIÓN PERSONAL */}
                         <motion.div className="col-md-5" variants={cardVariants}>
                             <div className="profile-card-glass h-100">
                                 <div className="profile-header-glass d-flex justify-content-between align-items-center">
                                     <div>
-                                        <i className="fas fa-user-circle me-2" style={{ color: '#600aff' }}></i>
+                                        <i className="fas fa-user-circle me-2" style={{ color: '#0a84ff' }}></i>
                                         Información Personal
                                     </div>
                                     <motion.button
@@ -200,7 +204,7 @@ export function Perfil() {
                                             </div>
                                         </div>
 
-                                        {/* BOTÓN PARA RECUPERAR CONTRASEÑA (Fuera del EditMode para que siempre esté accesible) */}
+                                        {/* RECUPERAR CONTRASEÑA */}
                                         <div className="ios-input-group mb-4 mt-4 pt-4 border-top border-dark" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
                                             <label className="ios-label">Seguridad</label>
                                             <motion.button
@@ -240,12 +244,12 @@ export function Perfil() {
                             </div>
                         </motion.div>
 
-                        {/* COLUMNA DERECHA CON LAS DIRECCIONES */}
+                        {/* COLUMNA DERECHA: DIRECCIONES */}
                         <motion.div className="col-md-7" variants={cardVariants}>
                             <div className="profile-card-glass h-100 d-flex flex-column">
                                 <div className="profile-header-glass d-flex justify-content-between align-items-center">
                                     <div>
-                                        <i className="fas fa-map-marker-alt me-2" style={{ color: '#7327ff' }}></i>
+                                        <i className="fas fa-map-marker-alt me-2" style={{ color: '#ff3b30' }}></i>
                                         Mis Direcciones
                                     </div>
                                     <span className="ios-badge-glass-subtle">
@@ -277,13 +281,16 @@ export function Perfil() {
                                                         </div>
                                                     </div>
 
-                                                    {/* BOTÓN DE ELIMINAR */}
+                                                    {/* BOTÓN ELIMINAR -> ACTIVA MODAL */}
                                                     <motion.button
                                                         whileHover={{ scale: 1.1 }}
                                                         whileTap={{ scale: 0.9 }}
                                                         className="btn btn-sm btn-outline-danger border-0 d-flex justify-content-center align-items-center"
                                                         style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: 'rgba(255, 59, 48, 0.1)' }}
-                                                        onClick={() => handleDeleteAddress(dir.id)}
+                                                        onClick={() => {
+                                                            setAddressToDelete(dir.id);
+                                                            setShowDeleteModal(true);
+                                                        }}
                                                         disabled={actionLoading}
                                                     >
                                                         <i className="fas fa-trash-alt"></i>
@@ -308,8 +315,20 @@ export function Perfil() {
                     </motion.div>
                 )}
 
-                {/* MODAL NUEVA DIRECCIÓN */}
-                <Modal show={showAddressModal} onHide={() => setShowAddressModal(false)} centered contentClassName="profile-modal-glass">
+                {/* MODAL: NUEVA DIRECCIÓN */}
+                <Modal
+                    show={showAddressModal}
+                    onHide={() => setShowAddressModal(false)}
+                    centered
+                    backdrop="static"
+                    contentClassName="profile-modal-glass"
+                >
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                        transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                    ></motion.div>
                     <div className="p-4">
                         <div className="d-flex justify-content-between align-items-center mb-4">
                             <h4 className="modal-custom-title mb-0">Nueva Dirección</h4>
@@ -357,7 +376,7 @@ export function Perfil() {
                                             onChange={e => setAddressForm({ ...addressForm, city: e.target.value })}
                                         >
                                             <option value="" style={{ color: '#a1a1a6', background: '#111111' }}>Seleccionar...</option>
-                                            {(regiones.find(r => (r.region || r.nombre) === addressForm.region)?.comunas || []).map((c, i) => (
+                                            {comunasDisponibles.map((c, i) => (
                                                 <option key={i} value={c} style={{ color: '#ffffff', background: '#111111' }}>
                                                     {c}
                                                 </option>
@@ -394,12 +413,42 @@ export function Perfil() {
                     </div>
                 </Modal>
 
-                {/* TOAST FLOTANTE ANIMADO */}
+                {/* MODAL: CONFIRMACIÓN ELIMINAR DIRECCIÓN (GLASS/DANGER) */}
+                <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered contentClassName="profile-modal-glass border-danger-glass">
+                    <div className="p-4 text-center">
+                        <div className="mb-4">
+                            <div className="mx-auto d-flex align-items-center justify-content-center rounded-circle mb-3" style={{ width: '64px', height: '64px', backgroundColor: 'rgba(255, 59, 48, 0.1)', border: '1px solid rgba(255, 59, 48, 0.3)' }}>
+                                <i className="fas fa-exclamation-triangle fa-2x" style={{ color: '#ff3b30' }}></i>
+                            </div>
+                            <h4 className="modal-custom-title mb-2">¿Eliminar Dirección?</h4>
+                            <p className="text-secondary small mb-0" style={{ color: '#a1a1a6' }}>
+                                Esta acción no se puede deshacer. La dirección ya no estará disponible para futuros pedidos.
+                            </p>
+                        </div>
+                        <div className="d-flex gap-2">
+                            <motion.button whileTap={{ scale: 0.95 }} type="button" className="ios-btn ios-btn-outline w-100" onClick={() => setShowDeleteModal(false)}>
+                                CANCELAR
+                            </motion.button>
+                            <motion.button
+                                whileTap={{ scale: 0.95 }}
+                                type="button"
+                                className="ios-btn w-100 border-0"
+                                style={{ backgroundColor: '#ff3b30', color: '#ffffff' }}
+                                disabled={actionLoading}
+                                onClick={confirmDeleteAddress}
+                            >
+                                {actionLoading ? <><i className="fas fa-spinner fa-spin me-2"></i>ELIMINANDO</> : "SÍ, ELIMINAR"}
+                            </motion.button>
+                        </div>
+                    </div>
+                </Modal>
+
+                {/* TOAST NOTIFICACIONES */}
                 <div className="profile-toast-container">
                     <AnimatePresence>
                         {toast.mostrar && (
                             <motion.div
-                                className="profile-ios-toast-glass"
+                                className={`profile-ios-toast-glass ${toast.tipo === 'error' ? 'error' : 'success'}`}
                                 initial={{ opacity: 0, y: 50, scale: 0.9 }}
                                 animate={{ opacity: 1, y: 0, scale: 1 }}
                                 exit={{ opacity: 0, y: 20, scale: 0.9 }}
@@ -414,6 +463,7 @@ export function Perfil() {
                         )}
                     </AnimatePresence>
                 </div>
+
             </div>
         </div>
     );

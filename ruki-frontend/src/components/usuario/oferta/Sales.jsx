@@ -190,15 +190,19 @@ export default function Sales() {
                             <span className="fw-semibold" style={{fontSize: '14px', color: '#a1a1a6'}}>
                                 Mostrando {products.length} ofertas
                             </span>
-                            <select 
-                                className="sale-sort-select"
-                                value={filtros.sort}
-                                onChange={(e) => handleFilterChange('sort', e.target.value)}
-                            >
-                                <option value="discountDesc">Mayor Descuento</option>
-                                <option value="priceAsc">Precio: Menor a Mayor</option>
-                                <option value="priceDesc">Precio: Mayor a Menor</option>
-                            </select>
+                            
+                            {/* SELECTOR DE ORDENAMIENTO ESTILIZADO */}
+                            <div className="prod-sort-wrapper">
+                                <select
+                                    className="prod-sort-select"
+                                    value={filtros.sort}
+                                    onChange={(e) => handleFilterChange('sort', e.target.value)}
+                                >
+                                    <option value="newest">Mayor Descuento</option>
+                                    <option value="priceAsc">Precio: Menor a Mayor</option>
+                                    <option value="priceDesc">Precio: Mayor a Menor</option>
+                                </select>
+                            </div>
                         </div>
 
                         {loading ? (
@@ -223,7 +227,6 @@ export default function Sales() {
                             </motion.div>
                         ) : (
                             <motion.div 
-                                // 💡 SOLUCIÓN 1: Esta KEY dinámica obliga a Framer Motion a reiniciar el Stagger completo
                                 key={`${filtros.sort}-${filtros.categoryId}-${filtros.size}-${products.length}`}
                                 className="row g-4"
                                 variants={containerVariants}
@@ -231,7 +234,6 @@ export default function Sales() {
                                 animate="visible"
                             >
                                 {products.map((product, index) => (
-                                    // 💡 SOLUCIÓN 2: Agregamos el index al key por si la base de datos envía IDs repetidos
                                     <motion.div key={`${product.id}-${index}`} className="col-12 col-sm-6 col-md-4" variants={itemVariants}>
                                         <article className="sale-card d-flex flex-column">
                                             <div className="sale-image-wrap">

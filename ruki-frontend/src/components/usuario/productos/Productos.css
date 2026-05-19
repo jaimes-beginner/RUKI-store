@@ -93,7 +93,7 @@
 }
 
 .productos-wrapper .prod-sort-select:focus {
-    border-color: #0a84ff;
+    border-color: #600aff;
 }
 
 /* ========================================= */
@@ -183,7 +183,7 @@
     position: relative;
     width: 100%;
     aspect-ratio: 4 / 5;
-    background-color: rgba(0, 0, 0, 0.2); /* Oscurecemos un poco donde va la foto */
+    background-color: rgba(0, 0, 0, 0.2); 
     overflow: hidden;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
@@ -298,4 +298,48 @@
 @media (max-width: 991px) {
     .productos-wrapper .prod-hero-section { padding: 40px 16px; }
     .productos-wrapper .prod-toast-container { right: 16px; left: 16px; display: flex; justify-content: center; bottom: 16px; }
+}
+
+.prod-sort-wrapper {
+    position: relative;
+    display: inline-block;
+    min-width: 200px;
+}
+
+.prod-sort-select {
+    appearance: none;
+    background: rgba(20, 20, 20, 0.45); /* Fondo oscuro translúcido */
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 10px 40px 10px 16px;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    transition: all 0.3s ease;
+    /* Flecha personalizada */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffffff'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 20px;
+}
+
+.prod-sort-select:hover {
+    border-color: rgba(255, 255, 255, 0.3);
+    background-color: rgba(30, 30, 30, 0.6);
+}
+
+.prod-sort-select:focus {
+    outline: none;
+    border-color: #afafafbe !important; 
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.096);
+}
+
+/* Estilo para las opciones dentro del menú desplegable */
+.prod-sort-select option {
+    background-color: #111111;
+    color: #ffffff;
+    padding: 10px;
 }

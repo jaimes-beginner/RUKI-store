@@ -160,6 +160,11 @@
 .ord-btn-primary:hover:not(:disabled) { background: #d2d2d7; transform: translateY(-1px); box-shadow: 0 6px 16px rgba(255,255,255,0.2); }
 .ord-btn-primary:disabled { background: rgba(255, 255, 255, 0.05); color: #444444; cursor: not-allowed; box-shadow: none; border: 1px solid rgba(255, 255, 255, 0.05); }
 
+.ord-btn-outline {
+    background: transparent; color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 14px; padding: 14px; font-weight: 700; font-size: 13px; transition: all 0.2s;
+}
+.ord-btn-outline:hover { background: rgba(255, 255, 255, 0.05); border-color: #ffffff; }
+
 /* ========================================= */
 /* TABLAS Y LISTAS (CRISTAL OSCURO)          */
 /* ========================================= */
@@ -234,6 +239,17 @@
 }
 .ord-toast.success { border-bottom: 3px solid #34c759; }
 .ord-toast.error { border-bottom: 3px solid #ff3b30; }
+
+/* ========================================= */
+/* MODAL CONFIRMACIÓN ESTADO                */
+/* ========================================= */
+.ord-modal-backdrop {
+    position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 1060; display: flex; align-items: center; justify-content: center;
+}
+
+.ord-modal-content {
+    background: rgba(20, 20, 20, 0.9); border-radius: 24px; padding: 24px; width: 90%; max-width: 420px; box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff; backdrop-filter: blur(40px);
+}
 
 @media (max-width: 992px) {
     .ord-toast-container { right: 16px; left: 16px; display: flex; justify-content: center; }

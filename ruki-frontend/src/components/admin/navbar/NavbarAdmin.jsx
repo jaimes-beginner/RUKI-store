@@ -8,20 +8,7 @@ import './NavbarAdmin.css';
 export function NavbarAdmin() {
     const { logout, usuario } = useAuth();
     const navigate = useNavigate();
-    const [fecha, setFecha] = useState("");
     const [adminMenuOpen, setAdminMenuOpen] = useState(false);
-
-    useEffect(() => {
-        const actualizarFecha = () => {
-            const hoy = new Date();
-            const opciones = { weekday: 'short', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' };
-            setFecha(hoy.toLocaleDateString('es-CL', opciones).replace(",", " -"));
-        };
-        actualizarFecha();
-
-        const intervalo = setInterval(actualizarFecha, 60000); 
-        return () => clearInterval(intervalo);
-    }, []);
 
     const handleLogout = () => {
         if (window.confirm("¿Estás seguro de cerrar sesión en la consola de administrador?")) {
@@ -42,9 +29,6 @@ export function NavbarAdmin() {
                         <div className="d-flex align-items-center gap-2 mb-1">
                             <span className="server-status-dot pulse"></span>
                             <span className="server-status-text">SISTEMAS OPERATIVOS</span>
-                        </div>
-                        <div className="server-date-text">
-                            <i className="far fa-clock me-1"></i> {fecha}
                         </div>
                     </div> 
                     
@@ -92,7 +76,7 @@ export function NavbarAdmin() {
                                         transition={{ duration: 0.2, ease: "easeOut" }}
                                     >
                                         <div className="px-3 py-2 border-bottom border-secondary mb-1">
-                                            <small className="text-muted d-block" style={{fontSize: '10px'}}>CONECTADO COMO</small>
+                                            <small className="text-secondary d-block" style={{fontSize: '10px'}}>CONECTADO COMO</small>
                                             <strong className="text-white" style={{fontSize: '13px'}}>{usuario?.email || 'admin@ruki.com'}</strong>
                                         </div>
                                         

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../../contexts/CartContext';
 import { useAuth } from '../../../contexts/AuthContext';
 import { crearPedido, iniciarPagoStripe } from '../../../services/PedidoService';
-import { obtenerDireccionesPorUsuario } from '../../../services/UsuarioService';
+import { obtenerDireccionesActivasPorUsuario } from '../../../services/UsuarioService';
 import { motion, AnimatePresence } from 'framer-motion';
 import './Checkout.css';
 
@@ -25,7 +25,7 @@ export function Checkout() {
 
         const cargarDirecciones = async () => {
             try {
-                const data = await obtenerDireccionesPorUsuario(usuario.id);
+                const data = await obtenerDireccionesActivasPorUsuario(usuario.id);
                 setDirecciones(data);
                 if (data.length > 0) {
                     setDireccionSeleccionada(data[0].id);

@@ -13,10 +13,13 @@ const cardVariants = {
 };
 
 export function UsuariosAdmin() {
+    const Motion = motion;
     const [usuarios, setUsuarios] = useState([]);
     const [loading, setLoading] = useState(false);
     const [mensaje, setMensaje] = useState("");
     const [editingId, setEditingId] = useState(null);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [usuarioToDelete, setUsuarioToDelete] = useState(null);
 
     const [formulario, setFormulario] = useState({
         firstName: "", lastName: "", email: "", password: ""
@@ -73,15 +76,23 @@ export function UsuariosAdmin() {
         }
     };
 
-    const handleEliminar = async (id, nombre) => {
-        if (!window.confirm(`¿Estás seguro de que deseas desactivar al usuario "${nombre}"?`)) return;
+    const handleEliminar = (id, nombre) => {
+        setUsuarioToDelete({ id, nombre });
+        setShowDeleteModal(true);
+    };
+
+    const confirmarEliminar = async () => {
+        if (!usuarioToDelete) return;
+
         try {
-            await eliminarUsuario(id);
-            setMensaje(`Usuario #${id} desactivado correctamente.`);
+            await eliminarUsuario(usuarioToDelete.id);
+            setMensaje(`Usuario #${usuarioToDelete.id} desactivado correctamente.`);
             cargarDatos();
         } catch (error) {
             setMensaje("Error al desactivar: " + error.message);
         } finally {
+            setShowDeleteModal(false);
+            setUsuarioToDelete(null);
             setTimeout(() => setMensaje(""), 3500);
         }
     };
@@ -132,18 +143,51 @@ export function UsuariosAdmin() {
                 <div className="usr-toast-container">
                     <AnimatePresence>
                         {mensaje && (
-                            <motion.div 
-                                initial={{ opacity: 0, scale: 0.9, y: -20 }} 
-                                animate={{ opacity: 1, scale: 1, y: 0 }} 
+                            <Motion.div 
+                                initial={{ opacity: 0, scale: 0.9, y: -20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.9, y: -20 }}
+                                transition={{ type: "spring", stiffness: 300, damping: 25 }}
                                 className={`usr-toast ${mensaje.includes("Error") ? "error" : "success"}`}
                             >
                                 <i className={`fas ${mensaje.includes("Error") ? "fa-exclamation-triangle" : "fa-check-circle"} me-2 fs-5`}></i>
                                 {mensaje}
-                            </motion.div>
+                            </Motion.div>
                         )}
                     </AnimatePresence>
                 </div>
+
+                <AnimatePresence>
+                    {showDeleteModal && (
+                        <div className="usr-modal-backdrop" onClick={() => setShowDeleteModal(false)}>
+                            <Motion.div
+                                className="usr-modal-content text-center"
+                                initial={{ scale: 0.9, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                exit={{ scale: 0.9, opacity: 0 }}
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                <div className="mb-3">
+                                    <div className="mx-auto d-flex align-items-center justify-content-center rounded-circle mb-3" style={{ width: '64px', height: '64px', backgroundColor: 'rgba(255, 59, 48, 0.1)', border: '1px solid rgba(255, 59, 48, 0.3)' }}>
+                                        <i className="fas fa-user-slash fa-2x" style={{ color: '#ff3b30' }}></i>
+                                    </div>
+                                    <h4 className="fw-bolder text-white mb-2">Desactivar usuario</h4>
+                                    <p className="text-secondary mb-0">
+                                        ¿Deseas desactivar a {usuarioToDelete?.nombre || 'este usuario'}? Esta acción se puede revertir desde la base de datos.
+                                    </p>
+                                </div>
+                                <div className="d-flex gap-2 mt-4">
+                                    <button className="flex-fill usr-btn-secondary" onClick={() => setShowDeleteModal(false)}>
+                                        Cancelar
+                                    </button>
+                                    <button className="flex-fill usr-btn-primary" onClick={confirmarEliminar}>
+                                        Confirmar
+                                    </button>
+                                </div>
+                            </Motion.div>
+                        </div>
+                    )}
+                </AnimatePresence>
 
                 <motion.div className="row g-4 align-items-start" variants={containerVariants} initial="hidden" animate="visible">
                     
@@ -251,13 +295,13 @@ export function UsuariosAdmin() {
                                                                     {u.firstName ? u.firstName.charAt(0).toUpperCase() : u.email.charAt(0).toUpperCase()}
                                                                 </div>
                                                                 <div>
-                                                                    <div className="usr-item-name">{u.firstName} {u.lastName}</div>
-                                                                    <div className="usr-item-id">ID: {u.id}</div>
+                                                                    <div className="usr-item-name" style={{ fontSize: '11px' }}>{u.firstName} {u.lastName}</div>
+                                                                    <div className="usr-item-id" style={{ fontSize: '9px' }}>ID Registro | {u.id}</div>
                                                                 </div>
                                                             </div>
                                                         </td>
                                                         <td className="usr-text-muted">{u.email}</td>
-                                                        <td className="usr-text-muted">{formatearFecha(u.createdAt)}</td>
+                                                        <td className="usr-text-muted" style={{ fontSize: '11px' }}>{formatearFecha(u.createdAt)}</td>
                                                         <td>
                                                             <span className={`usr-badge ${isAdmin ? 'badge-dark' : 'badge-neutral'}`}>
                                                                 {isAdmin ? 'ADMINISTRADOR' : 'CLIENTE'}

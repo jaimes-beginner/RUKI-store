@@ -72,7 +72,7 @@ function Header() {
                         transition={{ duration: 0.2, ease: "easeOut" }}
                       >
                         <div className="px-3 py-2 border-bottom border-secondary mb-1">
-                          <small className="text-muted d-block" style={{fontSize: '10px'}}>CONECTADO COMO</small>
+                          <small className="text-secondary d-block" style={{fontSize: '10px'}}>CONECTADO COMO</small>
                           <strong className="text-white" style={{fontSize: '13px'}}>{usuario?.email || 'usuario@ruki.com'}</strong>
                         </div>
                         

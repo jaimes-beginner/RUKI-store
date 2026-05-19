@@ -55,11 +55,9 @@ export default function Productos() {
     useEffect(() => {
         const cargarCatalogo = async () => {
             setLoading(true);
+            if (productosReales.length === 0) setLoading(true);
+
             try {
-                
-                /*
-                    Enviamos el objeto de filtros a la función maestra
-                */
                 const data = await filtrarProductos(filtros);
                 setProductosReales(data);
                 setError(null);
@@ -74,10 +72,18 @@ export default function Productos() {
     }, [filtros]);
 
     const handleFilterChange = (key, value) => {
-        setFiltros(prev => ({
-            ...prev,
-            [key]: prev[key] === value ? '' : value
-        }));
+        setFiltros(prev => {
+            if (prev[key] === value) {
+                return {
+                    ...prev,
+                    [key]: ''
+                };
+            }
+            return {
+                ...prev,
+                [key]: value
+            };
+        });
     };
 
     const getGallery = (product) => {
@@ -111,7 +117,7 @@ export default function Productos() {
         );
     }
 
-return (
+    return (
         <main className="productos-wrapper">
 
             <div className="prod-glow-container">
@@ -188,16 +194,18 @@ return (
                                 Mostrando {productosReales.length} productos
                             </span>
 
-                            {/* SELECTOR DE ORDENAMIENTO */}
-                            <select
-                                className="prod-sort-select"
-                                value={filtros.sort}
-                                onChange={(e) => handleFilterChange('sort', e.target.value)}
-                            >
-                                <option value="newest">Más recientes</option>
-                                <option value="priceAsc">Precio: Menor a Mayor</option>
-                                <option value="priceDesc">Precio: Mayor a Menor</option>
-                            </select>
+                            {/* SELECTOR DE ORDENAMIENTO ESTILIZADO */}
+                            <div className="prod-sort-wrapper">
+                                <select
+                                    className="prod-sort-select"
+                                    value={filtros.sort}
+                                    onChange={(e) => handleFilterChange('sort', e.target.value)}
+                                >
+                                    <option value="newest">Más recientes</option>
+                                    <option value="priceAsc">Precio: Menor a Mayor</option>
+                                    <option value="priceDesc">Precio: Mayor a Menor</option>
+                                </select>
+                            </div>
                         </div>
 
                         {loading ? (

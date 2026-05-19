@@ -15,11 +15,14 @@ const cardVariants = {
 };
 
 export function InventarioAdmin() {
+    const Motion = motion;
     const [categorias, setCategorias] = useState([]);
     const [productos, setProductos] = useState([]);
     const [mensaje, setMensaje] = useState("");
     const [loading, setLoading] = useState(false);
     const [editingId, setEditingId] = useState(null);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [productoToDelete, setProductoToDelete] = useState(null);
 
     const [formulario, setFormulario] = useState({
         name: "", description: "", basePrice: "", categoryId: "", imageUrls: "",
@@ -114,15 +117,23 @@ export function InventarioAdmin() {
         }
     };
 
-    const handleEliminar = async (id, nombreProducto) => {
-        if (!window.confirm(`¿Estás seguro de eliminar permanentemente "${nombreProducto}"?`)) return;
+    const handleEliminar = (id, nombreProducto) => {
+        setProductoToDelete({ id, nombreProducto });
+        setShowDeleteModal(true);
+    };
+
+    const confirmarEliminar = async () => {
+        if (!productoToDelete) return;
+
         try {
-            await desactivarProducto(id);
-            setMensaje(`Producto #${id} desactivado del sistema.`);
+            await desactivarProducto(productoToDelete.id);
+            setMensaje(`Producto #${productoToDelete.id} desactivado del sistema.`);
             cargarDatos();
         } catch (error) {
             setMensaje("Error al eliminar: " + error.message);
         } finally {
+            setShowDeleteModal(false);
+            setProductoToDelete(null);
             setTimeout(() => setMensaje(""), 3500);
         }
     };
@@ -202,18 +213,51 @@ export function InventarioAdmin() {
                 <div className="inv-toast-container">
                     <AnimatePresence>
                         {mensaje && (
-                            <motion.div 
-                                initial={{ opacity: 0, scale: 0.9, y: -20 }} 
-                                animate={{ opacity: 1, scale: 1, y: 0 }} 
+                            <Motion.div 
+                                initial={{ opacity: 0, scale: 0.9, y: -20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.9, y: -20 }}
+                                transition={{ type: "spring", stiffness: 300, damping: 25 }}
                                 className={`inv-toast ${mensaje.includes("Error") ? "error" : "success"}`}
                             >
                                 <i className={`fas ${mensaje.includes("Error") ? "fa-exclamation-triangle" : "fa-check-circle"} me-2 fs-5`}></i>
                                 {mensaje}
-                            </motion.div>
+                            </Motion.div>
                         )}
                     </AnimatePresence>
                 </div>
+
+                <AnimatePresence>
+                    {showDeleteModal && (
+                        <div className="inv-modal-backdrop" onClick={() => setShowDeleteModal(false)}>
+                            <Motion.div
+                                className="inv-modal-content text-center"
+                                initial={{ scale: 0.9, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                exit={{ scale: 0.9, opacity: 0 }}
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                <div className="mb-3">
+                                    <div className="mx-auto d-flex align-items-center justify-content-center rounded-circle mb-3" style={{ width: '64px', height: '64px', backgroundColor: 'rgba(255, 59, 48, 0.1)', border: '1px solid rgba(255, 59, 48, 0.3)' }}>
+                                        <i className="fas fa-box-open fa-2x" style={{ color: '#ff3b30' }}></i>
+                                    </div>
+                                    <h4 className="fw-bolder text-white mb-2">Desactivar producto</h4>
+                                    <p className="text-secondary mb-0">
+                                        ¿Deseas desactivar {productoToDelete?.nombreProducto || 'este producto'} del inventario?
+                                    </p>
+                                </div>
+                                <div className="d-flex gap-2 mt-4">
+                                    <button className="flex-fill inv-btn-secondary" onClick={() => setShowDeleteModal(false)}>
+                                        Cancelar
+                                    </button>
+                                    <button className="flex-fill inv-btn-primary" onClick={confirmarEliminar}>
+                                        Confirmar
+                                    </button>
+                                </div>
+                            </Motion.div>
+                        </div>
+                    )}
+                </AnimatePresence>
 
                 <motion.div className="row g-4 align-items-start" variants={containerVariants} initial="hidden" animate="visible">
                     
@@ -389,7 +433,7 @@ export function InventarioAdmin() {
                                                                 <div className="inv-avatar-fallback"><i className="fas fa-camera-retro"></i></div>
                                                             )}
                                                             <div className="d-flex flex-column align-items-start">
-                                                                <div className="inv-item-name">{p.name}</div>
+                                                                <div className="inv-item-name" style={{ fontSize: '11px' }}>{p.name}</div>
                                                                 <div className="inv-item-id">
                                                                     ID: {p.id} 
                                                                     {p.variants && p.variants.length > 0 && (
@@ -401,11 +445,11 @@ export function InventarioAdmin() {
                                                             </div>
                                                         </div>
                                                     </td>
-                                                    <td className="inv-text-muted">{p.category?.name || "Sin Asignar"}</td>
+                                                    <td className="inv-text-muted" style={{ fontSize: '11px' }}>{p.category?.name || "Sin Asignar"}</td>
                                                     <td>
                                                         {p.sale || p.isSale ? (
                                                             <div>
-                                                                <span className="inv-item-price text-danger d-block">${Number(p.salePrice).toLocaleString('es-CL')}</span>
+                                                                <span className="inv-item-price text-danger d-block" >${Number(p.salePrice).toLocaleString('es-CL')}</span>
                                                                 <span className="text-decoration-line-through text-secondary small">${Number(p.basePrice).toLocaleString('es-CL')}</span>
                                                             </div>
                                                         ) : (
