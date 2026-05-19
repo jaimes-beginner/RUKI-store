@@ -1,5 +1,6 @@
 package com.ruki.user.services;
 
+import com.ruki.user.entities.Address;
 import com.ruki.user.requests.AddressCreate;
 import com.ruki.user.requests.AddressResponse;
 import com.ruki.user.requests.AddressUpdate;
@@ -15,7 +16,7 @@ public interface AddressService {
     */
 
     AddressResponse createAddress(AddressCreate addressCreate);
-    List<AddressResponse> getAddressesByUserId(Long userId);
+    List<Address> getActiveAddressesByUserId(Long userId);
     List<AddressResponse> getAllAddresses();
     AddressResponse updateAddress(Long addressId, AddressUpdate addressUpdate);
     void deleteAddress(Long addressId);

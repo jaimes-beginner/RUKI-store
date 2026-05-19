@@ -1,5 +1,6 @@
 package com.ruki.user.controllers;
 
+import com.ruki.user.entities.Address;
 import com.ruki.user.requests.AddressCreate;
 import com.ruki.user.requests.AddressResponse;
 import com.ruki.user.requests.AddressUpdate;
@@ -46,16 +47,17 @@ public class AddressController {
         Endpoint para obtener todas las direcciones asociadas a 
         un usuario recibe el ID del usuario como parámetro de ruta
     */
-    @GetMapping("/user/{userId}")
-    @Operation(summary = "Obtener direcciones de un usuario", description = "Retorna todas las direcciones asociadas a un ID de usuario")
+    @GetMapping("/user/{userId}/active")
+    @Operation(summary = "Obtener direcciones activas", description = "Retorna la lista de direcciones que no han sido borradas mediante Soft Delete")
     @SecurityRequirement(name = "bearerAuth")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Lista de direcciones obtenida"),
-            @ApiResponse(responseCode = "403", description = "Acceso denegado: No eres el propietario de este recurso"),
-            @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+            @ApiResponse(responseCode = "200", description = "Lista de direcciones recuperada con éxito"),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado: No tienes permisos para ver este recurso"),
+            @ApiResponse(responseCode = "44", description = "Usuario no encontrado")
     })
-    public ResponseEntity<List<AddressResponse>> getAddressesByUser(@PathVariable @Positive Long userId) {
-        return ResponseEntity.ok(addressService.getAddressesByUserId(userId));
+    public ResponseEntity<List<Address>> getActiveAddresses(@PathVariable @Positive Long userId) {
+        List<Address> activeAddresses = addressService.getActiveAddressesByUserId(userId);
+        return ResponseEntity.ok(activeAddresses);
     }
 
     /*

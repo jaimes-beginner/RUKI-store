@@ -60,23 +60,14 @@ public class AddressServiceImpl implements AddressService {
     */
     @Override
     @Transactional(readOnly = true)
-    public List<AddressResponse> getAddressesByUserId(Long userId) {
-
-        /* 
-            Cierre de vulnerabilidad IDOR
-        */
+    public List<Address> getActiveAddressesByUserId(Long userId) {
         validateAddressOwnershipOrAdmin(userId); 
-
-        if (!userRepository.existsByIdAndIsActiveTrue(userId)) {
-            throw new ResourceNotFoundException("Usuario no encontrado");
-        }
-
-        return addressRepository.findAllByUserId(userId)
-                .stream()
-                .map(this::toResponse)
-                .toList();
+        return addressRepository.findByUser_IdAndActiveTrue(userId);
     }
 
+    /*
+        Ver todas las direcciones
+    */
     @Override
     @Transactional(readOnly = true)
     public List<AddressResponse> getAllAddresses() {
@@ -143,6 +134,7 @@ public class AddressServiceImpl implements AddressService {
         address.setActive(false); 
         addressRepository.save(address);
     }
+
 
     /*
         Método auxiliar para convertir una entidad user
