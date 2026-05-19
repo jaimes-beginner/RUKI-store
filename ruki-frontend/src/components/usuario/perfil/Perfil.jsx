@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; 
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
-import { obtenerMiPerfil, actualizarUsuario, crearDireccion, obtenerDireccionesPorUsuario } from '../../../services/UsuarioService';
+import { obtenerMiPerfil, actualizarUsuario, crearDireccion, obtenerDireccionesPorUsuario, eliminarDireccion } from '../../../services/UsuarioService';
 import { Modal } from 'react-bootstrap';
 import { motion, AnimatePresence } from 'framer-motion';
 import './Perfil.css';
@@ -9,13 +9,13 @@ import { regiones } from '../../../data/Regiones';
 
 export function Perfil() {
     const { usuario } = useAuth();
-    const navigate = useNavigate(); 
+    const navigate = useNavigate();
 
     const [perfil, setPerfil] = useState(null);
     const [direcciones, setDirecciones] = useState([]);
 
     const [editMode, setEditMode] = useState(false);
-    
+
     const [formData, setFormData] = useState({ firstName: '', lastName: '' });
 
     const [showAddressModal, setShowAddressModal] = useState(false);
@@ -81,6 +81,20 @@ export function Perfil() {
             await cargarDatos();
         } catch (err) {
             mostrarToast(err.message || 'Error al agregar dirección', 'error');
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
+    const handleDeleteAddress = async (id) => {
+        if (!window.confirm("¿Estás seguro de eliminar esta dirección?")) return;
+        setActionLoading(true);
+        try {
+            await eliminarDireccion(id);
+            mostrarToast('Dirección eliminada correctamente', 'success');
+            await cargarDatos(); // Recargamos la lista
+        } catch (err) {
+            mostrarToast(err.message || 'Error al eliminar dirección', 'error');
         } finally {
             setActionLoading(false);
         }
@@ -250,16 +264,30 @@ export function Perfil() {
                                     ) : (
                                         <motion.div className="address-list" variants={containerVariants} initial="hidden" animate="visible">
                                             {direcciones.map((dir) => (
-                                                <motion.div key={dir.id} className="address-item" variants={listItemVariants}>
+                                                <motion.div key={dir.id} className="address-item d-flex justify-content-between align-items-center" variants={listItemVariants}>
                                                     <div>
                                                         <div className="address-street">{dir.street}</div>
                                                         <div className="address-details">
                                                             {dir.city}, {dir.region} {dir.referenceInfo ? ` • ${dir.referenceInfo}` : ''}
                                                         </div>
+                                                        <div className="mt-1">
+                                                            <span className="ios-badge-zipcode">
+                                                                C.P: {dir.zipCode || 'N/A'}
+                                                            </span>
+                                                        </div>
                                                     </div>
-                                                    <span className="ios-badge-zipcode">
-                                                        C.P: {dir.zipCode || 'N/A'}
-                                                    </span>
+
+                                                    {/* BOTÓN DE ELIMINAR */}
+                                                    <motion.button
+                                                        whileHover={{ scale: 1.1 }}
+                                                        whileTap={{ scale: 0.9 }}
+                                                        className="btn btn-sm btn-outline-danger border-0 d-flex justify-content-center align-items-center"
+                                                        style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: 'rgba(255, 59, 48, 0.1)' }}
+                                                        onClick={() => handleDeleteAddress(dir.id)}
+                                                        disabled={actionLoading}
+                                                    >
+                                                        <i className="fas fa-trash-alt"></i>
+                                                    </motion.button>
                                                 </motion.div>
                                             ))}
                                         </motion.div>

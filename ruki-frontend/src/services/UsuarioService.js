@@ -145,7 +145,7 @@ export async function actualizarDireccion(addressId, addressData) {
 */
 export async function eliminarDireccion(addressId) {
     const response = await fetch(`${API_BASE_URL}/api-ruki/addresses/delete/${addressId}`, {
-        method: "DELETE",
+        method: "PUT",
         headers: { "Authorization": `Bearer ${getToken()}` }
     });
     if (!response.ok) throw new Error("Error al eliminar dirección");
