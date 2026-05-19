@@ -140,7 +140,8 @@ public class AddressServiceImpl implements AddressService {
             throw new ForbiddenOperationException("No se puede eliminar una dirección de un usuario inactivo");
         }
 
-        addressRepository.delete(address);
+        address.setActive(false); 
+        addressRepository.save(address);
     }
 
     /*

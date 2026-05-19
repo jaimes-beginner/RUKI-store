@@ -51,4 +51,8 @@ public class Address {
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private User user;
+
+    @Column(nullable = false)
+    private boolean active = true;
+    
 }

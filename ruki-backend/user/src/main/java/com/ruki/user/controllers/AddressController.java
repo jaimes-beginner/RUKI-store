@@ -95,7 +95,7 @@ public class AddressController {
     /*
         Endpoint para eliminar una dirección por su ID
     */
-    @DeleteMapping("/delete/{addressId}")
+    @PutMapping("/delete/{addressId}")
     @Operation(summary = "Eliminar direccion", description = "Elimina una direccion existente")
     @SecurityRequirement(name = "bearerAuth")
     @ApiResponses(value = {
