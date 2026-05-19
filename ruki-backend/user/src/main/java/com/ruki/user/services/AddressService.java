@@ -20,5 +20,6 @@ public interface AddressService {
     List<AddressResponse> getAllAddresses();
     AddressResponse updateAddress(Long addressId, AddressUpdate addressUpdate);
     void deleteAddress(Long addressId);
+    List<AddressResponse> getAddressesByUserId(Long userId);
     
 }

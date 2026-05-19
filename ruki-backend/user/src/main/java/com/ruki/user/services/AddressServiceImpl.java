@@ -174,4 +174,27 @@ public class AddressServiceImpl implements AddressService {
         }
     }
 
+    /*
+        Obtener todas las direcciones de un usuario por su ID
+    */
+    @Override
+    @Transactional(readOnly = true)
+    public List<AddressResponse> getAddressesByUserId(Long userId) {
+
+        /* 
+            Cierre de vulnerabilidad IDOR
+        */
+
+        validateAddressOwnershipOrAdmin(userId); 
+
+        if (!userRepository.existsByIdAndIsActiveTrue(userId)) {
+            throw new ResourceNotFoundException("Usuario no encontrado");
+        }
+
+        return addressRepository.findAllByUserId(userId)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
 }

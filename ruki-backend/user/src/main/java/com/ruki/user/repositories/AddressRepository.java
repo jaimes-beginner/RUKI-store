@@ -1,6 +1,8 @@
 package com.ruki.user.repositories;
 
 import com.ruki.user.entities.Address;
+import com.ruki.user.requests.AddressResponse;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.List;
@@ -14,4 +16,5 @@ public interface AddressRepository extends JpaRepository<Address, Long> {
     */
     List<Address> findAllByUserId(Long userId);
     List<Address> findByUser_IdAndActiveTrue(Long userId);
+
 }

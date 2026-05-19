@@ -110,4 +110,19 @@ public class AddressController {
         return ResponseEntity.ok().build();
     }
     
+
+    /*
+        Endpoint para obtener todas las direcciones de un usuario por su ID
+    */
+    @GetMapping("/user/{userId}")
+    @Operation(summary = "Obtener direcciones de un usuario", description = "Retorna todas las direcciones asociadas a un ID de usuario")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lista de direcciones obtenida"),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado: No eres el propietario de este recurso"),
+            @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+    })
+    public ResponseEntity<List<AddressResponse>> getAddressesByUser(@PathVariable @Positive Long userId) {
+        return ResponseEntity.ok(addressService.getAddressesByUserId(userId));
+    }
+
 }
