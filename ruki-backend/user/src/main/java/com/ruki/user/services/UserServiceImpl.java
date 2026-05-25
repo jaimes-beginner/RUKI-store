@@ -2,6 +2,7 @@ package com.ruki.user.services;
 
 import com.ruki.user.entities.Role;
 import com.ruki.user.entities.User;
+import com.ruki.user.exceptions.ForbiddenOperationException;
 import com.ruki.user.exceptions.ResourceConflictException;
 import com.ruki.user.exceptions.ResourceNotFoundException;
 import com.ruki.user.repositories.UserRepository;
@@ -9,93 +10,82 @@ import com.ruki.user.requests.UserCreate;
 import com.ruki.user.requests.UserResponse;
 import com.ruki.user.requests.UserUpdate;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class UserServiceImpl implements UserService {
 
-    /*
-        Inyección de dependencias del respositorio 
-        y el encoder de contraseñas
-    */
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
     /*
-        Crear un nuevo usuario verificando que 
-        el correo electrónico no esté registrado
-
-        Todo usuario nuevo se fuerza al rol CUSTOMER
+        Método para crear un nuevo usuario, se asegura que el email no esté registrado
     */
     @Override
     public UserResponse createUser(UserCreate userCreate) {
-        if (userRepository.findByEmail(userCreate.getEmail()).isPresent()) {
-            throw new ResourceConflictException("El correo electrónico ya está registrado");
+        if (userRepository.existsByEmail(userCreate.getEmail())) {
+            throw new ResourceConflictException("El correo electrónico ya está registrado.");
         }
 
-        User user = new User();
-        user.setEmail(userCreate.getEmail());
-        user.setPassword(passwordEncoder.encode(userCreate.getPassword()));
-        user.setFirstName(userCreate.getFirstName());
-        user.setLastName(userCreate.getLastName());
-        user.setRole(Role.CUSTOMER); 
-        user.setActive(true);
+        User user = User.builder() 
+                .email(userCreate.getEmail())
+                .password(passwordEncoder.encode(userCreate.getPassword()))
+                .firstName(userCreate.getFirstName())
+                .lastName(userCreate.getLastName())
+                .role(Role.CUSTOMER)
+                .isActive(true) 
+                .build();
 
         User savedUser = userRepository.save(user);
+        log.info("Usuario creado con ID {} y email {}", savedUser.getId(), savedUser.getEmail());
         return toResponse(savedUser);
     }
 
     /*
-        Obtener un usuario por su ID, lanzando
-        una excepción si no se encuentra. (Protegido por IDOR)
+        Método para obtener un usuario por su ID, solo si está activo
     */
     @Override
     @Transactional(readOnly = true)
     public UserResponse getUserById(Long id) {
-
-        /* 
-            Bloqueamos la lectura cruzada por ID
-        */
-        validateOwnershipOrAdmin(id); 
+        validateOwnershipOrAdmin(id);
 
         User user = userRepository.findByIdAndIsActiveTrue(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado o inactivo."));
+        log.debug("Usuario con ID {} encontrado.", id);
         return toResponse(user);
     }
 
     /*
-        Obtener un usuario por su correo electrónico 
-        lanzando una excepción si no se encuentra. (Protegido por IDOR)
+        Método para obtener un usuario por su email, solo si está activo
     */
     @Override
     @Transactional(readOnly = true)
     public UserResponse getUserByEmail(String email) {
         User user = userRepository.findByEmailAndIsActiveTrue(email)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
-        /* 
-            Bloqueamos la lectura cruzada por Email
-        */
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado o inactivo."));
+
         validateOwnershipOrAdmin(user.getId()); 
-        
+        log.debug("Usuario con email {} encontrado.", email);
         return toResponse(user);
     }
 
     /*
-        Obtener todos los usuarios activos
-        filtrando por isActivo = true
+        Método para obtener todos los usuarios activos
     */
     @Override
     @Transactional(readOnly = true)
     public List<UserResponse> getAllActiveUsers() {
+        log.debug("Obteniendo todos los usuarios activos.");
         return userRepository.findAllByIsActive(true)
                 .stream()
                 .map(this::toResponse)
@@ -103,12 +93,12 @@ public class UserServiceImpl implements UserService {
     }
 
     /*
-        Obtener todos los usuarios 
-        sin filtrar por estado
+        Método para obtener todos los usuarios
     */
     @Override
     @Transactional(readOnly = true)
     public List<UserResponse> getAllUsers() {
+        log.info("Obteniendo todos los usuarios para el administrador.");
         return userRepository.findAll()
                 .stream()
                 .map(this::toResponse)
@@ -116,71 +106,97 @@ public class UserServiceImpl implements UserService {
     }
 
     /*
-        Actualizar a un usuario existente, permitiendo
-        la actualización parcial de los campos, ya que
-        todos son opcionales. (Protegido por IDOR)
+        Método para actualizar un usuario, solo si el 
+        usuario autenticado es el mismo o un ADMIN
     */
     @Override
     public UserResponse updateUser(Long id, UserUpdate userUpdate) {
-
-        /* 
-            Cierre de vulnerabilidad IDOR
-        */
-        validateOwnershipOrAdmin(id); 
+        validateOwnershipOrAdmin(id);
 
         User user = userRepository.findByIdAndIsActiveTrue(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado o inactivo."));
 
-        if (userUpdate.getFirstName() != null) {
-            user.setFirstName(userUpdate.getFirstName());
-        }
-        if (userUpdate.getLastName() != null) {
-            user.setLastName(userUpdate.getLastName());
-        }
-        if (userUpdate.getPassword() != null) {
-            user.setPassword(passwordEncoder.encode(userUpdate.getPassword()));
-        }
+        /*
+            Aplicar actualizaciones solo si los campos no son nulos
+        */
+        Optional.ofNullable(userUpdate.getFirstName()).ifPresent(user::setFirstName);
+        Optional.ofNullable(userUpdate.getLastName()).ifPresent(user::setLastName);
+
+        /*
+            Codificar la contraseña si se proporciona
+        */
+        Optional.ofNullable(userUpdate.getPassword())
+                .map(passwordEncoder::encode) 
+                .ifPresent(user::setPassword);
 
         User updatedUser = userRepository.save(user);
+        log.info("Usuario con ID {} actualizado.", updatedUser.getId());
         return toResponse(updatedUser);
     }
 
     /*
-        Eliminar un usuario realizando una baja lógica
-        cambiando solo el estado del usuario. (Protegido por IDOR)
+        Método para eliminar (desactivar) un usuario, solo si el 
+        usuario autenticado es el mismo o un ADMIN
     */
     @Override
     public void deleteUser(Long id) {
-
-        /*
-            Cierre de vulnerabilidad IDOR
-        */
-        validateOwnershipOrAdmin(id); 
+        validateOwnershipOrAdmin(id);
 
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado."));
 
         if (!user.isActive()) {
-            return;
+
+            /*
+                Ya está inactivo, no hacer nada
+            */
+            log.warn("Intento de eliminar usuario con ID {} que ya estaba inactivo.", id);
+            return; 
         }
 
         user.setActive(false);
         userRepository.save(user);
+        log.info("Usuario con ID {} desactivado (soft delete).", id);
     }
 
     /*
-        Método auxiliar para convertir una entidad user
-        en un objeto de respuesta UserResponse
+        Método para reactivar un usuario, solo si el 
+        usuario autenticado es el mismo o un ADMIN
+    */
+    @Override
+    public void reactivateUser(Long id) {
+        validateOwnershipOrAdmin(id);
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado."));
+
+        if (user.isActive()) {
+
+            /*
+                Ya está activo, no hacer nada
+            */
+            log.warn("Intento de reactivar usuario con ID {} que ya estaba activo.", id);
+            return; 
+        }
+
+        user.setActive(true);
+        userRepository.save(user);
+        log.info("Usuario con ID {} reactivado.", id);
+    }
+
+    /*
+        Método auxiliar para convertir una entidad 
+        User en un objeto de respuesta UserResponse
     */
     private UserResponse toResponse(User user) {
-        return new UserResponse(
-                user.getId(),
-                user.getEmail(),
-                user.getFirstName(),
-                user.getLastName(),
-                user.getRole(),
-                user.getCreatedAt()
-        );
+        return UserResponse.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .role(user.getRole())
+                .createdAt(user.getCreatedAt())
+                .build();
     }
 
     /*
@@ -189,49 +205,31 @@ public class UserServiceImpl implements UserService {
     */
     private void validateOwnershipOrAdmin(Long targetUserId) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null) return; 
+        if (auth == null || !auth.isAuthenticated()) {
+            log.warn("Intento de acceso sin autenticación en validateOwnershipOrAdmin.");
+            throw new ForbiddenOperationException("Acceso denegado: No autenticado.");
+        }
 
-        /*
-            Si es ADMIN, tiene paso libre
-        */
         boolean isAdmin = auth.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
-        if (isAdmin) return;
 
-        /*
-            Si es CUSTOMER, validamos que su correo 
-            coincida con el correo del ID a modificar
-        */
+        if (isAdmin) {
+            log.debug("Acceso concedido a ADMIN para el usuario {}", targetUserId);
+            return;
+        }
+
         String currentUserEmail = auth.getName();
-        User targetUser = userRepository.findById(targetUserId)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado para validar permisos"));
+        User targetUser = userRepository.findByEmail(currentUserEmail)
+                .orElseThrow(() -> {
+                    log.error("Usuario autenticado {} no encontrado en la base de datos.", currentUserEmail);
+                    return new ResourceNotFoundException("Usuario autenticado no encontrado.");
+                });
 
-        if (!targetUser.getEmail().equals(currentUserEmail)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acceso denegado: No eres el propietario de esta cuenta");
+        if (!targetUser.getId().equals(targetUserId)) {
+            log.warn("Acceso denegado: Usuario {} intentó acceder a recurso de usuario {}", currentUserEmail, targetUserId);
+            throw new ForbiddenOperationException("Acceso denegado: No eres el propietario de esta cuenta.");
         }
+        log.debug("Acceso concedido a propietario para el usuario {}", targetUserId);
     }
-
-    /*
-        Reactivar un usuario que previamente tuvo una baja lógica
-        cambiando su estado a true. (Protegido por IDOR)
-    */
-    @Override
-    public void reactivateUser(Long id) {
-        
-        /*
-            Cierre de vulnerabilidad IDOR
-        */
-        validateOwnershipOrAdmin(id); 
-
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
-
-        if (user.isActive()) {
-            return; 
-        }
-
-        user.setActive(true);
-        userRepository.save(user);
-    }
-
+    
 }
