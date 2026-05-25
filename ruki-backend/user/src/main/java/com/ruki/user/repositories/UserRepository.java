@@ -10,21 +10,38 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
 
     /*
-        Método para buscar a un usuario 
-        por su correo electrónico
+        Método para buscar a un usuario por su correo electrónico (activo o inactivo)
     */
     Optional<User> findByEmail(String email);
+
+    /*
+        Método para buscar a un usuario por su correo electrónico y que esté activo
+    */
     Optional<User> findByEmailAndIsActiveTrue(String email);
-    
+
+    /*
+        Método para buscar a un usuario por su ID y que esté activo
+    */
     Optional<User> findByIdAndIsActiveTrue(Long id);
+
+    /*
+        Método para verificar si un usuario existe por su ID y está activo
+    */
     boolean existsByIdAndIsActiveTrue(Long id);
 
     /*
-        Método para obtener a todos
-        los usuarios activos o inactivos
+        Método para obtener a todos los usuarios activos o inactivos
     */
     List<User> findAllByIsActive(boolean isActive);
 
+    /*
+        Método para buscar a un usuario por su token de recuperación de contraseña
+    */
     Optional<User> findByResetPasswordToken(String token);
 
+    /*
+        Método para verificar si un correo electrónico ya existe en el sistema (activo o inactivo)
+    */
+    boolean existsByEmail(String email);
+    
 }
