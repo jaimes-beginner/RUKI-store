@@ -1,95 +1,92 @@
 package com.ruki.user.config;
 
+import com.ruki.user.exceptions.ApiErrorResponse;
 import com.ruki.user.security.JwtAuthenticationFilter;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import jakarta.servlet.http.HttpServletResponse;
+import java.time.LocalDateTime;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
 
-    @Value("${app.cors.allowed-origin}")
-    private String allowedOrigin;
-
-    /*
-        Spring Boot armará este Manager automáticamente 
-        usando tu CustomUserDetailsService y tu PasswordEncoder
-    */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper();
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, ObjectMapper objectMapper) throws Exception { 
         http
-            .cors(cors -> cors.disable())
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
 
-                /*
-                    Estas son la rutas publicas, las 
-                    que no piden token para acceder
-                */
                 .requestMatchers(
                     "/api-ruki/auth/login",
-                    "/api-ruki/users/create", 
-                    "/api-ruki/auth/forgot-password", 
+                    "/api-ruki/users/create",
+                    "/api-ruki/auth/forgot-password",
                     "/api-ruki/auth/reset-password",
                     "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html"
                 ).permitAll()
 
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
-                /* 
-                    Rutas de panel administrativo y 
-                    acciones para el administrador
-                */
                 .requestMatchers(
-                        "/api-ruki/users/admin/**", 
-                        "/api-ruki/addresses/admin/**", 
-                        "/api-ruki/users/reactivate/**" 
+                        "/api-ruki/users/admin/**",
+                        "/api-ruki/addresses/admin/**",
+                        "/api-ruki/users/reactivate/**"
                 ).hasRole("ADMIN")
 
-                /* 
-                    Estas son las rutas privadas, las 
-                    que piden token para poder acceder
-                */
-                .anyRequest().authenticated() 
+                .anyRequest().authenticated()
             )
             .sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Para el JWT
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
             .exceptionHandling(exception -> exception
-                .authenticationEntryPoint((request, response, authException) ->
-                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "No autorizado")
-                )
-                .accessDeniedHandler((request, response, accessDeniedException) ->
-                    response.sendError(HttpServletResponse.SC_FORBIDDEN, "Acceso denegado")
-                )
+                .authenticationEntryPoint((request, response, authException) -> {
+                    response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                    ApiErrorResponse errorResponse = new ApiErrorResponse(
+                            HttpStatus.UNAUTHORIZED.value(),
+                            HttpStatus.UNAUTHORIZED.getReasonPhrase(),
+                            "No autorizado: " + authException.getMessage(),
+                            LocalDateTime.now()
+                    );
+                    response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
+                })
+                .accessDeniedHandler((request, response, accessDeniedException) -> {
+                    response.setStatus(HttpStatus.FORBIDDEN.value());
+                    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                    ApiErrorResponse errorResponse = new ApiErrorResponse(
+                            HttpStatus.FORBIDDEN.value(),
+                            HttpStatus.FORBIDDEN.getReasonPhrase(),
+                            "Acceso denegado: No tienes permisos para este recurso.",
+                            LocalDateTime.now()
+                    );
+                    response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
+                })
             )
-
-            /* 
-                Colocamos a nuestro guardia en la puerta de entrada, para que 
-                revise cada petición antes de que llegue a los controladores
-            */
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-            
+
         return http.build();
     }
-
 }
