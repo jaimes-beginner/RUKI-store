@@ -1,26 +1,18 @@
 package com.ruki.user.requests;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Builder; 
+import lombok.Value; 
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Value 
+@Builder 
 public class AddressResponse {
+
+    Long id;
+    String street;
+    String city;
+    String region;
+    String zipCode;
+    String referenceInfo;
+    Long userId;
     
-    private Long id;
-    private String street;
-    private String city;
-    private String region;
-    private String zipCode;
-    private String referenceInfo;
-
-    /*
-        En este caso devolvemos el ID del 
-        usuario para que el frontend sepa 
-        a quién pertenece esta dirección
-    */
-    private Long userId; 
-
 }
