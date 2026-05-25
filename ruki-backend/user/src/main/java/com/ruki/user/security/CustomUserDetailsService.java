@@ -2,6 +2,7 @@ package com.ruki.user.security;
 
 import com.ruki.user.entities.User;
 import com.ruki.user.repositories.UserRepository;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,6 +18,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     private final UserRepository userRepository;
 
     @Override
+    @Transactional(readOnly = true) 
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 
         /*
@@ -24,8 +26,8 @@ public class CustomUserDetailsService implements UserDetailsService {
             está alojada en Supabase, lanzamos una excepción indicando 
             que el usuario no fue encontrado
         */
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado con el email: " + email));
+        User user = userRepository.findByEmailAndIsActiveTrue(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado o inactivo con el email: " + email));
 
         /*
             Aquí lo convertimos al formato oficial que Spring Security 
@@ -34,10 +36,10 @@ public class CustomUserDetailsService implements UserDetailsService {
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
                 user.getPassword(),
-                user.isActive(),
-                true,
-                true,
-                true,
+                user.isActive(), 
+                true, 
+                true, 
+                true, 
                 Collections.singleton(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
         );
     }
