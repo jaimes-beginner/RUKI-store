@@ -18,22 +18,19 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class EmailService {
 
-    /*
-        Para armar un JSON seguro
-    */
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper; 
 
-    @Value("${spring.mail.password}")
+    @Value("${spring.mail.password}") 
     private String resendApiKey;
 
     @Value("${app.mail.from}")
     private String fromEmail;
 
-    @Value("${app.cors.allowed-origin:http://localhost:5173}")
+    @Value("${app.cors.allowed-origin:http://localhost:5173}") 
     private String frontendUrl;
 
     /*
-        Enviamos el correo de recuperación de contraseña
+        Método para enviar el email de recuperación de contraseña, se ejecuta de forma asíncrona
     */
     @Async
     public void sendPasswordResetEmail(String toEmail, String token) {
@@ -49,10 +46,11 @@ public class EmailService {
                 + "</div>";
 
         sendViaResendHttpApi(toEmail, "Recupera tu contraseña de RUKI Store", htmlMsg);
+        log.info("Correo de recuperación enviado a {}", toEmail);
     }
 
     /*
-        Enviamos el correo de constraseña cambiada
+        Método para enviar notificación de cambio de contraseña, se ejecuta de forma asíncrona
     */
     @Async
     public void sendPasswordChangedNotification(String toEmail) {
@@ -69,18 +67,14 @@ public class EmailService {
                 + "</div>";
 
         sendViaResendHttpApi(toEmail, "Aviso de Seguridad: Contraseña Modificada", htmlMsg);
+        log.info("Notificación de cambio de contraseña enviada a {}", toEmail);
     }
 
     /*
-        Envíar el correo por el puerto 443 (HTTPS)
-        para evadir cualquier bloqueo de DigitalOcean
-    */
+        Método auxiliar para enviar emails a través de la API de Resend
+     */
     private void sendViaResendHttpApi(String to, String subject, String htmlContent) {
         try {
-            
-            /*
-                Armamos el cuerpo del mensaje a la API de Resend
-            */
             Map<String, Object> body = Map.of(
                     "from", "RUKI Store <" + fromEmail + ">",
                     "to", List.of(to),
@@ -90,9 +84,6 @@ public class EmailService {
 
             String jsonBody = objectMapper.writeValueAsString(body);
 
-            /*
-                Preparamos la petición web (Pasamos la API Key en el Header)
-            */
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("https://api.resend.com/emails"))
                     .header("Authorization", "Bearer " + resendApiKey)
@@ -100,24 +91,18 @@ public class EmailService {
                     .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
                     .build();
 
-            
-            /*
-                Disparamos la petición
-            */
             HttpClient client = HttpClient.newHttpClient();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-            /*
-                Verificamos si Resend nos dio un 200 OK
-            */
             if (response.statusCode() >= 200 && response.statusCode() < 300) {
-                log.info("ÉXITO | Email enviado a {} evadiendo firewall de DO mediante HTTPS", to);
+                log.info("ÉXITO | Email enviado a {} a través de Resend API (HTTP {})", to, response.statusCode());
             } else {
-                log.error("Fallo Resend API (HTTP {}): {}", response.statusCode(), response.body());
+                log.error("FALLO | Resend API (HTTP {}): {}", response.statusCode(), response.body());
             }
 
         } catch (Exception e) {
-            log.error("Error crítico al conectar con Resend API: {}", e.getMessage());
+            log.error("ERROR CRÍTICO | Fallo al enviar email a {} a través de Resend API: {}", to, e.getMessage(), e);
         }
     }
+    
 }
