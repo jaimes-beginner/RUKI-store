@@ -1,6 +1,7 @@
 package com.ruki.user.exceptions;
 
 import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -10,33 +11,40 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
-
 import java.time.LocalDateTime;
-import java.util.Map;
 import java.util.stream.Collectors;
 
-
-
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<ApiErrorResponse> handleAuthenticationException(AuthenticationException ex) {
-        return buildResponse(HttpStatus.UNAUTHORIZED, "Correo electrónico o contraseña incorrectos");
+    public ResponseEntity<ApiErrorResponse> handleSpringAuthenticationException(AuthenticationException ex) {
+        log.warn("Authentication failed: {}", ex.getMessage());
+        return buildResponse(HttpStatus.UNAUTHORIZED, "Autenticación fallida: " + ex.getMessage());
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ApiErrorResponse> handleUnauthorizedException(UnauthorizedException ex) {
+        log.warn("Unauthorized access attempt: {}", ex.getMessage());
+        return buildResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiErrorResponse> handleNotFound(ResourceNotFoundException ex) {
+        log.warn("Resource not found: {}", ex.getMessage());
         return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
     @ExceptionHandler(ResourceConflictException.class)
     public ResponseEntity<ApiErrorResponse> handleConflict(ResourceConflictException ex) {
+        log.warn("Resource conflict: {}", ex.getMessage());
         return buildResponse(HttpStatus.CONFLICT, ex.getMessage());
     }
 
     @ExceptionHandler(ForbiddenOperationException.class)
     public ResponseEntity<ApiErrorResponse> handleForbidden(ForbiddenOperationException ex) {
+        log.warn("Forbidden operation: {}", ex.getMessage());
         return buildResponse(HttpStatus.FORBIDDEN, ex.getMessage());
     }
 
@@ -47,23 +55,37 @@ public class GlobalExceptionHandler {
                 .stream()
                 .map(this::formatFieldError)
                 .collect(Collectors.joining("; "));
-
+        log.warn("Validation error: {}", message);
         return buildResponse(HttpStatus.BAD_REQUEST, message);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ApiErrorResponse> handleConstraintViolation(ConstraintViolationException ex) {
+        log.warn("Constraint violation error: {}", ex.getMessage());
         return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ApiErrorResponse> handleAccessDenied(AccessDeniedException ex) {
-        return buildResponse(HttpStatus.FORBIDDEN, "No tienes permisos para acceder a este recurso");
+        log.warn("Access denied: {}", ex.getMessage());
+        return buildResponse(HttpStatus.FORBIDDEN, "Acceso denegado: No tienes permisos para este recurso.");
+    }
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<ApiErrorResponse> handleResponseStatusException(ResponseStatusException ex) {
+        log.warn("ResponseStatusException: {} - {}", ex.getStatusCode(), ex.getReason());
+        HttpStatus httpStatus = HttpStatus.resolve(ex.getStatusCode().value());
+        if (httpStatus == null) {
+            log.error("Could not resolve HttpStatus for status code: {}", ex.getStatusCode().value());
+            return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Error interno del servidor: " + ex.getReason());
+        }
+        return buildResponse(httpStatus, ex.getReason());
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponse> handleUnexpected(Exception ex) {
-        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Error interno del servidor");
+        log.error("An unexpected error occurred: {}", ex.getMessage(), ex);
+        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Error interno del servidor. Por favor, inténtalo de nuevo más tarde.");
     }
 
     private ResponseEntity<ApiErrorResponse> buildResponse(HttpStatus status, String message) {
@@ -79,15 +101,4 @@ public class GlobalExceptionHandler {
     private String formatFieldError(FieldError fieldError) {
         return fieldError.getField() + ": " + fieldError.getDefaultMessage();
     }
-
-    @ExceptionHandler(ResponseStatusException.class)
-    public ResponseEntity<Map<String, Object>> handleResponseStatusException(ResponseStatusException ex) {
-        Map<String, Object> errorResponse = new java.util.HashMap<>();
-        errorResponse.put("status", ex.getStatusCode().value());
-        errorResponse.put("error", ex.getReason());
-        errorResponse.put("timestamp", java.time.LocalDateTime.now().toString());
-        
-        return new ResponseEntity<>(errorResponse, ex.getStatusCode());
-    }
-
 }
