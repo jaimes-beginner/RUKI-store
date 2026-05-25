@@ -1,6 +1,5 @@
 package com.ruki.user.controllers;
 
-import com.ruki.user.entities.Address;
 import com.ruki.user.requests.AddressCreate;
 import com.ruki.user.requests.AddressResponse;
 import com.ruki.user.requests.AddressUpdate;
@@ -55,8 +54,8 @@ public class AddressController {
             @ApiResponse(responseCode = "403", description = "Acceso denegado: No tienes permisos para ver este recurso"),
             @ApiResponse(responseCode = "44", description = "Usuario no encontrado")
     })
-    public ResponseEntity<List<Address>> getActiveAddresses(@PathVariable @Positive Long userId) {
-        List<Address> activeAddresses = addressService.getActiveAddressesByUserId(userId);
+    public ResponseEntity<List<AddressResponse>> getActiveAddresses(@PathVariable @Positive Long userId) {
+        List<AddressResponse> activeAddresses = addressService.getActiveAddressesByUserId(userId);
         return ResponseEntity.ok(activeAddresses);
     }
 
