@@ -15,6 +15,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder; // Importar Builder
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -27,16 +28,10 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder 
 @Entity
 @Table(name = "ruki_products")
 public class Product {
-
-    /* 
-        Esta entidad representa a un producto. 
-        Cada producto tiene un id unico, un nombre una descripcion
-        una url de imagen principal, un precio base, un estado de 
-        activacion y una categoria a la que pertenece.
-    */
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,7 +44,7 @@ public class Product {
     private String description;
 
     @Column(length = 500)
-    private String mainImageUrl;
+    private String mainImageUrl; 
 
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal basePrice;
@@ -65,12 +60,8 @@ public class Product {
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Category category;
-    
-    /* 
-        @ElementCollection crea automáticamente una tabla anexa 
-        para guardar la lista de URLs asociada a este producto.
-    */
-    @ElementCollection
+
+    @ElementCollection(fetch = FetchType.LAZY) 
     @CollectionTable(name = "ruki_product_images", joinColumns = @JoinColumn(name = "product_id"))
     @Column(name = "image_url", length = 500)
     private List<String> imageUrls = new ArrayList<>();
@@ -89,5 +80,9 @@ public class Product {
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private List<ProductVariant> variants = new ArrayList<>();
+
+    public int getTotalStockFromVariants() {
+        return variants.stream().mapToInt(ProductVariant::getStock).sum();
+    }
 
 }
