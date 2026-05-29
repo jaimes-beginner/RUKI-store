@@ -10,6 +10,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder; 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -18,16 +19,10 @@ import lombok.ToString;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder 
 @Entity
 @Table(name = "ruki_product_variants")
 public class ProductVariant {
-
-    /* 
-        Esta entidad representa a una variante de un 
-        producto, osea que cada variante tiene un id unico, un 
-        tamaño y un stock. Además, cada variante está asociada 
-        a un producto específico
-    */
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
