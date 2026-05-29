@@ -1,45 +1,36 @@
 package com.ruki.product.requests;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Builder; 
+import lombok.Value; 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+@Value 
+@Builder 
 public class ProductResponse {
 
-    /* 
-        El formato de la respuesta del producto 
-        (se devuelven todos los campos del producto 
-        junto con la categoría a la que pertenece).
-    */
+    Long id;
+    String name;
+    String description;
+    List<String> imageUrls;
+    BigDecimal basePrice;
+    Integer stock; 
+    CategoryResponse category;
+    boolean active;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    LocalDateTime createdAt;
+    boolean isSale;
+    BigDecimal salePrice;
+    List<VariantResponse> variants;
 
-    private Long id;
-    private String name;
-    private String description;
-    private List<String> imageUrls;
-    private BigDecimal basePrice;
-
-    private Integer stock;
-
-    private CategoryResponse category;
-    private boolean active;
-    private LocalDateTime createdAt;
-    private boolean isSale;
-    private BigDecimal salePrice;
-    private List<VariantResponse> variants;
-
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
+    @Value 
+    @Builder 
     public static class VariantResponse {
-        private Long id;
-        private String size;
-        private Integer stock;
+        Long id;
+        String size;
+        Integer stock;
     }
-    
 }
