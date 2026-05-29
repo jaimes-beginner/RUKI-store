@@ -10,26 +10,21 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder; 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-
 import java.util.ArrayList;
 import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder 
 @Entity
 @Table(name = "ruki_categories")
 public class Category {
-
-    /* 
-        Esta entidad representa a una categoria. 
-        Cada categoria tiene un id unico, un nombr
-        y un estado de activacion.
-    */
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -48,8 +43,6 @@ public class Category {
 
     @PrePersist
     public void prePersist() {
-        if (!isActive) {
-            isActive = true;
-        }
     }
+    
 }
