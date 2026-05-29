@@ -8,15 +8,25 @@ import java.util.Optional;
 
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Long> {
-    
-    /* 
-        Repositorio en donde definimos métodos para 
-        buscar una cateogoría por su nombre y otra
-        para listar todas las categorías activas.
-    */
 
+    /*
+        Método para buscar una categoría por su nombre (activo o inactivo)
+    */
     Optional<Category> findByName(String name);
+
+    /*
+        Método para listar todas las categorías activas
+    */
     List<Category> findAllByIsActiveTrue();
+
+    /*
+        Método para verificar si una categoría existe por su nombre
+    */
+    boolean existsByName(String name);
+
+    /*
+        Método para buscar una categoría por su ID y que esté activa
+    */
+    Optional<Category> findByIdAndIsActiveTrue(Long id);
     
-} 
-    
+}
