@@ -3,6 +3,8 @@ package com.ruki.product.services;
 import com.ruki.product.entities.Category;
 import com.ruki.product.entities.Product;
 import com.ruki.product.entities.ProductVariant;
+import com.ruki.product.exceptions.ResourceConflictException; 
+import com.ruki.product.exceptions.ResourceNotFoundException; 
 import com.ruki.product.repositories.CategoryRepository;
 import com.ruki.product.repositories.ProductRepository;
 import com.ruki.product.requests.CategoryResponse;
@@ -10,51 +12,45 @@ import com.ruki.product.requests.ProductCreate;
 import com.ruki.product.requests.ProductResponse;
 import com.ruki.product.requests.ProductUpdate;
 import lombok.RequiredArgsConstructor;
-
+import lombok.extern.slf4j.Slf4j; 
+import org.springframework.data.domain.PageRequest; 
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
-
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j 
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
 
-    /* 
-        Método para crear un producto
-    */
     @Override
     public ProductResponse createProduct(ProductCreate request) {
 
-        Category category = categoryRepository.findById(request.getCategoryId())
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Categoría no encontrada"));
-
-        if (!category.isActive()) {
-            throw new ResponseStatusException(BAD_REQUEST, "No se puede agregar productos a una categoría inactiva");
-        }
-
-        Product product = new Product();
-        product.setName(request.getName());
-        product.setDescription(request.getDescription());
-        product.setImageUrls(request.getImageUrls());
-        product.setBasePrice(request.getBasePrice());
-        product.setCategory(category);
-        
         /*
-            Asignando los nuevos campos para las ofertas
+            Buscar una categoria activa
         */
-        product.setSale(request.isSale());
-        product.setSalePrice(request.getSalePrice());
+        Category category = categoryRepository.findByIdAndIsActiveTrue(request.getCategoryId()) 
+                .orElseThrow(() -> new ResourceNotFoundException("Categoría no encontrada o inactiva con ID: " + request.getCategoryId()));
+
+        Product product = Product.builder() 
+                .name(request.getName())
+                .description(request.getDescription())
+                .imageUrls(new ArrayList<>(request.getImageUrls())) 
+                .basePrice(request.getBasePrice())
+                .category(category)
+                .isSale(request.isSale())
+                .salePrice(request.getSalePrice())
+                .isActive(true) 
+                .variants(new ArrayList<>())
+                .build();
 
         /*
             Procesar las tallas y calcular el stock total
@@ -62,111 +58,127 @@ public class ProductServiceImpl implements ProductService {
         int totalStock = 0;
         if (request.getVariants() != null && !request.getVariants().isEmpty()) {
             for (ProductCreate.VariantRequest variantReq : request.getVariants()) {
-                ProductVariant variant = new ProductVariant();
-                variant.setSize(variantReq.getSize());
-                variant.setStock(variantReq.getStock());
-                variant.setProduct(product); 
-                
+                ProductVariant variant = ProductVariant.builder() 
+                        .size(variantReq.getSize())
+                        .stock(variantReq.getStock())
+                        .product(product)
+                        .build();
                 product.getVariants().add(variant);
-                totalStock += variantReq.getStock(); 
+                totalStock += variantReq.getStock();
             }
         } else {
-
+            
             /*
-                Si por alguna razón mandan un producto sin tallas, usamos 
-                el stock general que viene en el request
+                Si no hay variantes, el stock general es el del request (si se proporciona)
             */
             totalStock = request.getStock() != null ? request.getStock() : 0;
+            log.warn("Producto '{}' creado sin variantes. Stock general establecido en {}.", request.getName(), totalStock);
         }
 
         /*
-            Sincronizar el stock general 
+            Sincronizar el stock general
         */
-        product.setStock(totalStock);
+        product.setStock(totalStock); 
 
         Product saved = productRepository.save(product);
+        log.info("Producto creado con ID {} y nombre '{}' en categoría {}. Stock total: {}", saved.getId(), saved.getName(), category.getName(), saved.getStock());
         return toResponse(saved);
     }
 
-    /* 
+    /*
         Método para obtener todos los productos activos
     */
     @Override
     @Transactional(readOnly = true)
     public List<ProductResponse> getAllActiveProducts() {
+        log.debug("Obteniendo todos los productos activos.");
         return productRepository.findAllByIsActiveTrue()
             .stream()
             .map(this::toResponse)
             .toList();
     }
 
-    /* 
-        Método para obtener productos según su categoría
+    /*
+        Método para obtener productos por categoría (solo activos)
     */
     @Override
     @Transactional(readOnly = true)
     public List<ProductResponse> getProductsByCategory(Long categoryId) {
+        
+        /*
+            Verificar si la categoría existe y está activa antes de buscar productos
+        */
+        if (!categoryRepository.findByIdAndIsActiveTrue(categoryId).isPresent()) {
+            throw new ResourceNotFoundException("Categoría no encontrada o inactiva con ID: " + categoryId);
+        }
+        log.debug("Obteniendo productos activos para la categoría con ID {}.", categoryId);
         return productRepository.findAllByCategoryIdAndIsActiveTrue(categoryId)
             .stream()
             .map(this::toResponse)
             .toList();
     }
 
-    /* 
-        Método para obtener un producto por su ID
+    /*
+        Método para obtener un producto por su ID (solo si está activo)
     */
     @Override
     @Transactional(readOnly = true)
     public ProductResponse getProductById(Long id) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Producto no encontrado"));
+        Product product = productRepository.findByIdAndIsActiveTrue(id) 
+                .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado o inactivo con ID: " + id));
+        log.debug("Producto con ID {} encontrado.", id);
         return toResponse(product);
     }
 
-    /* 
-        Método para desactivar un producto por su ID
+    /*
+        Método para desactivar (soft delete) un producto
     */
     @Override
     public void deactivateProduct(Long id) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Producto no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado con ID: " + id));
+
+        if (!product.isActive()) {
+            log.warn("Intento de desactivar producto con ID {} que ya estaba inactivo.", id);
+            return;
+        }
+
         product.setActive(false);
         productRepository.save(product);
+        log.info("Producto con ID {} desactivado (soft delete).", id);
     }
 
-    /* 
+    /*
         Método para descontar stock de un producto
     */
     @Override
     @Transactional
     public void discountStock(Long id, Integer quantity, String size) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Producto no encontrado"));
+        Product product = productRepository.findByIdAndIsActiveTrue(id) 
+                .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado o inactivo con ID: " + id));
 
-        if (!product.isActive()) {
-            throw new ResponseStatusException(BAD_REQUEST, "El producto no está activo");
-        }
-
-        /*
-            Si enviaron una talla, descontamos de la variante específica
-        */
-        if (size != null && !size.isEmpty() && product.getVariants() != null) {
+        if (product.getVariants() != null && !product.getVariants().isEmpty()) {
+            
+            /*
+                Descontar de la variante específica
+            */
             ProductVariant variant = product.getVariants().stream()
                     .filter(v -> v.getSize().equalsIgnoreCase(size))
                     .findFirst()
-                    .orElseThrow(() -> new ResponseStatusException(BAD_REQUEST, "Talla no encontrada"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Talla '" + size + "' no encontrada para el producto con ID: " + id));
 
             if (variant.getStock() < quantity) {
-                throw new ResponseStatusException(BAD_REQUEST, "Stock insuficiente en la talla " + size);
+                throw new ResourceConflictException("Stock insuficiente (" + variant.getStock() + ") en la talla '" + size + "' para el producto con ID: " + id);
             }
             variant.setStock(variant.getStock() - quantity);
+            log.debug("Stock de variante '{}' para producto {} descontado en {}. Nuevo stock: {}", size, id, quantity, variant.getStock());
         } else {
             
             /*
-                Si es un producto sin talla, solo validamos el stock general
+                Descontar del stock general si no hay variantes
             */
             if (product.getStock() < quantity) {
-                throw new ResponseStatusException(BAD_REQUEST, "Stock general insuficiente");
+                throw new ResourceConflictException("Stock general insuficiente (" + product.getStock() + ") para el producto con ID: " + id);
             }
         }
 
@@ -175,130 +187,144 @@ public class ProductServiceImpl implements ProductService {
         */
         product.setStock(product.getStock() - quantity);
         productRepository.save(product);
+        log.info("Stock general para producto {} descontado en {}. Nuevo stock total: {}", id, quantity, product.getStock());
     }
 
-    /* 
-        Método para actualizar un producto
+    /*
+        Método para actualizar un producto existente
     */
     @Override
     public ProductResponse updateProduct(Long id, ProductUpdate request) {
-        
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Producto no encontrado"));
 
-        if (request.getName() != null) {
-            product.setName(request.getName());
-        }
-        if (request.getDescription() != null) {
-            product.setDescription(request.getDescription());
-        }
-        if (request.getImageUrls() != null) {
-            product.getImageUrls().clear();
-            product.getImageUrls().addAll(request.getImageUrls());
-        }
-        if (request.getBasePrice() != null) {
-            product.setBasePrice(request.getBasePrice());
-        }
-        if (request.getCategoryId() != null) {
-            Category category = categoryRepository.findById(request.getCategoryId())
-                    .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Categoría no encontrada"));
-            
-            if (!category.isActive()) {
-                throw new ResponseStatusException(BAD_REQUEST, "No se puede asignar un producto a una categoría inactiva");
-            }
-            product.setCategory(category);
-        }
-        if (request.getIsSale() != null) {
-            product.setSale(request.getIsSale());
-        }
-        if (request.getSalePrice() != null) {
-            product.setSalePrice(request.getSalePrice());
-        }
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado con ID: " + id));
 
         /*
-            Lógica para actualizar de tallas y el stock
+            Actualizar campos si se proporcionan
+        */
+        Optional.ofNullable(request.getName()).ifPresent(product::setName);
+        Optional.ofNullable(request.getDescription()).ifPresent(product::setDescription);
+        Optional.ofNullable(request.getImageUrls()).ifPresent(newImageUrls -> {
+            product.getImageUrls().clear();
+            product.getImageUrls().addAll(newImageUrls);
+        });
+        Optional.ofNullable(request.getBasePrice()).ifPresent(product::setBasePrice);
+
+        if (request.getCategoryId() != null) {
+            Category category = categoryRepository.findByIdAndIsActiveTrue(request.getCategoryId()) 
+                    .orElseThrow(() -> new ResourceNotFoundException("Categoría no encontrada o inactiva con ID: " + request.getCategoryId()));
+            product.setCategory(category);
+        }
+
+        Optional.ofNullable(request.getIsSale()).ifPresent(product::setSale);
+        Optional.ofNullable(request.getSalePrice()).ifPresent(product::setSalePrice);
+
+        /*
+            Lógica para actualizar tallas y el stock
         */
         if (request.getVariants() != null) {
-            
+
             /*
-                Limpiamos las tallas viejas (orphanRemoval 
-                las borrará de la DB)
+                Asegurarse de que la lista de variantes 
+                no sea null antes de limpiarla
             */
-            product.getVariants().clear();
-            
+            if (product.getVariants() == null) {
+                product.setVariants(new ArrayList<>());
+            }
+
             /*
-                Agregamos las nuevas y recalculamos el stock total
+                Limpiamos las tallas viejas 
+                (orphanRemoval las borrará de la DB)
             */
+            product.getVariants().clear(); 
             int totalStock = 0;
             for (ProductCreate.VariantRequest variantReq : request.getVariants()) {
-                ProductVariant variant = new ProductVariant();
-                variant.setSize(variantReq.getSize());
-                variant.setStock(variantReq.getStock());
-                variant.setProduct(product);
-                
+                ProductVariant variant = ProductVariant.builder()
+                        .size(variantReq.getSize())
+                        .stock(variantReq.getStock())
+                        .product(product)
+                        .build();
                 product.getVariants().add(variant);
                 totalStock += variantReq.getStock();
             }
-            product.setStock(totalStock);
+            product.setStock(totalStock); 
+            log.debug("Variantes y stock total para producto {} actualizados. Nuevo stock: {}", id, totalStock);
         } else if (request.getStock() != null) {
-
+            
             /*
                 Si no enviaron tallas, pero enviaron stock 
                 general (por si es un producto sin talla)
             */
             product.setStock(request.getStock());
+            log.debug("Stock general para producto {} actualizado a {}.", id, request.getStock());
         }
 
-        Product saved = productRepository.save(product);
-        return toResponse(saved);
+        Product updated = productRepository.save(product);
+        log.info("Producto con ID {} actualizado.", updated.getId());
+        return toResponse(updated);
     }
-    
-    /* 
-        Método para devolver stock (Rollback de compras fallidas)
+
+    /*
+        Método para añadir stock a un producto
     */
     @Override
     @Transactional
     public void addStock(Long id, Integer quantity, String size) {
-        Product product = productRepository.findById(id).orElse(null);
-        if (product != null) {
+
+        Product product = productRepository.findById(id) 
+                .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado con ID: " + id));
+
+        if (product.getVariants() != null && !product.getVariants().isEmpty()) {
             
             /*
-                Si enviaron talla, devolvemos el stock a esa talla
+                Devolver stock a la variante específica
             */
-            if (size != null && !size.isEmpty() && product.getVariants() != null) {
-                product.getVariants().stream()
-                        .filter(v -> v.getSize().equalsIgnoreCase(size))
-                        .findFirst()
-                        .ifPresent(variant -> variant.setStock(variant.getStock() + quantity));
-            }
-            
-            /*
-                Devolvemos el stock general
-            */
-            product.setStock(product.getStock() + quantity);
-            productRepository.save(product);
+            product.getVariants().stream()
+                    .filter(v -> v.getSize().equalsIgnoreCase(size))
+                    .findFirst()
+                    .ifPresentOrElse(
+                            variant -> {
+                                variant.setStock(variant.getStock() + quantity);
+                                log.debug("Stock de variante '{}' para producto {} añadido en {}. Nuevo stock: {}", size, id, quantity, variant.getStock());
+                            },
+                            () -> log.warn("Talla '{}' no encontrada para el producto con ID {}. No se pudo añadir stock a la variante.", size, id)
+                    );
+                    
         }
+
+        /*
+            Devolvemos el stock general
+        */
+        product.setStock(product.getStock() + quantity);
+        productRepository.save(product);
+        log.info("Stock general para producto {} añadido en {}. Nuevo stock total: {}", id, quantity, product.getStock());
     }
 
     /*
-        Método parar obtener todos los productos 
-        recientes para los ARRIVALS
+        Método para obtener los últimos productos agregados (New Arrivals)
     */
     @Override
     @Transactional(readOnly = true)
     public List<ProductResponse> getNewArrivals() {
-        return productRepository.findTop12ByIsActiveTrueOrderByCreatedAtDesc()
+        log.debug("Obteniendo los últimos 12 productos activos (New Arrivals).");
+        
+        /*
+            Usar el método con Pageable para mayor 
+            flexibilidad, aunque aquí sea fijo a 12
+        */
+        return productRepository.findByIsActiveTrueOrderByCreatedAtDesc(PageRequest.of(0, 12))
                 .stream()
                 .map(this::toResponse)
                 .toList();
     }
 
     /*
-        Método para obtener todos los productos en oferta
+        Método para obtener productos en oferta (isSale = true)
     */
     @Override
     @Transactional(readOnly = true)
     public List<ProductResponse> getSaleProducts() {
+        log.debug("Obteniendo todos los productos activos en oferta.");
         return productRepository.findAllByIsActiveTrueAndIsSaleTrue()
                 .stream()
                 .map(this::toResponse)
@@ -306,65 +332,56 @@ public class ProductServiceImpl implements ProductService {
     }
 
     /*
-        Método para obtener productos según los 
-        parámetros de filtrado dinámico
+        Método para filtrar productos por categoría, talla, rango de precio y ordenamiento
     */
     @Override
     @Transactional(readOnly = true)
     public List<ProductResponse> filterProducts(Long categoryId, String size, BigDecimal minPrice, BigDecimal maxPrice, String sort) {
+        Sort sortOrder = Sort.by(Sort.Direction.DESC, "createdAt"); 
 
-        /*
-            Orden por defecto, lo productos 
-            más nuevos van primero
-        */
-        Sort sortOrder = Sort.by(Sort.Direction.DESC, "createdAt");
-        
-        /*
-            Lógica de ordenamiento dinámico
-        */
         if ("priceAsc".equalsIgnoreCase(sort)) {
             sortOrder = Sort.by(Sort.Direction.ASC, "basePrice");
         } else if ("priceDesc".equalsIgnoreCase(sort)) {
             sortOrder = Sort.by(Sort.Direction.DESC, "basePrice");
         }
-
+        log.debug("Filtrando productos con categoryId: {}, size: {}, minPrice: {}, maxPrice: {}, sort: {}", categoryId, size, minPrice, maxPrice, sort);
         return productRepository.findFilteredProducts(categoryId, size, minPrice, maxPrice, sortOrder)
                 .stream()
-                .map(this::toResponse) 
+                .map(this::toResponse)
                 .toList();
     }
 
     /*
-        Método auxiliar para convertir una entidad 
-        Product a un ProductResponse
+        Método auxiliar para convertir una entidad Product a un ProductResponse
     */
     private ProductResponse toResponse(Product product) {
-        CategoryResponse catResponse = new CategoryResponse(
-                product.getCategory().getId(),
-                product.getCategory().getName()
-        );
-        
-        /*
-            Mapear lsa variantes, las tallas
-        */
+        CategoryResponse catResponse = CategoryResponse.builder() 
+                .id(product.getCategory().getId())
+                .name(product.getCategory().getName())
+                .build();
+
         List<ProductResponse.VariantResponse> variantResponses = product.getVariants().stream()
-                .map(v -> new ProductResponse.VariantResponse(v.getId(), v.getSize(), v.getStock()))
+                .map(v -> ProductResponse.VariantResponse.builder() 
+                        .id(v.getId())
+                        .size(v.getSize())
+                        .stock(v.getStock())
+                        .build())
                 .toList();
 
-        return new ProductResponse(
-                product.getId(),
-                product.getName(),
-                product.getDescription(),
-                product.getImageUrls(),
-                product.getBasePrice(),
-                product.getStock(), 
-                catResponse,
-                product.isActive(),
-                product.getCreatedAt(),
-                product.isSale(),
-                product.getSalePrice(),
-                variantResponses
-        );
+        return ProductResponse.builder()
+                .id(product.getId())
+                .name(product.getName())
+                .description(product.getDescription())
+                .imageUrls(product.getImageUrls())
+                .basePrice(product.getBasePrice())
+                .stock(product.getStock())
+                .category(catResponse)
+                .active(product.isActive())
+                .createdAt(product.getCreatedAt())
+                .isSale(product.isSale())
+                .salePrice(product.getSalePrice())
+                .variants(variantResponses)
+                .build();
     }
-
+    
 }
