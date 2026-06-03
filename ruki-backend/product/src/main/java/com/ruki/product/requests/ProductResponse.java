@@ -1,15 +1,16 @@
 package com.ruki.product.requests;
 
-import lombok.Builder; 
-import lombok.Value; 
+import lombok.Builder;
+import lombok.Value;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude; 
 
-@Value 
-@Builder 
+@Value
+@Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ProductResponse {
 
     Long id;
@@ -17,20 +18,22 @@ public class ProductResponse {
     String description;
     List<String> imageUrls;
     BigDecimal basePrice;
-    Integer stock; 
+    Integer stock;
     CategoryResponse category;
     boolean active;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSSSSS")
     LocalDateTime createdAt;
     boolean isSale;
     BigDecimal salePrice;
     List<VariantResponse> variants;
 
-    @Value 
-    @Builder 
+    @Value
+    @Builder
+    @JsonInclude(JsonInclude.Include.NON_NULL) 
     public static class VariantResponse {
         Long id;
         String size;
         Integer stock;
     }
+    
 }

@@ -1,5 +1,8 @@
 package com.ruki.product.services;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.ruki.product.entities.Category;
 import com.ruki.product.entities.Product;
 import com.ruki.product.entities.ProductVariant;
@@ -127,8 +130,20 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findByIdAndIsActiveTrue(id) 
                 .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado o inactivo con ID: " + id));
         log.debug("Producto con ID {} encontrado.", id);
-        return toResponse(product);
-    }
+        
+        ProductResponse response = toResponse(product);
+
+        try {
+            ObjectMapper tempMapper = new ObjectMapper();
+            tempMapper.registerModule(new JavaTimeModule());
+            tempMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+            log.info("PRODUCT | JSON de salida para producto {}: {}", id, tempMapper.writeValueAsString(response));
+        } catch (Exception e) {
+            log.error("PRODUCT | Error al serializar ProductResponse para log: {}", e.getMessage());
+        }
+
+    return response;
+}
 
     /*
         Método para desactivar (soft delete) un producto
