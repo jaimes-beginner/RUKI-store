@@ -3,6 +3,7 @@ package com.ruki.payment.services;
 import com.ruki.payment.clients.OrderClient;
 import com.ruki.payment.entities.PaymentRecord;
 import com.ruki.payment.entities.PaymentStatus;
+import com.ruki.payment.exceptions.ResourceNotFoundException; /* Importar excepción */
 import com.ruki.payment.repositories.PaymentRecordRepository;
 import com.ruki.payment.requests.OrderResponse;
 import com.stripe.Stripe;
@@ -12,10 +13,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional; /* Importar Transactional */
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional /* Añadir Transactional a nivel de clase */
 public class PaymentServiceImpl implements PaymentService { 
 
     private final PaymentRecordRepository paymentRepository;
@@ -28,21 +31,22 @@ public class PaymentServiceImpl implements PaymentService {
     private String frontendUrl;
 
     /*
-        Iniciar un pago conectando con Stripe
+        Método para crear un pago de un pedido correspondiente
     */
     @Override
     public String createPayment(Long orderId) {
-        OrderResponse order = orderClient.getOrderById(orderId);
+        OrderResponse order;
+        try {
+            order = orderClient.getOrderById(orderId);
+        } catch (Exception e) {
+            /* Si el cliente Feign falla, lanzamos nuestra alarma específica */
+            log.error("Error al buscar la orden {} en el microservicio de pedidos", orderId);
+            throw new ResourceNotFoundException("La orden con ID " + orderId + " no existe o no se pudo acceder.");
+        }
         
-        /*
-            Inicializamos Stripe con tu llave secreta
-        */
         Stripe.apiKey = stripeApiKey;
 
         try {
-            /*
-                Construimos los parámetros de la sesión de Stripe
-            */
             SessionCreateParams params = SessionCreateParams.builder()
                     .addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
                     .setMode(SessionCreateParams.Mode.PAYMENT)
@@ -53,7 +57,7 @@ public class PaymentServiceImpl implements PaymentService {
                                     .setQuantity(1L)
                                     .setPriceData(
                                             SessionCreateParams.LineItem.PriceData.builder()
-                                                    .setCurrency("clp") // Pesos chilenos (no usan decimales en Stripe)
+                                                    .setCurrency("clp") 
                                                     .setUnitAmount(order.getTotalAmount().longValue()) 
                                                     .setProductData(
                                                             SessionCreateParams.LineItem.PriceData.ProductData.builder()
@@ -61,20 +65,12 @@ public class PaymentServiceImpl implements PaymentService {
                                                                     .build())
                                                     .build())
                                     .build())
-                    /*
-                        Guardamos el ID de la orden como metadato oculto
-                    */
                     .putMetadata("orderId", String.valueOf(orderId))
                     .build();
 
-            /*
-                Creamos la sesión oficial en los servidores de Stripe
-            */
             Session session = Session.create(params);
 
-            /*
-                Guardamos en BD usando el ID de la sesión de Stripe como token
-            */
+            /* Usamos el Builder que acabamos de añadir */
             PaymentRecord record = PaymentRecord.builder()
                     .orderId(orderId)
                     .amount(order.getTotalAmount())
@@ -84,10 +80,6 @@ public class PaymentServiceImpl implements PaymentService {
             paymentRepository.save(record);
 
             log.info("Sesión de Stripe creada con éxito. SessionID: {}", session.getId());
-
-            /*
-                Devolvemos la URL segura de Stripe
-            */
             return session.getUrl();
             
         } catch (Exception e) {
@@ -96,21 +88,13 @@ public class PaymentServiceImpl implements PaymentService {
         }
     }
 
-    /*
-        Retorno de la confirmación del pago (Vía Webhook)
-    */
+    @Override
     public void confirmPaymentFromWebhook(String stripeSessionId, Long orderId) {
         try {
             PaymentRecord record = paymentRepository.findByTokenWs(stripeSessionId)
-                    .orElseThrow(() -> new RuntimeException("Pago fantasma: Sesión no encontrada en BD"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Pago fantasma: Sesión no encontrada en BD"));
 
             if (record.getStatus() == PaymentStatus.SUCCESS) {
-
-                /*
-                    Si por alguna razón el pago ya estaba en SUCCESS  localmente
-                    pero pedidos no se enteró, entonces forzamos la llamada de nuevo
-                    antes de salir
-                */
                 log.info("Reintentando aviso a Pedidos para la Orden #{}", record.getOrderId());
                 orderClient.updateOrderStatus(record.getOrderId(), "PAID");
                 return; 
@@ -118,19 +102,13 @@ public class PaymentServiceImpl implements PaymentService {
 
             log.info("¡Pago APROBADO por Stripe para la Orden #{}!", record.getOrderId());
             
-            /*
-                Avisamos al servicio de pedidos, si esto falla entonces
-                no se guardará como SUCCESS
-            */
             orderClient.updateOrderStatus(record.getOrderId(), "PAID");
 
-            /*
-                Si pedios responde bien, recién ahí guardaremos 
-                el éxito en el servicio de Pagos
-            */
             record.setStatus(PaymentStatus.SUCCESS);
             paymentRepository.save(record);
 
+        } catch (ResourceNotFoundException e) {
+            throw e; /* Dejamos pasar nuestra excepción limpia */
         } catch (Exception e) {
             log.error("Error al procesar el pago de Stripe", e);
             throw new RuntimeException("Error al validar el pago");
