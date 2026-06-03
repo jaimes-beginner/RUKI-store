@@ -1,19 +1,24 @@
 package com.ruki.order.controllers;
 
-import com.ruki.order.entities.Order;
 import com.ruki.order.entities.OrderStatus;
+import com.ruki.order.exceptions.ApiErrorResponse; 
 import com.ruki.order.requests.OrderCreate;
+import com.ruki.order.requests.OrderResponse; 
 import com.ruki.order.services.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content; 
+import io.swagger.v3.oas.annotations.media.Schema; 
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive; 
 import lombok.RequiredArgsConstructor;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize; 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -26,141 +31,145 @@ public class OrderController {
 
     private final OrderService orderService;
 
-    /* 
-        Endpoint para crear un nuevo pedido (Online)
+    /*
+        Endpoint para crear un pedido
     */
     @PostMapping("/create")
-    @SecurityRequirement(name = "bearerAuth") 
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Crear un nuevo pedido", description = "Genera la orden de compra. El ID del usuario se extrae de forma segura desde el contexto de Spring Security.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Pedido creado exitosamente"),
-            @ApiResponse(responseCode = "400", description = "Datos inválidos o sin stock"),
-            @ApiResponse(responseCode = "401", description = "Token ausente o inválido")
+            @ApiResponse(responseCode = "200", description = "Pedido creado exitosamente", content = @Content(schema = @Schema(implementation = OrderResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Datos inválidos o sin stock", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "401", description = "Token ausente o inválido", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
-    public ResponseEntity<Order> createOrder(@Valid @RequestBody OrderCreate request) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Long userId = (Long) authentication.getPrincipal();
+    @PreAuthorize("isAuthenticated()") 
+    public ResponseEntity<OrderResponse> createOrder(@Valid @RequestBody OrderCreate request) {
+        Long userId = (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return ResponseEntity.ok(orderService.createOrder(request, userId));
     }
 
-    /* 
-        Endpoint exclusivo para ventas en Tienda Física (POS)
+    /*
+        Endpoint para crear una venta física
     */
     @PostMapping("/physical")
-    @SecurityRequirement(name = "bearerAuth") 
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Crear venta física (POS)", description = "Genera una orden cobrada y entregada automáticamente en tienda. Solo administradores.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Venta física creada exitosamente"),
-            @ApiResponse(responseCode = "400", description = "Datos inválidos o sin stock"),
-            @ApiResponse(responseCode = "401", description = "Token ausente o inválido"),
-            @ApiResponse(responseCode = "403", description = "No tienes permisos de Administrador")
+            @ApiResponse(responseCode = "201", description = "Venta física creada exitosamente", content = @Content(schema = @Schema(implementation = OrderResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Datos inválidos o sin stock", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "401", description = "Token ausente o inválido", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "403", description = "No tienes permisos de Administrador", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
-    public ResponseEntity<Order> createPhysicalOrder(@Valid @RequestBody OrderCreate request) {
-        // Aprovechamos tu excelente práctica de usar el Contexto de Seguridad
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Long adminId = (Long) authentication.getPrincipal();
-        
-        Order newOrder = orderService.createPhysicalOrder(request, adminId);
+    @PreAuthorize("hasRole('ADMIN')") 
+    public ResponseEntity<OrderResponse> createPhysicalOrder(@Valid @RequestBody OrderCreate request) {
+        Long adminId = (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        OrderResponse newOrder = orderService.createPhysicalOrder(request, adminId);
         return ResponseEntity.status(HttpStatus.CREATED).body(newOrder);
     }
 
-    /* 
-        Endpoint para ver un pedido específico (Implementando Anti-IDOR) 
+    /*
+        Endpoint para obtener el detalle de un pedido (Anti-IDOR)
     */
     @GetMapping("/{id}")
-    @SecurityRequirement(name = "bearerAuth") 
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Ver detalle de un pedido", description = "Busca una boleta. Protegido por Anti-IDOR: Solo el dueño o un ADMIN pueden verlo.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Pedido encontrado"),
-            @ApiResponse(responseCode = "401", description = "Token inválido"),
-            @ApiResponse(responseCode = "403", description = "Acceso denegado (No te pertenece)"),
-            @ApiResponse(responseCode = "404", description = "Pedido no encontrado")
+            @ApiResponse(responseCode = "200", description = "Pedido encontrado", content = @Content(schema = @Schema(implementation = OrderResponse.class))),
+            @ApiResponse(responseCode = "401", description = "Token inválido", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado (No te pertenece)", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Pedido no encontrado", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
-    public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
+    @PreAuthorize("isAuthenticated()") 
+    public ResponseEntity<OrderResponse> getOrderById(@PathVariable @Positive Long id) { 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Long currentUserId = (Long) authentication.getPrincipal();
         boolean isAdmin = authentication.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
-
         return ResponseEntity.ok(orderService.getOrderById(id, currentUserId, isAdmin));
     }
 
-    /* 
-        Endpoint para ver el historial de mis pedidos 
+    /*
+        Endpoint para obtener el historial de compras del usuario autenticado
     */
     @GetMapping("/me")
-    @SecurityRequirement(name = "bearerAuth") 
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Ver mis pedidos", description = "Retorna el historial de compras del usuario autenticado.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Historial obtenido exitosamente"),
-            @ApiResponse(responseCode = "401", description = "Token ausente o inválido")
+            @ApiResponse(responseCode = "200", description = "Historial obtenido exitosamente", content = @Content(schema = @Schema(implementation = OrderResponse.class))),
+            @ApiResponse(responseCode = "401", description = "Token ausente o inválido", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
-    public ResponseEntity<List<Order>> getMyOrders() {
+    @PreAuthorize("isAuthenticated()") 
+    public ResponseEntity<List<OrderResponse>> getMyOrders() {
         Long currentUserId = (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return ResponseEntity.ok(orderService.getMyOrders(currentUserId));
     }
 
-    /* 
-        Endpoint para cancelar un pedido (con el recién implementando Anti-IDOR) 
+    /*
+        Endpoint para cancelar un pedido (Anti-IDOR)
     */
     @PutMapping("/me/{id}/cancel")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Cancelar un pedido", description = "Cambia el estado del pedido a CANCELED. Protegido por Anti-IDOR.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Pedido cancelado exitosamente"),
-            @ApiResponse(responseCode = "401", description = "Token inválido"),
-            @ApiResponse(responseCode = "403", description = "Acceso denegado (No te pertenece)"),
-            @ApiResponse(responseCode = "409", description = "El pedido ya fue enviado o cancelado")
+            @ApiResponse(responseCode = "200", description = "Pedido cancelado exitosamente", content = @Content(schema = @Schema(implementation = OrderResponse.class))),
+            @ApiResponse(responseCode = "401", description = "Token inválido", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado (No te pertenece)", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "409", description = "El pedido ya fue enviado o cancelado", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
-    public ResponseEntity<Order> cancelMyOrder(@PathVariable Long id) {
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<OrderResponse> cancelMyOrder(@PathVariable @Positive Long id) { 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Long currentUserId = (Long) auth.getPrincipal();
         boolean isAdmin = auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
-        
         return ResponseEntity.ok(orderService.cancelMyOrder(id, currentUserId, isAdmin));
     }
 
-    /* 
-        Endpoint para que el administrador vea todas las órdenes del sistema
+    /*
+        Endpoint para que un ADMIN vea todas las órdenes (sin Anti-IDOR)
     */
     @GetMapping("/admin/all")
-    @SecurityRequirement(name = "bearerAuth") 
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Listar todos los pedidos (ADMIN)", description = "Retorna todas las boletas del sistema. Requiere rol ROLE_ADMIN.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Lista obtenida exitosamente"),
-            @ApiResponse(responseCode = "403", description = "No tienes permisos de Administrador")
+            @ApiResponse(responseCode = "200", description = "Lista obtenida exitosamente", content = @Content(schema = @Schema(implementation = OrderResponse.class))),
+            @ApiResponse(responseCode = "403", description = "No tienes permisos de Administrador", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
-    public ResponseEntity<List<Order>> getAllOrdersAdmin() {
+    @PreAuthorize("hasRole('ADMIN')") 
+    public ResponseEntity<List<OrderResponse>> getAllOrdersAdmin() {
         return ResponseEntity.ok(orderService.getAllOrdersAdmin());
     }
 
-    /* 
-        Endpoint para que el administrador actualice el estado de un pedido
+    /*
+        Endpoint para que un ADMIN cambie el estado de una orden (sin Anti-IDOR)
     */
     @PutMapping("/admin/{id}/status")
-    @SecurityRequirement(name = "bearerAuth") 
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Cambiar estado de pedido (ADMIN)", description = "Actualiza el estado de envío/preparación. Requiere rol ROLE_ADMIN.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Estado actualizado"),
-            @ApiResponse(responseCode = "403", description = "No tienes permisos de Administrador"),
-            @ApiResponse(responseCode = "404", description = "Pedido no encontrado")
+            @ApiResponse(responseCode = "200", description = "Estado actualizado", content = @Content(schema = @Schema(implementation = OrderResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Estado inválido", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "403", description = "No tienes permisos de Administrador", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Pedido no encontrado", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
-    public ResponseEntity<Order> updateOrderStatusAdmin(
-            @PathVariable Long id, 
+    @PreAuthorize("hasRole('ADMIN')") 
+    public ResponseEntity<OrderResponse> updateOrderStatusAdmin(
+            @PathVariable @Positive Long id, 
             @RequestParam OrderStatus status) {
         return ResponseEntity.ok(orderService.updateOrderStatusAdmin(id, status));
     }
 
-    /* 
-        Endpoint para actualizar el estado de un pedido (S2S)
+    /*
+        Endpoint para actualizar el estado de un pedido
     */
     @PutMapping("/{id}/status")
-    @Operation(summary = "Actualizar estado (S2S)", description = "Webhook interno para que el microservicio de Pagos cambie el estado a PAID.")
+    @Operation(summary = "Actualizar estado (S2S)", description = "Webhook interno para que el microservicio de Pagos cambie el estado a PAID. No requiere autenticación.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Estado actualizado exitosamente")
+            @ApiResponse(responseCode = "200", description = "Estado actualizado exitosamente", content = @Content(schema = @Schema(implementation = OrderResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Estado inválido", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Pedido no encontrado", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
-    public ResponseEntity<Order> updateStatusFromPayment(
-            @PathVariable Long id, 
+    public ResponseEntity<OrderResponse> updateStatusFromPayment(
+            @PathVariable @Positive Long id, 
             @RequestParam String status) {
         return ResponseEntity.ok(orderService.updateStatusFromPayment(id, status));
     }

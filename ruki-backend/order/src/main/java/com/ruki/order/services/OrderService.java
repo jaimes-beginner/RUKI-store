@@ -1,29 +1,19 @@
 package com.ruki.order.services;
 
 import com.ruki.order.requests.OrderCreate;
-
 import java.util.List;
-
-import com.ruki.order.entities.Order;
 import com.ruki.order.entities.OrderStatus;
+import com.ruki.order.requests.OrderResponse; 
 
 public interface OrderService {
 
-    /*
-        Definiendo el método para 
-        crear una orden de compra, obtener una orden por 
-        ID, obtener mis órdenes, cancelar una orden, obtener 
-        todas las órdenes (admin), actualizar el estado de 
-        una orden (admin) y hacer una compra física (admin)
-    */
-   
-    Order createOrder(OrderCreate request, Long userId);
-    Order getOrderById(Long orderId, Long currentUserId, boolean isAdmin);
-    List<Order> getMyOrders(Long currentUserId);
-    Order cancelMyOrder(Long orderId, Long currentUserId, boolean isAdmin);
-    List<Order> getAllOrdersAdmin();
-    Order updateOrderStatusAdmin(Long orderId, OrderStatus newStatus);
-    Order updateStatusFromPayment(Long orderId, String status);
-    Order createPhysicalOrder(OrderCreate request, Long adminId);
+    OrderResponse createOrder(OrderCreate request, Long userId);
+    OrderResponse getOrderById(Long orderId, Long currentUserId, boolean isAdmin); 
+    List<OrderResponse> getMyOrders(Long currentUserId); 
+    OrderResponse cancelMyOrder(Long orderId, Long currentUserId, boolean isAdmin); 
+    List<OrderResponse> getAllOrdersAdmin(); 
+    OrderResponse updateOrderStatusAdmin(Long orderId, OrderStatus newStatus); 
+    OrderResponse updateStatusFromPayment(Long orderId, String status);
+    OrderResponse createPhysicalOrder(OrderCreate request, Long adminId);
 
 }

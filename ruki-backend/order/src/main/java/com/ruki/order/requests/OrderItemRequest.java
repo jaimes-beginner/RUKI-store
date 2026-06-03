@@ -3,21 +3,17 @@ package com.ruki.order.requests;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size; 
 import lombok.AllArgsConstructor;
+import lombok.Builder; 
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder 
 public class OrderItemRequest {
-
-    /* 
-        Esta clase representa la estructura de datos que 
-        se va a recibir en el cuerpo de la solicitud (request) 
-        cuando un cliente quiera agregar un producto a su orden
-        con sus respectivas validaciónes
-    */
 
     @NotNull(message = "El ID del producto es obligatorio")
     @Positive(message = "El ID del producto debe ser válido")
@@ -28,6 +24,7 @@ public class OrderItemRequest {
     private Integer quantity;
 
     @NotBlank(message = "La talla del producto es obligatoria")
+    @Size(max = 20, message = "La talla no puede exceder los 20 caracteres")
     private String size;
-    
+
 }

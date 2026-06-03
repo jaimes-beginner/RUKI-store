@@ -1,15 +1,17 @@
 package com.ruki.order.requests;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class UserClientResponse {
-
-    /* 
-        DTO para recibir la respuesta del microservicio 
-        de usuario ya que solo nos interesa el email 
-        y el nombre
-    */
 
     private Long id;
     private String email;

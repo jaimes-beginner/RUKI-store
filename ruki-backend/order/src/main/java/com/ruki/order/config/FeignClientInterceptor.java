@@ -3,43 +3,43 @@ package com.ruki.order.config;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 @Component
+@Slf4j
 public class FeignClientInterceptor implements RequestInterceptor {
 
-    /*
-        Este interceptor se ejecuta milisegundos antes de que 
-        FeignClient haga la llamada hacia otro microservicio
-    */
+    private static final String CORRELATION_ID_HEADER = "X-Correlation-ID";
+
     @Override
     public void apply(RequestTemplate template) {
-        
-        /* 
-            Agarramos la petición web actual (actualmente estamos usando 
-            postman, así que de ahí vienen todas estas pruebas)
-        */
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        
+
         if (attributes != null) {
             HttpServletRequest request = attributes.getRequest();
-            
-            /* 
-                Extraemos el encabezado de 
-                Autorización (o sea el token)
-            */
             String authHeader = request.getHeader("Authorization");
-            
-            /* 
-                Si el token existe, entonces se lo 
-                inyectmos a la llamada de Feign
-            */
-            if (authHeader != null) {
+
+            if (authHeader != null && !authHeader.isEmpty()) {
                 template.header("Authorization", authHeader);
+                log.debug("FEIGN INTERCEPTOR | Token JWT reenviado a FeignClient para la petición a {}", template.url());
+            } else {
+                log.warn("FEIGN INTERCEPTOR | No se encontró token JWT en la petición entrante para reenviar a FeignClient a {}", template.url());
             }
+
+
+            String correlationId = MDC.get(CORRELATION_ID_HEADER); 
+            if (correlationId != null && !correlationId.isEmpty()) {
+                template.header(CORRELATION_ID_HEADER, correlationId);
+                log.debug("FEIGN INTERCEPTOR | Correlation ID {} reenviado a FeignClient para la petición a {}", correlationId, template.url());
+            }
+
+        } else {
+            log.warn("FEIGN INTERCEPTOR | No se pudo obtener RequestContextHolder para reenviar token JWT/Correlation ID a FeignClient. Esto es normal para llamadas asíncronas o fuera del contexto HTTP.");
         }
     }
-    
+
 }

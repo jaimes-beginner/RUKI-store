@@ -2,9 +2,8 @@ package com.ruki.order.requests;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
+import lombok.Builder; 
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.util.List;
@@ -12,15 +11,11 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class OrderCreate {
 
-    /* 
-        Esta clase representa la estructura de datos que 
-        se va a recibir en el cuerpo de la solicitud (request) 
-        cuando un cliente quiera crear un nuevo pedido
-    */
-
-
+    // @NotNull(message = "El ID de la dirección de envío es obligatorio para compras online") 
+    // @Positive(message = "El ID de la dirección de envío debe ser válido") 
     private Long shippingAddressId;
 
     @NotEmpty(message = "El pedido debe contener al menos un producto")
