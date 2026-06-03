@@ -88,7 +88,6 @@ export function InventarioAdmin() {
             if (String(formulario.categoryId).trim() !== "") payload.categoryId = Number(formulario.categoryId);
             if (arrayImagenes.length > 0) payload.imageUrls = arrayImagenes;
             
-            payload.sale = formulario.isSale; 
             payload.isSale = formulario.isSale;
             if (formulario.isSale && String(formulario.salePrice).trim() !== "") {
                 payload.salePrice = Number(formulario.salePrice);
