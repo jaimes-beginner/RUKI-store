@@ -367,6 +367,39 @@ public class ProductServiceImpl implements ProductService {
     }
 
     /*
+        Método para que el administrador vea todo el inventario, sin 
+        importar si el producto está a la venta o escondido
+    */
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProductResponse> getAllProductsAdmin() {
+        log.debug("PRODUCT | Obteniendo catálogo completo para el administrador.");
+        return productRepository.findAll()
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    /*
+        Método para revivir un producto. Lo saca de la bodega
+        y lo vuelve a poner disponible para el público
+    */
+    @Override
+    public void reactivateProduct(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado con ID: " + id));
+
+        if (product.isActive()) {
+            log.warn("PRODUCT | Intento de reactivar producto con ID {} que ya estaba activo.", id);
+            return; 
+        }
+
+        product.setActive(true);
+        productRepository.save(product);
+        log.info("PRODUCT | Producto con ID {} reactivado exitosamente.", id);
+    }
+
+    /*
         Método auxiliar para convertir una entidad Product a un ProductResponse
     */
     private ProductResponse toResponse(Product product) {
