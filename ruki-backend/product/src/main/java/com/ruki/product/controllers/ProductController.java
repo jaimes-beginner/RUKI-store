@@ -219,4 +219,38 @@ public class ProductController {
         return ResponseEntity.ok(productService.filterProducts(categoryId, size, minPrice, maxPrice, sort));
     }
     
+    /*
+        Endpoint para que el jefe vea toda la bodega.
+    */
+    @GetMapping("/admin/all")
+    @Operation(summary = "Listar todos los productos (ADMIN)", description = "Retorna el catálogo completo sin importar el estado.")
+    @SecurityRequirement(name = "bearerAuth")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lista obtenida correctamente"),
+            @ApiResponse(responseCode = "401", description = "Token ausente o inválido", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "403", description = "No tienes permisos de ADMIN", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
+    })
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<ProductResponse>> getAllProductsAdmin() {
+        return ResponseEntity.ok(productService.getAllProductsAdmin());
+    }
+
+    /*
+        Endpoint para que el jefe vuelva a poner a la venta un producto.
+    */
+    @PutMapping("/reactivate/{id}")
+    @Operation(summary = "Reactivar producto", description = "Vuelve a activar un producto dado de baja (Requiere ROLE_ADMIN)")
+    @SecurityRequirement(name = "bearerAuth")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Producto reactivado"),
+            @ApiResponse(responseCode = "401", description = "Token ausente o inválido", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "403", description = "No tienes permisos de ADMIN", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Producto no encontrado", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
+    })
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> reactivateProduct(@PathVariable @Positive Long id) {
+        productService.reactivateProduct(id);
+        return ResponseEntity.ok().build();
+    }
+
 }

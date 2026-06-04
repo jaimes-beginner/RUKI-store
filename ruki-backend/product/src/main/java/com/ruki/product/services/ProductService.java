@@ -19,5 +19,7 @@ public interface ProductService {
     List<ProductResponse> getNewArrivals();
     List<ProductResponse> getSaleProducts();
     List<ProductResponse> filterProducts(Long categoryId, String size, BigDecimal minPrice, BigDecimal maxPrice, String sort);
+    List<ProductResponse> getAllProductsAdmin();
+    void reactivateProduct(Long id);
 
 }
