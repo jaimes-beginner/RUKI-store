@@ -26,6 +26,8 @@ services:
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
       - FRONTEND_URL=${FRONTEND_URL}
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
 
   # Microservicio de los productos
   productos-service:
@@ -51,6 +53,9 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - FRONTEND_URL=${FRONTEND_URL}
       - PRODUCT_SERVICE_URL=http://productos-service:8081
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - USER_SERVICE_URL=http://usuarios-service:8080
 
   # Microservicio de los pagos
   pagos-service:
