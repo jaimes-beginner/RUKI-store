@@ -14,6 +14,7 @@ public class UserResponse {
     String firstName;
     String lastName;
     Role role;
+    boolean isActive;
     LocalDateTime createdAt;
     
 }
