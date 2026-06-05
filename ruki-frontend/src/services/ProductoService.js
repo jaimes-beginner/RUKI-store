@@ -136,6 +136,30 @@ export async function desactivarProducto(id) {
     return true;
 }
 
+/*
+    Función asíncrona para que el administrador 
+    obtenga absolutamente todos los productos
+*/
+export async function obtenerTodosLosProductosAdmin() {
+    const response = await fetch(`${API_BASE_URL}/api-ruki/products/admin/all`, {
+        headers: { "Authorization": `Bearer ${getToken()}` }
+    });
+    if (!response.ok) throw new Error("Error al obtener el inventario completo");
+    return response.json();
+}
+
+/*
+    Función asíncrona para reactivar un producto
+*/
+export async function reactivarProducto(id) {
+    const response = await fetch(`${API_BASE_URL}/api-ruki/products/reactivate/${id}`, {
+        method: "PUT",
+        headers: { "Authorization": `Bearer ${getToken()}` }
+    });
+    if (!response.ok) throw new Error("Error al reactivar el producto");
+    return true;
+}
+
 /*=========================================*/
 /* ENDPOINTS PÚBLICOS (CLIENTES)           */
 /*=========================================*/
