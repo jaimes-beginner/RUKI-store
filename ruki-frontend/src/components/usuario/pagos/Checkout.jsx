@@ -60,7 +60,14 @@ export function Checkout() {
                 }))
             };
 
-            const nuevaOrden = await crearPedido(orderData);
+
+            // GENERANDO EL NÚMERO DE LA CLAVE DE IDEMPOTENCIA 
+            // (UUID) PARA EL INTENTO DE COMPRA
+            const idempotencyKey = crypto.randomUUID(); 
+
+            // PASAMOS ESTA CLAVE AL SERVICIO DE CREAR UN PEDIDO
+            const nuevaOrden = await crearPedido(orderData, idempotencyKey);
+            
             const stripeResponse = await iniciarPagoStripe(nuevaOrden.id);
 
             if (stripeResponse.url) {
@@ -69,6 +76,9 @@ export function Checkout() {
                 throw new Error("Stripe no generó la URL de pago correctamente.");
             }
         } catch (err) {
+
+            // SI DA UN ERROR POR DUPLICADO, MOSTRAREMOS EL MENSAJE 
+            // GENERICO 409 DEL BACKEND DE QUE HAY CONFLICTOS
             setError(err.message || "Ocurrió un error al procesar tu compra.");
             setLoading(false);
         }
