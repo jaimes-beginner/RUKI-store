@@ -220,3 +220,15 @@
 @media (max-width: 992px) {
     .usr-toast-container { right: 16px; left: 16px; display: flex; justify-content: center; }
 }
+
+/* 
+    Efecto hover para el botón de reactivar usuario 
+*/
+.usr-action-btn.reactivate { color: #30d158; }
+.usr-action-btn.reactivate:hover { background: #30d158; color: #000000; box-shadow: 0 4px 12px rgba(48, 209, 88, 0.3); border-color: #30d158; }
+
+/* 
+    Colores para las etiquetas de Activo/Inactivo 
+*/
+.badge-active { background: rgba(48, 209, 88, 0.15); color: #30d158; border-color: rgba(48, 209, 88, 0.3); }
+.badge-inactive { background: rgba(255, 69, 58, 0.15); color: #ff453a; border-color: rgba(255, 69, 58, 0.3); }

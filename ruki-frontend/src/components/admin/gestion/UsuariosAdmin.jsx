@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { obtenerUsuarios, crearUsuario, eliminarUsuario, actualizarUsuario } from "../../../services/UsuarioService"; 
+import { obtenerUsuarios, crearUsuario, eliminarUsuario, actualizarUsuario, reactivarUsuario } from "../../../services/UsuarioService";
 import { motion, AnimatePresence } from "framer-motion";
 import './UsuariosAdmin.css';
 
@@ -20,6 +20,9 @@ export function UsuariosAdmin() {
     const [editingId, setEditingId] = useState(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [usuarioToDelete, setUsuarioToDelete] = useState(null);
+
+    const [showReactivateModal, setShowReactivateModal] = useState(false);
+    const [usuarioToReactivate, setUsuarioToReactivate] = useState(null);
 
     const [formulario, setFormulario] = useState({
         firstName: "", lastName: "", email: "", password: ""
@@ -93,6 +96,27 @@ export function UsuariosAdmin() {
         } finally {
             setShowDeleteModal(false);
             setUsuarioToDelete(null);
+            setTimeout(() => setMensaje(""), 3500);
+        }
+    };
+
+    const handleReactivar = (id, nombre) => {
+        setUsuarioToReactivate({ id, nombre });
+        setShowReactivateModal(true);
+    };
+
+    const confirmarReactivar = async () => {
+        if (!usuarioToReactivate) return;
+
+        try {
+            await reactivarUsuario(usuarioToReactivate.id);
+            setMensaje(`Usuario #${usuarioToReactivate.id} reactivado correctamente.`);
+            cargarDatos();
+        } catch (error) {
+            setMensaje("Error al reactivar: " + error.message);
+        } finally {
+            setShowReactivateModal(false);
+            setUsuarioToReactivate(null);
             setTimeout(() => setMensaje(""), 3500);
         }
     };
@@ -189,6 +213,38 @@ export function UsuariosAdmin() {
                     )}
                 </AnimatePresence>
 
+                <AnimatePresence>
+                    {showReactivateModal && (
+                        <div className="usr-modal-backdrop" onClick={() => setShowReactivateModal(false)}>
+                            <Motion.div
+                                className="usr-modal-content text-center"
+                                initial={{ scale: 0.9, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                exit={{ scale: 0.9, opacity: 0 }}
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                <div className="mb-3">
+                                    <div className="mx-auto d-flex align-items-center justify-content-center rounded-circle mb-3" style={{ width: '64px', height: '64px', backgroundColor: 'rgba(48, 209, 88, 0.1)', border: '1px solid rgba(48, 209, 88, 0.3)' }}>
+                                        <i className="fas fa-user-check fa-2x" style={{ color: '#30d158' }}></i>
+                                    </div>
+                                    <h4 className="fw-bolder text-white mb-2">Reactivar usuario</h4>
+                                    <p className="text-secondary mb-0">
+                                        ¿Deseas devolverle el acceso al sistema a {usuarioToReactivate?.nombre}?
+                                    </p>
+                                </div>
+                                <div className="d-flex gap-2 mt-4">
+                                    <button className="flex-fill usr-btn-secondary" onClick={() => setShowReactivateModal(false)}>
+                                        Cancelar
+                                    </button>
+                                    <button className="flex-fill usr-btn-primary" style={{background: '#30d158', color: '#000'}} onClick={confirmarReactivar}>
+                                        Reactivar
+                                    </button>
+                                </div>
+                            </Motion.div>
+                        </div>
+                    )}
+                </AnimatePresence>
+
                 <motion.div className="row g-4 align-items-start" variants={containerVariants} initial="hidden" animate="visible">
                     
                     {/* PANEL IZQUIERDO CON EL FORMULARIO */}
@@ -273,6 +329,7 @@ export function UsuariosAdmin() {
                                             <th>Contacto</th>
                                             <th>Registro</th>
                                             <th>Rol</th>
+                                            <th>Estado</th>
                                             <th className="text-end pe-4">Acciones</th>
                                         </tr>
                                     </thead>
@@ -291,22 +348,26 @@ export function UsuariosAdmin() {
                                                     >
                                                         <td className="ps-4">
                                                             <div className="d-flex align-items-center gap-3">
-                                                                <div className={`usr-avatar-fallback ${isAdmin ? 'admin-avatar' : ''}`}>
-                                                                    {u.firstName ? u.firstName.charAt(0).toUpperCase() : u.email.charAt(0).toUpperCase()}
-                                                                </div>
                                                                 <div>
                                                                     <div className="usr-item-name" style={{ fontSize: '11px' }}>{u.firstName} {u.lastName}</div>
                                                                     <div className="usr-item-id" style={{ fontSize: '9px' }}>ID Registro | {u.id}</div>
                                                                 </div>
                                                             </div>
                                                         </td>
-                                                        <td className="usr-text-muted">{u.email}</td>
+                                                        <td className="usr-text-muted" style={{ fontSize: '11px' }}>{u.email}</td>
                                                         <td className="usr-text-muted" style={{ fontSize: '11px' }}>{formatearFecha(u.createdAt)}</td>
                                                         <td>
                                                             <span className={`usr-badge ${isAdmin ? 'badge-dark' : 'badge-neutral'}`}>
                                                                 {isAdmin ? 'ADMINISTRADOR' : 'CLIENTE'}
                                                             </span>
                                                         </td>
+                                                        
+                                                        <td>
+                                                            <span className={`usr-badge ${u.active ? 'badge-active' : 'badge-inactive'}`}>
+                                                                {u.active ? 'ACTIVO' : 'INACTIVO'}
+                                                            </span>
+                                                        </td>
+
                                                         <td className="text-end pe-4">
                                                             <div className="d-flex justify-content-end gap-2">
                                                                 <motion.button 
@@ -321,21 +382,33 @@ export function UsuariosAdmin() {
                                                                         <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
                                                                     </svg>
                                                                 </motion.button>
-                                                                
-                                                                <motion.button 
-                                                                    whileHover={{ scale: 1.1 }} 
-                                                                    whileTap={{ scale: 0.9 }} 
-                                                                    className="usr-action-btn delete" 
-                                                                    onClick={() => handleEliminar(u.id, u.firstName)}
-                                                                    title="Desactivar Usuario"
-                                                                >
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                                                        <polyline points="3 6 5 6 21 6"></polyline>
-                                                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                                                        <line x1="10" y1="11" x2="10" y2="17"></line>
-                                                                        <line x1="14" y1="11" x2="14" y2="17"></line>
-                                                                    </svg>
-                                                                </motion.button>
+
+                                                                {u.active ? (
+                                                                    <motion.button 
+                                                                        whileHover={{ scale: 1.1 }} 
+                                                                        whileTap={{ scale: 0.9 }} 
+                                                                        className="usr-action-btn delete" 
+                                                                        onClick={() => handleEliminar(u.id, u.firstName)}
+                                                                        title="Desactivar Usuario"
+                                                                    >
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                                                            <line x1="10" y1="11" x2="10" y2="17"></line>
+                                                                            <line x1="14" y1="11" x2="14" y2="17"></line>
+                                                                        </svg>
+                                                                    </motion.button>
+                                                                ) : (
+                                                                    <motion.button 
+                                                                        whileHover={{ scale: 1.1 }} 
+                                                                        whileTap={{ scale: 0.9 }} 
+                                                                        className="usr-action-btn reactivate" 
+                                                                        onClick={() => handleReactivar(u.id, u.firstName)}
+                                                                        title="Reactivar Usuario"
+                                                                    >
+                                                                        <i className="fas fa-user-check"></i>
+                                                                    </motion.button>
+                                                                )}
                                                             </div>
                                                         </td>
                                                     </motion.tr>
