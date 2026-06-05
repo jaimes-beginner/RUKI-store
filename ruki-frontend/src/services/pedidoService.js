@@ -10,12 +10,13 @@ const getToken = () => localStorage.getItem("ruki_token");
     Función asincrona para 
     crear un nuevo pedido
 */
-export async function crearPedido(orderData) {
+export async function crearPedido(orderData, idempotencyKey) { 
     const response = await fetch(`${API_BASE_URL}/api-ruki/orders/create`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${getToken()}`
+            "Authorization": `Bearer ${getToken()}`,
+            "Idempotency-Key": idempotencyKey 
         },
         body: JSON.stringify(orderData),
     });
