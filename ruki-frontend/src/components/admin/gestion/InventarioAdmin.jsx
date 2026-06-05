@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { crearProducto, obtenerProductosActivos, desactivarProducto, actualizarProducto } from "../../../services/ProductoService";
+import { crearProducto, obtenerTodosLosProductosAdmin, desactivarProducto, reactivarProducto, actualizarProducto } from "../../../services/ProductoService";
 import { obtenerCategoriasActivas } from "../../../services/ProductoService";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from '../../../config/SupabaseConfig';
@@ -24,6 +24,9 @@ export function InventarioAdmin() {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [productoToDelete, setProductoToDelete] = useState(null);
 
+    const [showReactivateModal, setShowReactivateModal] = useState(false);
+    const [productoToReactivate, setProductoToReactivate] = useState(null);
+
     const [formulario, setFormulario] = useState({
         name: "", description: "", basePrice: "", categoryId: "", imageUrls: "",
         isSale: false, salePrice: "", variants: [] 
@@ -36,7 +39,7 @@ export function InventarioAdmin() {
     const cargarDatos = async () => {
         try {
             const [cats, prods] = await Promise.all([
-                obtenerCategoriasActivas(), obtenerProductosActivos()
+                obtenerCategoriasActivas(), obtenerTodosLosProductosAdmin() 
             ]);
             setCategorias(cats); setProductos(prods);
         } catch (error) {
@@ -133,6 +136,27 @@ export function InventarioAdmin() {
         } finally {
             setShowDeleteModal(false);
             setProductoToDelete(null);
+            setTimeout(() => setMensaje(""), 3500);
+        }
+    };
+
+    const handleReactivar = (id, nombreProducto) => {
+        setProductoToReactivate({ id, nombreProducto });
+        setShowReactivateModal(true);
+    };
+
+    const confirmarReactivar = async () => {
+        if (!productoToReactivate) return;
+
+        try {
+            await reactivarProducto(productoToReactivate.id);
+            setMensaje(`Producto #${productoToReactivate.id} reactivado con éxito.`);
+            cargarDatos();
+        } catch (error) {
+            setMensaje("Error al reactivar: " + error.message);
+        } finally {
+            setShowReactivateModal(false);
+            setProductoToReactivate(null);
             setTimeout(() => setMensaje(""), 3500);
         }
     };
@@ -251,6 +275,38 @@ export function InventarioAdmin() {
                                     </button>
                                     <button className="flex-fill inv-btn-primary" onClick={confirmarEliminar}>
                                         Confirmar
+                                    </button>
+                                </div>
+                            </Motion.div>
+                        </div>
+                    )}
+                </AnimatePresence>
+
+                <AnimatePresence>
+                    {showReactivateModal && (
+                        <div className="inv-modal-backdrop" onClick={() => setShowReactivateModal(false)}>
+                            <Motion.div
+                                className="inv-modal-content text-center"
+                                initial={{ scale: 0.9, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                exit={{ scale: 0.9, opacity: 0 }}
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                <div className="mb-3">
+                                    <div className="mx-auto d-flex align-items-center justify-content-center rounded-circle mb-3" style={{ width: '64px', height: '64px', backgroundColor: 'rgba(48, 209, 88, 0.1)', border: '1px solid rgba(48, 209, 88, 0.3)' }}>
+                                        <i className="fas fa-trash-restore fa-2x" style={{ color: '#30d158' }}></i>
+                                    </div>
+                                    <h4 className="fw-bolder text-white mb-2">Reactivar producto</h4>
+                                    <p className="text-secondary mb-0">
+                                        ¿Deseas volver a poner a la venta {productoToReactivate?.nombreProducto}?
+                                    </p>
+                                </div>
+                                <div className="d-flex gap-2 mt-4">
+                                    <button className="flex-fill inv-btn-secondary" onClick={() => setShowReactivateModal(false)}>
+                                        Cancelar
+                                    </button>
+                                    <button className="flex-fill inv-btn-primary" style={{background: '#30d158', color: '#000'}} onClick={confirmarReactivar}>
+                                        Reactivar
                                     </button>
                                 </div>
                             </Motion.div>
@@ -412,6 +468,7 @@ export function InventarioAdmin() {
                                             <th>Categoría</th>
                                             <th>Precio</th>
                                             <th>Stock Total</th>
+                                            <th>Estado</th>
                                             <th className="text-end pe-4">Acciones</th>
                                         </tr>
                                     </thead>
@@ -455,11 +512,19 @@ export function InventarioAdmin() {
                                                             <span className="inv-item-price">${Number(p.basePrice).toLocaleString('es-CL')}</span>
                                                         )}
                                                     </td>
+
                                                     <td>
                                                         {p.stock > 10 ? <span className="inv-status-dot ok">Óptimo ({p.stock})</span> : 
                                                          p.stock > 0 ? <span className="inv-status-dot warning">Bajo ({p.stock})</span> : 
                                                          <span className="inv-status-dot error">Agotado</span>}
                                                     </td>
+                                                    
+                                                    <td>
+                                                        <span className={`inv-badge ${p.active ? 'badge-active' : 'badge-inactive'}`}>
+                                                            {p.active ? 'ACTIVO' : 'INACTIVO'}
+                                                        </span>
+                                                    </td>
+
                                                     <td className="text-end pe-4">
                                                         <div className="d-flex justify-content-end gap-2">
                                                             <motion.button 
@@ -470,14 +535,25 @@ export function InventarioAdmin() {
                                                                     <path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
                                                                 </svg>
                                                             </motion.button>
-                                                            <motion.button 
-                                                                whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} 
-                                                                className="inv-action-btn delete" onClick={() => handleEliminar(p.id, p.name)} title="Eliminar"
-                                                            >
-                                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                                                    <polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line>
-                                                                </svg>
-                                                            </motion.button>
+                                                            
+                                                            {p.active ? (
+                                                                <motion.button 
+                                                                    whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} 
+                                                                    className="inv-action-btn delete" onClick={() => handleEliminar(p.id, p.name)} title="Desactivar"
+                                                                >
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                                                        <polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line>
+                                                                    </svg>
+                                                                </motion.button>
+                                                            ) : (
+                                                                /* BOTÓN ACTUALIZADO CON LA CLASE */
+                                                                <motion.button 
+                                                                    whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} 
+                                                                    className="inv-action-btn reactivate" onClick={() => handleReactivar(p.id, p.name)} title="Reactivar"
+                                                                >
+                                                                    <i className="fas fa-trash-restore"></i>
+                                                                </motion.button>
+                                                            )}
                                                         </div>
                                                     </td>
                                                 </motion.tr>

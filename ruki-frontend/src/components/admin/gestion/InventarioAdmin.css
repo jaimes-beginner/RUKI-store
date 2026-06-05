@@ -3,7 +3,7 @@
 .inventory-premium-wrapper {
     position: relative;
     min-height: 100vh;
-    background-color: #020202; /* Fondo ultra oscuro */
+    background-color: #020202; 
     font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
     padding-bottom: 60px;
     overflow-x: hidden;
@@ -30,7 +30,7 @@
 }
 
 .inv-blob-cyan { width: 45vw; height: 45vw; background: #0a84ff; top: -10%; left: -10%; }
-.inv-blob-purple { width: 35vw; height: 35vw; background: #bf5af2; bottom: 10%; right: -5%; animation-delay: -2s; }
+.inv-blob-purple { width: 35vw; height: 35vw; background: #f25a67; bottom: 10%; right: -5%; animation-delay: -2s; }
 
 @keyframes pulseGlowInv {
     from { transform: scale(1) translate(0,0); }
@@ -228,3 +228,15 @@
 @media (max-width: 992px) {
     .inv-toast-container { right: 16px; left: 16px; display: flex; justify-content: center; }
 }
+
+/* 
+    Efecto hover para el botón de reactivar 
+*/
+.inv-action-btn.reactivate { color: #30d158; }
+.inv-action-btn.reactivate:hover { background: #30d158; color: #000000; box-shadow: 0 4px 12px rgba(48, 209, 88, 0.3); border-color: #30d158; }
+
+/* 
+    Colores para las etiquetas de Activo/Inactivo 
+*/
+.badge-active { background: rgba(48, 209, 88, 0.15); color: #30d158; border-color: rgba(48, 209, 88, 0.3); }
+.badge-inactive { background: rgba(255, 69, 58, 0.15); color: #ff453a; border-color: rgba(255, 69, 58, 0.3); }
