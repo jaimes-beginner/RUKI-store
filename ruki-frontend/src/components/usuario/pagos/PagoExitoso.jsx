@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useCart } from '../../../contexts/CartContext';
 import { motion } from 'framer-motion';
@@ -94,3 +94,5 @@ export function PagoExitoso() {
         </main>
     );
 }
+
+export default PagoExitoso;
