@@ -12,10 +12,14 @@ import com.ruki.order.repositories.OrderRepository;
 import com.ruki.order.requests.OrderCreate;
 import com.ruki.order.requests.OrderItemRequest;
 import com.ruki.order.requests.OrderResponse;
+import com.ruki.order.requests.PageResponse;
 import com.ruki.order.requests.ProductClientResponse;
 import com.ruki.order.requests.UserClientResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -335,19 +339,28 @@ public class OrderServiceImpl implements OrderService {
         return toResponse(order);
     }
 
-    /*
-        Método para obtener todas las órdenes de un usuario autenticado.
-        Ordenadas de la más nueva a la más antigua.
-    */
+    // MÉTODO PARRA OBTENER ÓRDENES PAGINADAS DE UN USUARIO AUTENTICADO
     @Override
     @Transactional(readOnly = true)
     @PreAuthorize("isAuthenticated()")
-    public List<OrderResponse> getMyOrders(Long currentUserId) {
-        log.debug("ORDER | Obteniendo historial de pedidos para el usuario {}.", currentUserId);
-        return orderRepository.findByUserIdOrderByCreatedAtDesc(currentUserId)
-                .stream()
+    public PageResponse<OrderResponse> getMyOrders(Long currentUserId, int page, int size) {
+        log.debug("ORDER | Obteniendo historial de pedidos paginado para el usuario {}. Página: {}", currentUserId, page);
+        
+        PageRequest pageRequest = PageRequest.of(page, size);
+        Page<Order> orderPage = orderRepository.findByUserIdOrderByCreatedAtDesc(currentUserId, pageRequest);
+        
+        List<OrderResponse> content = orderPage.getContent().stream()
                 .map(this::toResponse)
                 .toList();
+                
+        return PageResponse.<OrderResponse>builder()
+                .content(content)
+                .pageNumber(orderPage.getNumber())
+                .pageSize(orderPage.getSize())
+                .totalElements(orderPage.getTotalElements())
+                .totalPages(orderPage.getTotalPages())
+                .last(orderPage.isLast())
+                .build();
     }
 
     /*

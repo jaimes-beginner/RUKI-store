@@ -3,7 +3,8 @@ package com.ruki.order.controllers;
 import com.ruki.order.entities.OrderStatus;
 import com.ruki.order.exceptions.ApiErrorResponse; 
 import com.ruki.order.requests.OrderCreate;
-import com.ruki.order.requests.OrderResponse; 
+import com.ruki.order.requests.OrderResponse;
+import com.ruki.order.requests.PageResponse;
 import com.ruki.order.services.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content; 
@@ -88,20 +89,20 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getOrderById(id, currentUserId, isAdmin));
     }
 
-    /*
-        Endpoint para obtener el historial de compras del usuario autenticado
-    */
+    // ENDPOINT PARA OBTENER EL HISTORIAL DE COMPRAS DEL USUARIO AUTENTICADO
     @GetMapping("/me")
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "Ver mis pedidos", description = "Retorna el historial de compras del usuario autenticado.")
+    @Operation(summary = "Ver mis pedidos", description = "Retorna el historial de compras con paginación del usuario autenticado.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Historial obtenido exitosamente", content = @Content(schema = @Schema(implementation = OrderResponse.class))),
             @ApiResponse(responseCode = "401", description = "Token ausente o inválido", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
-    @PreAuthorize("isAuthenticated()") 
-    public ResponseEntity<List<OrderResponse>> getMyOrders() {
+    public ResponseEntity<PageResponse<OrderResponse>> getMyOrders(
+            @RequestParam(defaultValue = "0") int page, 
+            @RequestParam(defaultValue = "8") int size 
+    ) {
         Long currentUserId = (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return ResponseEntity.ok(orderService.getMyOrders(currentUserId));
+        return ResponseEntity.ok(orderService.getMyOrders(currentUserId, page, size));
     }
 
     /*
