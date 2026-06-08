@@ -19,7 +19,7 @@ public interface ProductService {
     ProductResponse updateProduct(Long id, ProductUpdate request);
     void addStock(Long id, Integer quantity, String size);
     void discountStock(Long id, Integer quantity, String size); 
-    PageResponse<ProductResponse> filterProducts(Long categoryId, String size, BigDecimal minPrice, BigDecimal maxPrice, String sort, int page, int sizePage);
+    PageResponse<ProductResponse> filterProducts(Long categoryId, String size, BigDecimal minPrice, BigDecimal maxPrice, Boolean isSale, String sort, int page, int sizePage);
     List<ProductResponse> getAllProductsAdmin();
     void reactivateProduct(Long id);
     PageResponse<ProductResponse> getAdminProductsPaged(int page, int size);

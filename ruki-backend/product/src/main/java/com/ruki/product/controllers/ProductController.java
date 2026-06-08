@@ -198,13 +198,12 @@ public class ProductController {
         return ResponseEntity.ok(productService.getSaleProducts(page, size));
     }
 
-    /*
-        Endpoint para filtrar productos dinámicamente por múltiples criterios
-    */
+    // ENDPOINT PARA FILTRAR PRODUCTOS DINÁMICAMENTE POR MÚLTIPLES CRITERIOS
+    // COMO CATEGORÍA, TALLA, RANGO DE PRECIOS, ORDEN Y SI ESTÁ EN OFERTA O NO
     @GetMapping("/filter")
     @Operation(
         summary = "Filtrar productos dinámicamente",
-        description = "Busca productos combinando múltiples filtros opcionales paginados (Categoría, Talla, Precio Mín/Máx, Orden). (Acceso Público)"
+        description = "Busca productos combinando múltiples filtros opcionales paginados (Categoría, Talla, Precio Mín/Máx, Orden y si está en oferta). (Acceso Público)"
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Lista de productos filtrada exitosamente"),
@@ -215,11 +214,12 @@ public class ProductController {
             @RequestParam(required = false) String size,
             @RequestParam(required = false) @Positive BigDecimal minPrice, 
             @RequestParam(required = false) @Positive BigDecimal maxPrice, 
+            @RequestParam(required = false) Boolean isSale,
             @RequestParam(required = false, defaultValue = "newest") String sort,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "6") int sizePage
-    ) {
-        return ResponseEntity.ok(productService.filterProducts(categoryId, size, minPrice, maxPrice, sort, page, sizePage));
+            @RequestParam(defaultValue = "6") int sizePage) {
+
+        return ResponseEntity.ok(productService.filterProducts(categoryId, size, minPrice, maxPrice, isSale, sort, page, sizePage));
     }
     
     /*
