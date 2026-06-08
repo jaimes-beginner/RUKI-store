@@ -6,13 +6,24 @@ const getToken = () => localStorage.getItem("ruki_token");
 /* ENDPOINTS PÚBLICOS (CLIENTES)           */
 /*=========================================*/
 
-/*
-    Función asíncrona para obtener el 
-    catálogo de productos activos
-*/
-export async function obtenerProductosActivos() {
-    const response = await fetch(`${API_BASE_URL}/api-ruki/products/active`);
+// FUNCIÓN ASÍNCRONA PARA OBTENER EL CATÁLOGO DE PRODUCTOS ACTIVOS CON PAGINACIÓN
+export async function obtenerProductosActivos(page = 0, size = 6) {
+    const response = await fetch(`${API_BASE_URL}/api-ruki/products/active?page=${page}&size=${size}`);
     if (!response.ok) throw new Error("Error al obtener el catálogo de productos");
+    return response.json();
+}
+
+// FUNCIÓN ASÍNCRONA PARA OBTENER LOS ÚLTIMOS LANZAMIENTOS (NEW ARRIVALS) CON PAGINACIÓN
+export async function obtenerNewArrivals(page = 0, size = 6) {
+    const response = await fetch(`${API_BASE_URL}/api-ruki/products/new-arrivals?page=${page}&size=${size}`);
+    if (!response.ok) throw new Error("Error al obtener los últimos lanzamientos");
+    return response.json();
+}
+
+// FUNCIÓN ASÍNCRONA PARA OBTENER LOS PRODUCTOS EN OFERTA (SALE) CON PAGINACIÓN
+export async function obtenerOfertas(page = 0, size = 6) {
+    const response = await fetch(`${API_BASE_URL}/api-ruki/products/sale?page=${page}&size=${size}`);
+    if (!response.ok) throw new Error("Error al obtener las ofertas");
     return response.json();
 }
 
@@ -36,41 +47,23 @@ export async function obtenerProductosPorCategoria(categoryId) {
     return response.json();
 }
 
-/*
-    Función asíncrona para obtener los 
-    últimos lanzamientos en productos
-*/
-export async function obtenerNewArrivals() {
-    const response = await fetch(`${API_BASE_URL}/api-ruki/products/new-arrivals`);
-    if (!response.ok) throw new Error("Error al obtener los últimos lanzamientos");
-    return response.json();
-}
 
-/*  
-    Función asíncrona para obtener los 
-    productos en oferta (descuento activo)
-*/
-export async function obtenerOfertas() {
-    const response = await fetch(`${API_BASE_URL}/api-ruki/products/sale`);
-    if (!response.ok) throw new Error("Error al obtener las ofertas");
-    return response.json();
-}
-
-/*
-    Función asíncrona para filtrar productos dinamicamente
-    por categoría, talla, rango de precio y ordenamiento
-*/
-export async function filtrarProductos(filtros = {}) {
+// FUNCIÓN ASINCRONA PARA FILTRAR PRODUCTOS DINÁMICAMENTE POR CATEGORÍA, TALLA, RANGO DE PRECIO Y ORDENAMIENTO
+export async function filtrarProductos(filtros = {}, page = 0, size = 6) {
     const params = new URLSearchParams();
     
     if (filtros.categoryId) params.append("categoryId", filtros.categoryId);
     if (filtros.size) params.append("size", filtros.size);
     if (filtros.minPrice) params.append("minPrice", filtros.minPrice);
     if (filtros.maxPrice) params.append("maxPrice", filtros.maxPrice);
-    if (filtros.sort) params.append("sort", filtros.sort); // newest, priceAsc, priceDesc
+    if (filtros.sort) params.append("sort", filtros.sort);
+    
+    // AHORA AÑADIMOS LOS PARÁMETROS DE PAGINACIÓN
+    params.append("page", page);
+    params.append("sizePage", size);
 
     const queryString = params.toString();
-    const url = `${API_BASE_URL}/api-ruki/products/filter${queryString ? `?${queryString}` : ''}`;
+    const url = `${API_BASE_URL}/api-ruki/products/filter?${queryString}`;
 
     const response = await fetch(url);
     if (!response.ok) throw new Error("Error al filtrar los productos");
@@ -136,15 +129,21 @@ export async function desactivarProducto(id) {
     return true;
 }
 
-/*
-    Función asíncrona para que el administrador 
-    obtenga absolutamente todos los productos
-*/
+// FUNCIÓN ASÍNCRONA PARA OBTENER TODOS LOS PRODUCTOS DEL INVENTARIO DEL ADMINISTRADOR 
 export async function obtenerTodosLosProductosAdmin() {
     const response = await fetch(`${API_BASE_URL}/api-ruki/products/admin/all`, {
         headers: { "Authorization": `Bearer ${getToken()}` }
     });
     if (!response.ok) throw new Error("Error al obtener el inventario completo");
+    return response.json();
+}
+
+// FUNCIÓN ASÍNCRONA PARA OBTENER LOS PRODUCTOS DEL INVENTARIO DEL ADMINISTRADOR CON PAGINACIÓN
+export async function obtenerProductosAdminPaginados(page = 0, size = 10) {
+    const response = await fetch(`${API_BASE_URL}/api-ruki/products/admin/paged?page=${page}&sizePage=${size}`, {
+        headers: { "Authorization": `Bearer ${getToken()}` }
+    });
+    if (!response.ok) throw new Error("Error al obtener el inventario paginado");
     return response.json();
 }
 

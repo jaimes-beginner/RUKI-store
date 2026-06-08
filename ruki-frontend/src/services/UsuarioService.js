@@ -23,6 +23,7 @@ export async function crearUsuario(userData) {
     return response.json();
 }
 
+
 /*===============================*/
 /* ENDPOINTS PRIVADOS */
 /*===============================*/
@@ -173,28 +174,31 @@ export async function eliminarDireccion(addressId) {
 /* ENDPOINTS DEL ADMINISTRADOR */
 /*===============================*/
 
-/*
-    Función asincrona para obtener 
-    a todos los usuarios activos
-*/
-export async function obtenerUsuariosActivos() {
-    const response = await fetch(`${API_BASE_URL}/api-ruki/users/active`, {
+// FUNCION ASINCRONA PARA OBTENER USUARIOS ACTIVOS CON PAGINACIÓN
+export async function obtenerUsuariosActivos(page = 0, size = 9) {
+    const response = await fetch(`${API_BASE_URL}/api-ruki/users/active?page=${page}&size=${size}`, {
         headers: { "Authorization": `Bearer ${getToken()}` }
     });
     if (!response.ok) throw new Error("Error al obtener usuarios activos");
     return response.json();
 }
 
-/*
-    Función asincrona para obtener 
-    a todos los usuarios
-*/
+// FUNCION ASINCRONA PARA OBTENER TODOS LOS USUARIOS (ACTIVOS E INACTIVOS)
 export async function obtenerUsuarios() {
-    const response = await fetch(`${API_BASE_URL}/api-ruki/users/admin/all`, {
-        headers: { "Authorization": `Bearer ${getToken()}` }
-    });
-    if (!response.ok) throw new Error("No se pudo conectar con el servidor de usuarios.");
-    return response.json();
+    const response = await fetch(`${API_BASE_URL}/api-ruki/users/admin/all`, 
+        { headers: 
+            { "Authorization": `Bearer ${getToken()}` }
+        });
+    if (!response.ok) throw new Error("Error"); return response.json();
+}
+
+// FUNCION ASINCRONA PARA OBTENER USUARIOS CON PAGINACIÓN (ACTIVOS E INACTIVOS)
+export async function obtenerUsuariosPaginados(page = 0, size = 9) {
+    const response = await fetch(`${API_BASE_URL}/api-ruki/users/admin/paged?page=${page}&size=${size}`, 
+        { headers: 
+            { "Authorization": `Bearer ${getToken()}` } 
+        });
+    if (!response.ok) throw new Error("Error"); return response.json();
 }
 
 /*
