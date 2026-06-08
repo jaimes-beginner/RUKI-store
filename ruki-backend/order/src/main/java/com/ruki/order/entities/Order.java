@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.CreationTimestamp;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -16,7 +17,10 @@ import java.util.List;
 @AllArgsConstructor
 @Builder 
 @Entity
-@Table(name = "ruki_orders")
+@Table(name = "ruki_orders", indexes = {
+    @Index(name = "idx_order_user", columnList = "userId"),
+    @Index(name = "idx_order_created", columnList = "createdAt")
+})
 public class Order {
 
     @Id
@@ -40,6 +44,7 @@ public class Order {
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @BatchSize(size = 50)
     private List<OrderItem> items = new ArrayList<>();
 
     @Column(nullable = false, precision = 10, scale = 2)

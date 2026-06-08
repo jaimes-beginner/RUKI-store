@@ -9,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Index;
 import lombok.AllArgsConstructor;
 import lombok.Builder; 
 import lombok.Data;
@@ -21,7 +22,10 @@ import lombok.ToString;
 @AllArgsConstructor
 @Builder 
 @Entity
-@Table(name = "ruki_product_variants")
+@Table(name = "ruki_product_variants", indexes = {
+    @Index(name = "idx_variant_product", columnList = "product_id"),
+    @Index(name = "idx_variant_size", columnList = "size")
+})
 public class ProductVariant {
 
     @Id
