@@ -40,18 +40,16 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     */
     Optional<Product> findByIdAndIsActiveTrue(Long id);
 
-    /*
-        Consulta para filtrar productos dinámicamente
-    */
+    // CONSULTA PARA FILTRAR PRODUCTOS POR CATEGORÍA, TALLA Y RANGO DE PRECIOS CON PAGINACIÓN
     @Query("SELECT DISTINCT p FROM Product p LEFT JOIN p.variants v WHERE p.isActive = true " +
            "AND (:categoryId IS NULL OR p.category.id = :categoryId) " +
            "AND (:size IS NULL OR v.size = :size) " +
            "AND (:minPrice IS NULL OR p.basePrice >= :minPrice) " +
            "AND (:maxPrice IS NULL OR p.basePrice <= :maxPrice)")
-    List<Product> findFilteredProducts(@Param("categoryId") Long categoryId,
+    Page<Product> findFilteredProducts(@Param("categoryId") Long categoryId,
                                        @Param("size") String size,
                                        @Param("minPrice") BigDecimal minPrice,
                                        @Param("maxPrice") BigDecimal maxPrice,
-                                       Sort sort);
+                                       Pageable pageable);
 
 }

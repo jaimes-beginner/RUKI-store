@@ -363,12 +363,10 @@ public class ProductServiceImpl implements ProductService {
                 .build();
     }
 
-    /*
-        Método para filtrar productos por categoría, talla, rango de precio y ordenamiento
-    */
+    // MÉTODO PARA FILTRAR PRODUCTOS POR CATEGORÍA, TALLA, RANGO DE PRECIOS Y ORDENAMIENTO CON PAGINACIÓN
     @Override
     @Transactional(readOnly = true)
-    public List<ProductResponse> filterProducts(Long categoryId, String size, BigDecimal minPrice, BigDecimal maxPrice, String sort) {
+    public PageResponse<ProductResponse> filterProducts(Long categoryId, String size, BigDecimal minPrice, BigDecimal maxPrice, String sort, int page, int sizePage) {
         Sort sortOrder = Sort.by(Sort.Direction.DESC, "createdAt"); 
 
         if ("priceAsc".equalsIgnoreCase(sort)) {
@@ -376,11 +374,25 @@ public class ProductServiceImpl implements ProductService {
         } else if ("priceDesc".equalsIgnoreCase(sort)) {
             sortOrder = Sort.by(Sort.Direction.DESC, "basePrice");
         }
-        log.debug("Filtrando productos con categoryId: {}, size: {}, minPrice: {}, maxPrice: {}, sort: {}", categoryId, size, minPrice, maxPrice, sort);
-        return productRepository.findFilteredProducts(categoryId, size, minPrice, maxPrice, sortOrder)
-                .stream()
+        
+        // CREAMOS EL PageRequest COMBINANDO LA PÁGINA, EL TAMAÑO Y EL ORDENAMIENTO
+        PageRequest pageRequest = PageRequest.of(page, sizePage, sortOrder);
+
+        log.debug("Filtrando productos paginados...");
+        Page<Product> productPage = productRepository.findFilteredProducts(categoryId, size, minPrice, maxPrice, pageRequest);
+
+        List<ProductResponse> content = productPage.getContent().stream()
                 .map(this::toResponse)
                 .toList();
+
+        return PageResponse.<ProductResponse>builder()
+                .content(content)
+                .pageNumber(productPage.getNumber())
+                .pageSize(productPage.getSize())
+                .totalElements(productPage.getTotalElements())
+                .totalPages(productPage.getTotalPages())
+                .last(productPage.isLast())
+                .build();
     }
 
     /*

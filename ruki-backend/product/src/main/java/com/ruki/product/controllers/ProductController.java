@@ -204,20 +204,22 @@ public class ProductController {
     @GetMapping("/filter")
     @Operation(
         summary = "Filtrar productos dinámicamente",
-        description = "Busca productos combinando múltiples filtros opcionales (Categoría, Talla, Precio Mín/Máx, Orden). (Acceso Público)"
+        description = "Busca productos combinando múltiples filtros opcionales paginados (Categoría, Talla, Precio Mín/Máx, Orden). (Acceso Público)"
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Lista de productos filtrada exitosamente"),
             @ApiResponse(responseCode = "400", description = "Parámetros de filtro inválidos", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
-    public ResponseEntity<List<ProductResponse>> filterProducts(
-            @RequestParam(required = false) @Positive(message = "El ID de categoría debe ser positivo") Long categoryId, // Añadir validación
+    public ResponseEntity<PageResponse<ProductResponse>> filterProducts(
+            @RequestParam(required = false) @Positive Long categoryId, 
             @RequestParam(required = false) String size,
-            @RequestParam(required = false) @Positive(message = "El precio mínimo debe ser positivo") BigDecimal minPrice, // Añadir validación
-            @RequestParam(required = false) @Positive(message = "El precio máximo debe ser positivo") BigDecimal maxPrice, // Añadir validación
-            @RequestParam(required = false, defaultValue = "newest") String sort) {
-
-        return ResponseEntity.ok(productService.filterProducts(categoryId, size, minPrice, maxPrice, sort));
+            @RequestParam(required = false) @Positive BigDecimal minPrice, 
+            @RequestParam(required = false) @Positive BigDecimal maxPrice, 
+            @RequestParam(required = false, defaultValue = "newest") String sort,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int sizePage
+    ) {
+        return ResponseEntity.ok(productService.filterProducts(categoryId, size, minPrice, maxPrice, sort, page, sizePage));
     }
     
     /*
