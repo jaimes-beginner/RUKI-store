@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { obtenerUsuarios, crearUsuario, eliminarUsuario, actualizarUsuario, reactivarUsuario } from "../../../services/UsuarioService";
+import { obtenerUsuariosPaginados, crearUsuario, eliminarUsuario, actualizarUsuario, reactivarUsuario } from "../../../services/UsuarioService";
 import { motion, AnimatePresence } from "framer-motion";
 import './UsuariosAdmin.css';
 
@@ -24,19 +24,27 @@ export function UsuariosAdmin() {
     const [showReactivateModal, setShowReactivateModal] = useState(false);
     const [usuarioToReactivate, setUsuarioToReactivate] = useState(null);
 
+    const [currentPage, setCurrentPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+
     const [formulario, setFormulario] = useState({
         firstName: "", lastName: "", email: "", password: ""
     });
 
+    // REACCIONA A LOS CAMBIOS DE PAGINA
     useEffect(() => {
         cargarDatos();
-    }, []);
+    }, [currentPage]);
 
     const cargarDatos = async () => {
         try {
-            const data = await obtenerUsuarios();
-            const usersOrdenados = Array.isArray(data) ? data.sort((a, b) => b.id - a.id) : [];
-            setUsuarios(usersOrdenados);
+
+            // PASAMOS LA PAGINA ACTUAL
+            const data = await obtenerUsuariosPaginados(currentPage, 9);
+
+            // SACAMOS EL contect DE LA CAJA PAGINADA
+            setUsuarios(data.content);
+            setTotalPages(data.totalPages);
         } catch (error) {
             console.error("Error cargando usuarios", error);
             setMensaje("Error al cargar la base de datos de usuarios.");
@@ -51,7 +59,7 @@ export function UsuariosAdmin() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-        
+
         try {
             if (editingId) {
                 const payload = {
@@ -68,7 +76,7 @@ export function UsuariosAdmin() {
                 await crearUsuario(formulario);
                 setMensaje("¡Usuario creado exitosamente!");
             }
-            
+
             cancelarEdicion();
             cargarDatos();
         } catch (error) {
@@ -126,8 +134,8 @@ export function UsuariosAdmin() {
         setFormulario({
             firstName: usuario.firstName || "",
             lastName: usuario.lastName || "",
-            email: usuario.email || "", 
-            password: "" 
+            email: usuario.email || "",
+            password: ""
         });
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
@@ -153,8 +161,8 @@ export function UsuariosAdmin() {
             </div>
 
             <div className="container py-4 position-relative">
-                
-                <motion.header 
+
+                <motion.header
                     className="usr-page-header"
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -163,11 +171,11 @@ export function UsuariosAdmin() {
                     <h1 className="usr-title">Gestión de Usuarios</h1>
                     <p className="usr-subtitle">Administra los accesos y la comunidad de <strong>RUKI</strong>.</p>
                 </motion.header>
-                
+
                 <div className="usr-toast-container">
                     <AnimatePresence>
                         {mensaje && (
-                            <Motion.div 
+                            <Motion.div
                                 initial={{ opacity: 0, scale: 0.9, y: -20 }}
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.9, y: -20 }}
@@ -236,7 +244,7 @@ export function UsuariosAdmin() {
                                     <button className="flex-fill usr-btn-secondary" onClick={() => setShowReactivateModal(false)}>
                                         Cancelar
                                     </button>
-                                    <button className="flex-fill usr-btn-primary" style={{background: '#30d158', color: '#000'}} onClick={confirmarReactivar}>
+                                    <button className="flex-fill usr-btn-primary" style={{ background: '#30d158', color: '#000' }} onClick={confirmarReactivar}>
                                         Reactivar
                                     </button>
                                 </div>
@@ -246,7 +254,7 @@ export function UsuariosAdmin() {
                 </AnimatePresence>
 
                 <motion.div className="row g-4 align-items-start" variants={containerVariants} initial="hidden" animate="visible">
-                    
+
                     {/* PANEL IZQUIERDO CON EL FORMULARIO */}
                     <motion.div className="col-lg-4" variants={cardVariants}>
                         <div className="usr-card">
@@ -257,7 +265,7 @@ export function UsuariosAdmin() {
                                 </div>
                                 {editingId && <span className="usr-badge badge-dark">ID: {editingId}</span>}
                             </div>
-                            
+
                             <div className="p-4">
                                 <form onSubmit={handleSubmit}>
                                     <div className="row g-2 mb-3">
@@ -265,26 +273,26 @@ export function UsuariosAdmin() {
                                             <label>Nombre</label>
                                             <div className="usr-input-wrapper">
                                                 <i className="fas fa-font input-icon"></i>
-                                                <input type="text" name="firstName" className="usr-input w-100" required 
-                                                       value={formulario.firstName} onChange={handleChange} placeholder="Ej: Juan" />
+                                                <input type="text" name="firstName" className="usr-input w-100" required
+                                                    value={formulario.firstName} onChange={handleChange} placeholder="Ej: Juan" />
                                             </div>
                                         </div>
                                         <div className="col-6 usr-input-group">
                                             <label>Apellido</label>
                                             <div className="usr-input-wrapper">
                                                 <i className="fas fa-id-card input-icon"></i>
-                                                <input type="text" name="lastName" className="usr-input w-100" required 
-                                                       value={formulario.lastName} onChange={handleChange} placeholder="Ej: Pérez" />
+                                                <input type="text" name="lastName" className="usr-input w-100" required
+                                                    value={formulario.lastName} onChange={handleChange} placeholder="Ej: Pérez" />
                                             </div>
                                         </div>
                                     </div>
-                                    
+
                                     <div className="usr-input-group mb-3">
                                         <label>Correo Electrónico</label>
                                         <div className="usr-input-wrapper">
                                             <i className="fas fa-envelope input-icon"></i>
                                             <input type="email" name="email" className="usr-input w-100" required={!editingId} disabled={!!editingId}
-                                                   value={formulario.email} onChange={handleChange} placeholder="correo@ejemplo.com" />
+                                                value={formulario.email} onChange={handleChange} placeholder="correo@ejemplo.com" />
                                         </div>
                                         {editingId && <span className="usr-helper-text mt-2"><i className="fas fa-lock me-1"></i>El correo no se puede modificar.</span>}
                                     </div>
@@ -294,7 +302,7 @@ export function UsuariosAdmin() {
                                         <div className="usr-input-wrapper">
                                             <i className="fas fa-key input-icon"></i>
                                             <input type="password" name="password" className="usr-input w-100" required={!editingId} minLength="6"
-                                                   value={formulario.password} onChange={handleChange} placeholder={editingId ? "Dejar en blanco para conservar" : "Mín. 6 caracteres"} />
+                                                value={formulario.password} onChange={handleChange} placeholder={editingId ? "Dejar en blanco para conservar" : "Mín. 6 caracteres"} />
                                         </div>
                                         {!editingId && <span className="usr-helper-text mt-2">Rol <strong>CLIENTE</strong> por defecto.</span>}
                                     </div>
@@ -302,7 +310,7 @@ export function UsuariosAdmin() {
                                     <motion.button whileTap={{ scale: 0.95 }} type="submit" className="usr-btn-primary w-100" disabled={loading}>
                                         {loading ? <><i className="fas fa-spinner fa-spin me-2"></i>Procesando...</> : (editingId ? "Guardar Cambios" : "Crear Usuario")}
                                     </motion.button>
-                                    
+
                                     {editingId && (
                                         <motion.button whileTap={{ scale: 0.95 }} type="button" className="usr-btn-secondary w-100 mt-2" onClick={cancelarEdicion} disabled={loading}>
                                             Cancelar Edición
@@ -320,7 +328,7 @@ export function UsuariosAdmin() {
                                 <div><i className="fas fa-address-book me-2 opacity-50"></i> Base de Datos de Usuarios</div>
                                 <span className="usr-badge badge-light-blue">{usuarios.length} REGISTROS</span>
                             </div>
-                            
+
                             <div className="usr-table-container flex-grow-1">
                                 <table className="usr-table">
                                     <thead>
@@ -340,8 +348,8 @@ export function UsuariosAdmin() {
                                                 const isAdmin = roleStr === 'ROLE_ADMIN' || roleStr === 'ADMIN';
 
                                                 return (
-                                                    <motion.tr 
-                                                        key={u.id} 
+                                                    <motion.tr
+                                                        key={u.id}
                                                         layout
                                                         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, backgroundColor: "#ff3b3020" }}
                                                         className={editingId === u.id ? 'active-row' : ''}
@@ -361,7 +369,7 @@ export function UsuariosAdmin() {
                                                                 {isAdmin ? 'ADMINISTRADOR' : 'CLIENTE'}
                                                             </span>
                                                         </td>
-                                                        
+
                                                         <td>
                                                             <span className={`usr-badge ${u.active ? 'badge-active' : 'badge-inactive'}`}>
                                                                 {u.active ? 'ACTIVO' : 'INACTIVO'}
@@ -370,10 +378,10 @@ export function UsuariosAdmin() {
 
                                                         <td className="text-end pe-4">
                                                             <div className="d-flex justify-content-end gap-2">
-                                                                <motion.button 
-                                                                    whileHover={{ scale: 1.1 }} 
-                                                                    whileTap={{ scale: 0.9 }} 
-                                                                    className="usr-action-btn edit" 
+                                                                <motion.button
+                                                                    whileHover={{ scale: 1.1 }}
+                                                                    whileTap={{ scale: 0.9 }}
+                                                                    className="usr-action-btn edit"
                                                                     onClick={() => handleEditar(u)}
                                                                     title="Editar Usuario"
                                                                 >
@@ -384,10 +392,10 @@ export function UsuariosAdmin() {
                                                                 </motion.button>
 
                                                                 {u.active ? (
-                                                                    <motion.button 
-                                                                        whileHover={{ scale: 1.1 }} 
-                                                                        whileTap={{ scale: 0.9 }} 
-                                                                        className="usr-action-btn delete" 
+                                                                    <motion.button
+                                                                        whileHover={{ scale: 1.1 }}
+                                                                        whileTap={{ scale: 0.9 }}
+                                                                        className="usr-action-btn delete"
                                                                         onClick={() => handleEliminar(u.id, u.firstName)}
                                                                         title="Desactivar Usuario"
                                                                     >
@@ -399,10 +407,10 @@ export function UsuariosAdmin() {
                                                                         </svg>
                                                                     </motion.button>
                                                                 ) : (
-                                                                    <motion.button 
-                                                                        whileHover={{ scale: 1.1 }} 
-                                                                        whileTap={{ scale: 0.9 }} 
-                                                                        className="usr-action-btn reactivate" 
+                                                                    <motion.button
+                                                                        whileHover={{ scale: 1.1 }}
+                                                                        whileTap={{ scale: 0.9 }}
+                                                                        className="usr-action-btn reactivate"
                                                                         onClick={() => handleReactivar(u.id, u.firstName)}
                                                                         title="Reactivar Usuario"
                                                                     >
@@ -428,6 +436,27 @@ export function UsuariosAdmin() {
                                     </tbody>
                                 </table>
                             </div>
+                            {/* CONTROLES DE PAGINACIÓN */}
+                            {totalPages > 1 && (
+                                <div className="d-flex justify-content-center align-items-center gap-3 p-3 border-top border-dark" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+                                    <button
+                                        className="btn btn-sm btn-outline-light"
+                                        disabled={currentPage === 0}
+                                        onClick={() => setCurrentPage(prev => prev - 1)}>
+                                        <i className="fas fa-chevron-left"></i> Anterior
+                                    </button>
+                                    <span className="text-white fw-bold" style={{ fontSize: '12px' }}>
+                                        Página {currentPage + 1} de {totalPages}
+                                    </span>
+                                    <button
+                                        className="btn btn-sm btn-outline-light"
+                                        disabled={currentPage >= totalPages - 1}
+                                        onClick={() => setCurrentPage(prev => prev + 1)}>
+                                        Siguiente <i className="fas fa-chevron-right"></i>
+                                    </button>
+                                </div>
+                            )}
+
                         </div>
                     </motion.div>
 
