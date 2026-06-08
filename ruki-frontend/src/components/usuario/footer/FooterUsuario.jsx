@@ -1,3 +1,4 @@
+import React from 'react';
 import './FooterUsuario.css';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
