@@ -98,11 +98,13 @@ public class OrderController {
             @ApiResponse(responseCode = "401", description = "Token ausente o inválido", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     public ResponseEntity<PageResponse<OrderResponse>> getMyOrders(
-            @RequestParam(defaultValue = "0") int page, 
-            @RequestParam(defaultValue = "8") int size 
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) Long orderId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "8") int size
     ) {
         Long currentUserId = (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return ResponseEntity.ok(orderService.getMyOrders(currentUserId, page, size));
+        return ResponseEntity.ok(orderService.getMyOrders(currentUserId, status, orderId, page, size));
     }
 
     /*

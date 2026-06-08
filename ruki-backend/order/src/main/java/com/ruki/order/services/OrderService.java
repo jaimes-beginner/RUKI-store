@@ -10,7 +10,7 @@ public interface OrderService {
 
     OrderResponse createOrder(OrderCreate request, Long userId);
     OrderResponse getOrderById(Long orderId, Long currentUserId, boolean isAdmin); 
-    PageResponse<OrderResponse> getMyOrders(Long currentUserId, int page, int size);
+    PageResponse<OrderResponse> getMyOrders(Long currentUserId, String status, Long orderId, int page, int size);
     OrderResponse cancelMyOrder(Long orderId, Long currentUserId, boolean isAdmin); 
     List<OrderResponse> getAllOrdersAdmin(); 
     OrderResponse updateOrderStatusAdmin(Long orderId, OrderStatus newStatus); 

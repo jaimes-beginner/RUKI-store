@@ -17,9 +17,9 @@ import com.ruki.order.requests.ProductClientResponse;
 import com.ruki.order.requests.UserClientResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +27,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /*
@@ -343,15 +342,21 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional(readOnly = true)
     @PreAuthorize("isAuthenticated()")
-    public PageResponse<OrderResponse> getMyOrders(Long currentUserId, int page, int size) {
-        log.debug("ORDER | Obteniendo historial de pedidos paginado para el usuario {}. Página: {}", currentUserId, page);
+    public PageResponse<OrderResponse> getMyOrders(Long currentUserId, String status, Long orderId, int page, int size) {
         
-        PageRequest pageRequest = PageRequest.of(page, size);
-        Page<Order> orderPage = orderRepository.findByUserIdOrderByCreatedAtDesc(currentUserId, pageRequest);
-        
-        List<OrderResponse> content = orderPage.getContent().stream()
-                .map(this::toResponse)
-                .toList();
+        // CONVERTIMOS EL TEXTO DEL ESTADO A ENUM, SI ESTÁ VACÍO ENTONCES LO DEJAMOS NULO
+        OrderStatus orderStatus = null;
+        if (status != null && !status.isEmpty() && !status.equals("TODOS")) {
+            try {
+                orderStatus = OrderStatus.valueOf(status.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new ResourceConflictException("Estado de filtro inválido.");
+            }
+        }
+
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Order> orderPage = orderRepository.findMyOrdersFiltered(currentUserId, orderStatus, orderId, pageRequest);
+        List<OrderResponse> content = orderPage.getContent().stream().map(this::toResponse).toList();
                 
         return PageResponse.<OrderResponse>builder()
                 .content(content)
