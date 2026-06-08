@@ -256,4 +256,21 @@ public class ProductController {
         return ResponseEntity.ok().build();
     }
 
+    // ENDPOINT PARA OBTENER LOS PRODUCTOS CON PAGINACIÓN PARA ADMINISTRADOR (INCLUYE INACTIVOS)
+    @GetMapping("/admin/paged")
+    @Operation(summary = "Listar productos paginados (ADMIN)", description = "Retorna el catálogo completo con paginación.")
+    @SecurityRequirement(name = "bearerAuth")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lista obtenida correctamente"),
+            @ApiResponse(responseCode = "401", description = "Token ausente o inválido", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "403", description = "No tienes permisos de ADMIN", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
+    })
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<PageResponse<ProductResponse>> getAdminProductsPaged(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "9") int sizePage
+    ) {
+        return ResponseEntity.ok(productService.getAdminProductsPaged(page, sizePage));
+    }
+
 }

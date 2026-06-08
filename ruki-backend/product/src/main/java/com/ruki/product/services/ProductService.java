@@ -22,5 +22,6 @@ public interface ProductService {
     PageResponse<ProductResponse> filterProducts(Long categoryId, String size, BigDecimal minPrice, BigDecimal maxPrice, String sort, int page, int sizePage);
     List<ProductResponse> getAllProductsAdmin();
     void reactivateProduct(Long id);
+    PageResponse<ProductResponse> getAdminProductsPaged(int page, int size);
 
 }

@@ -1,6 +1,9 @@
 package com.ruki.product.repositories;
 
 import com.ruki.product.entities.Product;
+import com.ruki.product.requests.PageResponse;
+import com.ruki.product.requests.ProductResponse;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable; 
 import org.springframework.data.domain.Sort;
@@ -23,6 +26,9 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     // OBTENER LOS PRODUCTOS EN OFERTA ACTIVOS CON PAGINACIÓN
     Page<Product> findAllByIsActiveTrueAndIsSaleTrue(Pageable pageable);
+
+    // OBTENER PRODUCTOS PAGINADOS PARA ADMINISTRADOR (INCLUYE INACTIVOS)
+    PageResponse<ProductResponse> getAdminProductsPaged(int page, int size);
 
     /*
         Listar productos activos por categoría

@@ -428,6 +428,27 @@ public class ProductServiceImpl implements ProductService {
         log.info("PRODUCT | Producto con ID {} reactivado exitosamente.", id);
     }
 
+    // MÉTODO PARA OBTENER LOS PRODUCTOS PAGINADOS PARA EL ADMINISTRADOR (INCLUYE INACTIVOS)
+    @Override
+    @Transactional(readOnly = true)
+    public PageResponse<ProductResponse> getAdminProductsPaged(int page, int size) {
+        log.debug("PRODUCT | Obteniendo inventario paginado para admin. Página: {}", page);
+        
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+        Page<Product> productPage = productRepository.findAll(pageRequest);
+        
+        List<ProductResponse> content = productPage.getContent().stream().map(this::toResponse).toList();
+        
+        return PageResponse.<ProductResponse>builder()
+                .content(content)
+                .pageNumber(productPage.getNumber())
+                .pageSize(productPage.getSize())
+                .totalElements(productPage.getTotalElements())
+                .totalPages(productPage.getTotalPages())
+                .last(productPage.isLast())
+                .build();
+    }
+
     /*
         Método auxiliar para convertir una entidad Product a un ProductResponse
     */
