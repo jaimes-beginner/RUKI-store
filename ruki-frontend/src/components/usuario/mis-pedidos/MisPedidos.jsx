@@ -21,17 +21,24 @@ export function MisPedidos() {
     const [busqueda, setBusqueda] = useState('');
     const [tarjetasExpandidas, setTarjetasExpandidas] = useState({});
 
+    const [currentPage, setCurrentPage] = useState(0); 
+    const [totalPages, setTotalPages] = useState(0);
+
     useEffect(() => {
         if (isAuthenticated) cargarPedidos();
         else setLoading(false);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isAuthenticated]);
+    }, [isAuthenticated, currentPage, filtroEstado, busqueda]);
 
     const cargarPedidos = async () => {
+        setLoading(true);
         try {
-            const data = await obtenerMisPedidos();
-            const ordenesOrdenadas = data.sort((a, b) => b.id - a.id);
-            setPedidos(ordenesOrdenadas);
+
+            // ENVIAMOS LOS FILTROS AL BACKEND
+            const data = await obtenerMisPedidos(filtroEstado, busqueda, currentPage, 8);
+
+            // GUARDAMOS DIRECTAMENTE LO QUE MANDA EL BACKEND
+            setPedidos(data.content);
+            setTotalPages(data.totalPages);
 
             let diccionarioDirecciones = {};
             if (usuario && usuario.id) {
@@ -47,7 +54,7 @@ export function MisPedidos() {
             }
 
             const idsUnicos = new Set();
-            ordenesOrdenadas.forEach(pedido => {
+            data.content.forEach(pedido => {
                 const items = pedido.detalles || pedido.items || [];
                 items.forEach(item => idsUnicos.add(item.productId));
             });
@@ -168,7 +175,10 @@ export function MisPedidos() {
                                         placeholder="Buscar por Orden #" 
                                         className="orders-search-input"
                                         value={busqueda}
-                                        onChange={(e) => setBusqueda(e.target.value)}
+                                        onChange={(e) => {
+                                            setBusqueda(e.target.value);
+                                            setCurrentPage(0); 
+                                        }}
                                     />
                                 </div>
 
@@ -178,7 +188,10 @@ export function MisPedidos() {
                                             key={estado}
                                             whileTap={{ scale: 0.95 }}
                                             className={`filter-pill ${filtroEstado === estado ? 'active' : ''}`}
-                                            onClick={() => setFiltroEstado(estado)}
+                                            onClick={() => {
+                                                setFiltroEstado(estado);
+                                                setCurrentPage(0);
+                                            }}
                                         >
                                             {estado === 'TODOS' ? 'Todos' : getStatusConfig(estado).text}
                                         </motion.button>
@@ -339,6 +352,29 @@ export function MisPedidos() {
                                     })}
                                 </AnimatePresence>
                             </motion.div>
+                        )}
+
+                        {totalPages > 1 && (
+                            <div className="d-flex justify-content-center align-items-center gap-3 mt-5 mb-4">
+                                <button 
+                                    className="btn btn-outline-light" 
+                                    disabled={currentPage === 0} 
+                                    onClick={() => { setCurrentPage(prev => prev - 1); window.scrollTo(0,0); }}>
+                                    <i className="fas fa-chevron-left"></i> Anterior
+                                </button>
+                                
+                                <span className="text-white fw-bold">
+                                    Página {currentPage + 1} de {totalPages}
+                                </span>
+                                
+                                <button 
+                                    className="btn btn-outline-light" 
+                                    disabled={currentPage >= totalPages - 1} 
+                                    onClick={() => { setCurrentPage(prev => prev + 1); window.scrollTo(0,0); }}>
+                                    Siguiente <i className="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
+            
                         )}
                     </>
                 )}

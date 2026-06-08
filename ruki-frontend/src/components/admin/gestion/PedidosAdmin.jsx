@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import { obtenerTodosLosPedidos, actualizarEstadoPedido } from "../../../services/PedidoService"; 
+import { obtenerPedidosPaginados, actualizarEstadoPedido } from "../../../services/PedidoService";
 import { obtenerProductoPorId } from "../../../services/ProductoService";
 import { obtenerDireccionesPorUsuario } from "../../../services/UsuarioService";
 import { motion, AnimatePresence } from "framer-motion";
-import './PedidosAdmin.css'; 
+import './PedidosAdmin.css';
 
 const containerVariants = {
     hidden: { opacity: 0 },
@@ -25,15 +25,22 @@ export function PedidosAdmin() {
     const [direccionCompleta, setDireccionCompleta] = useState("Cargando dirección...");
     const [showEstadoModal, setShowEstadoModal] = useState(false);
 
+    const [currentPage, setCurrentPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+
     useEffect(() => {
         cargarDatos();
     }, []);
 
     const cargarDatos = async () => {
         try {
-            const data = await obtenerTodosLosPedidos();
-            const ordenados = (Array.isArray(data) ? data : []).sort((a, b) => b.id - a.id);
+
+            // OBTENEMOS LOS PEDIDOS CON PAGINACIÓN
+            const data = await obtenerPedidosPaginados(currentPage, 9);
+
+            const ordenados = data.content || [];
             setPedidos(ordenados);
+            setTotalPages(data.totalPages);
 
             const idsUnicos = new Set();
             ordenados.forEach(pedido => {
@@ -100,7 +107,7 @@ export function PedidosAdmin() {
         try {
             await actualizarEstadoPedido(pedidoSeleccionado.id, nuevoEstado);
             mostrarToast(`Estado de la Orden #${pedidoSeleccionado.id} actualizado a ${nuevoEstado}`);
-            
+
             await cargarDatos();
             setPedidoSeleccionado({ ...pedidoSeleccionado, status: nuevoEstado });
         } catch (error) {
@@ -117,7 +124,7 @@ export function PedidosAdmin() {
     const formatearFecha = (fechaStr) => {
         if (!fechaStr) return "—";
         const fecha = new Date(fechaStr);
-        return fecha.toLocaleDateString('es-CL', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute:'2-digit' });
+        return fecha.toLocaleDateString('es-CL', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
     };
 
     const renderBadgeEstado = (statusStr) => {
@@ -141,8 +148,8 @@ export function PedidosAdmin() {
             </div>
 
             <div className="container py-4 position-relative">
-                
-                <motion.header 
+
+                <motion.header
                     className="ord-page-header"
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -151,11 +158,11 @@ export function PedidosAdmin() {
                     <h1 className="ord-title">Gestión de Pedidos</h1>
                     <p className="ord-subtitle">Supervisa la logística y despachos de <strong>RUKI</strong>.</p>
                 </motion.header>
-                
+
                 <div className="ord-toast-container">
                     <AnimatePresence>
                         {toast.mostrar && (
-                            <motion.div 
+                            <motion.div
                                 initial={{ opacity: 0, scale: 0.9, y: -20 }}
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.9, y: -20 }}
@@ -200,41 +207,41 @@ export function PedidosAdmin() {
                 </AnimatePresence>
 
                 <motion.div className="row g-4 align-items-start" variants={containerVariants} initial="hidden" animate="visible">
-                    
+
                     {/* PANEL IZQUIERDO CON EL DETALLE Y EDICIÓN */}
                     <motion.div className="col-lg-4" variants={cardVariants}>
                         <div className="ord-card">
                             <div className="ord-card-header d-flex justify-content-between align-items-center">
                                 <div>
-                                    <i className="fas fa-box-open me-2"></i> 
+                                    <i className="fas fa-box-open me-2"></i>
                                     Detalle del Pedido
                                 </div>
                                 {pedidoSeleccionado && (
                                     <span className="ord-badge badge-dark">#{pedidoSeleccionado.id}</span>
                                 )}
                             </div>
-                            
+
                             <div className="p-4">
                                 {!pedidoSeleccionado ? (
                                     <div className="text-center py-5">
                                         <i className="fas fa-mouse-pointer fa-3x text-muted opacity-25 mb-3"></i>
-                                        <p className="fw-bold text-white mb-1" style={{fontSize: "13px"}}>Ningún pedido seleccionado</p>
-                                        <p className="ord-helper-text mx-auto" style={{maxWidth: "200px"}}>Haz clic en el icono del ojo en la tabla para revisar sus detalles.</p>
+                                        <p className="fw-bold text-white mb-1" style={{ fontSize: "13px" }}>Ningún pedido seleccionado</p>
+                                        <p className="ord-helper-text mx-auto" style={{ maxWidth: "200px" }}>Haz clic en el icono del ojo en la tabla para revisar sus detalles.</p>
                                     </div>
                                 ) : (
                                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                                        
+
                                         {/* RESUMEN DEL CLIENTE */}
                                         <div className="mb-4 pb-3 border-bottom-subtle">
                                             <div className="d-flex justify-content-between mb-2 align-items-center">
                                                 <span className="ord-label mb-0">Fecha de Orden</span>
-                                                <span className="fw-bold text-white" style={{fontSize: "12px"}}>{formatearFecha(pedidoSeleccionado.createdAt)}</span>
+                                                <span className="fw-bold text-white" style={{ fontSize: "12px" }}>{formatearFecha(pedidoSeleccionado.createdAt)}</span>
                                             </div>
                                             <div className="d-flex justify-content-between mb-2 align-items-center">
                                                 <span className="ord-label mb-0">ID Cliente</span>
-                                                <span className="fw-bold text-white" style={{fontSize: "12px"}}>Usuario #{pedidoSeleccionado.userId}</span>
+                                                <span className="fw-bold text-white" style={{ fontSize: "12px" }}>Usuario #{pedidoSeleccionado.userId}</span>
                                             </div>
-                                            
+
                                             {/* DIRECCIÓN TRADUCIDA (Tratamiento Oscuro de Cristal) */}
                                             <div className="ord-shipping-destination-box mt-3">
                                                 <span className="ord-label mb-2 text-white"><i className="fas fa-map-marker-alt me-1 opacity-50"></i> Destino de Envío</span>
@@ -243,7 +250,7 @@ export function PedidosAdmin() {
 
                                             <div className="d-flex justify-content-between mt-3 align-items-center">
                                                 <span className="ord-label mb-0">Total Recaudado</span>
-                                                <span className="fw-bold text-white" style={{fontSize: "18px"}}>{formatearPrecio(pedidoSeleccionado.totalAmount)}</span>
+                                                <span className="fw-bold text-white" style={{ fontSize: "18px" }}>{formatearPrecio(pedidoSeleccionado.totalAmount)}</span>
                                             </div>
                                         </div>
 
@@ -255,17 +262,17 @@ export function PedidosAdmin() {
                                                     <tbody>
                                                         {(pedidoSeleccionado.items || []).map((item, idx) => (
                                                             <tr key={idx} className="border-bottom-subtle">
-                                                                <td className="ps-0 py-2 fw-semibold text-white" style={{fontSize: '12px', backgroundColor: 'transparent'}}>
-                                                                    <div className="text-truncate" style={{maxWidth: '140px'}}>{nombresProductos[item.productId] || `Prod #${item.productId}`}</div>
+                                                                <td className="ps-0 py-2 fw-semibold text-white" style={{ fontSize: '12px', backgroundColor: 'transparent' }}>
+                                                                    <div className="text-truncate" style={{ maxWidth: '140px' }}>{nombresProductos[item.productId] || `Prod #${item.productId}`}</div>
                                                                     <div className="d-flex align-items-center gap-2 mt-1">
                                                                         <span className="ord-helper-text m-0">ID: {item.productId}</span>
                                                                         <span className="ord-item-badge">Talla: {item.size || item.selectedSize || 'Única'}</span>
                                                                     </div>
                                                                 </td>
-                                                                <td className="text-secondary text-center align-middle py-2" style={{fontSize: '12px', backgroundColor: 'transparent'}}>
+                                                                <td className="text-secondary text-center align-middle py-2" style={{ fontSize: '12px', backgroundColor: 'transparent' }}>
                                                                     x{item.quantity}
                                                                 </td>
-                                                                <td className="text-end pe-0 fw-bold text-white align-middle py-2" style={{fontSize: '13px', backgroundColor: 'transparent'}}>
+                                                                <td className="text-end pe-0 fw-bold text-white align-middle py-2" style={{ fontSize: '13px', backgroundColor: 'transparent' }}>
                                                                     {formatearPrecio((item.unitPrice || item.price) * item.quantity)}
                                                                 </td>
                                                             </tr>
@@ -307,7 +314,7 @@ export function PedidosAdmin() {
                                 <div><i className="fas fa-list-ul me-2"></i> Historial General</div>
                                 <span className="ord-badge badge-light-blue">{pedidos.length} ÓRDENES</span>
                             </div>
-                            
+
                             <div className="ord-table-container flex-grow-1">
                                 <table className="ord-table">
                                     <thead>
@@ -322,8 +329,8 @@ export function PedidosAdmin() {
                                     <tbody>
                                         <AnimatePresence>
                                             {pedidos.map(p => (
-                                                <motion.tr 
-                                                    key={p.id} 
+                                                <motion.tr
+                                                    key={p.id}
                                                     layout
                                                     initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                                                     className={pedidoSeleccionado?.id === p.id ? 'active-row' : ''}
@@ -336,10 +343,10 @@ export function PedidosAdmin() {
                                                     <td className="ord-item-price">{formatearPrecio(p.totalAmount)}</td>
                                                     <td>{renderBadgeEstado(p.status || p.estado)}</td>
                                                     <td className="text-end pe-4">
-                                                        <motion.button 
-                                                            whileHover={{ scale: 1.1 }} 
-                                                            whileTap={{ scale: 0.9 }} 
-                                                            className="ord-action-btn view" 
+                                                        <motion.button
+                                                            whileHover={{ scale: 1.1 }}
+                                                            whileTap={{ scale: 0.9 }}
+                                                            className="ord-action-btn view"
                                                             onClick={() => handleVerDetalle(p)}
                                                             title="Ver detalles"
                                                         >
@@ -362,6 +369,28 @@ export function PedidosAdmin() {
                                     </tbody>
                                 </table>
                             </div>
+
+                            {/* CONTROLES DE PAGINACIÓN */}
+                            {totalPages > 1 && (
+                                <div className="d-flex justify-content-center align-items-center gap-3 p-3 border-top border-dark" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+                                    <button
+                                        className="btn btn-sm btn-outline-light"
+                                        disabled={currentPage === 0}
+                                        onClick={() => setCurrentPage(prev => prev - 1)}>
+                                        <i className="fas fa-chevron-left"></i> Anterior
+                                    </button>
+                                    <span className="text-white fw-bold" style={{ fontSize: '12px' }}>
+                                        Página {currentPage + 1} de {totalPages}
+                                    </span>
+                                    <button
+                                        className="btn btn-sm btn-outline-light"
+                                        disabled={currentPage >= totalPages - 1}
+                                        onClick={() => setCurrentPage(prev => prev + 1)}>
+                                        Siguiente <i className="fas fa-chevron-right"></i>
+                                    </button>
+                                </div>
+                            )}
+
                         </div>
                     </motion.div>
 
