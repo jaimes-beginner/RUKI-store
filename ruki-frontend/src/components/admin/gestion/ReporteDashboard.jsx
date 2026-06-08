@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { obtenerProductosActivos } from "../../../services/ProductoService";
+import { obtenerTodosLosProductosAdmin } from "../../../services/ProductoService";
 import { obtenerUsuarios } from "../../../services/UsuarioService";
 import { obtenerPedidoPorId, obtenerTodosLosPedidos } from "../../../services/PedidoService"; 
 import './ReporteDashboard.css'; 
@@ -91,7 +91,7 @@ export function ReporteDashboard() {
             setError(null);
             try {
                 const [prods, usrs, peds] = await Promise.all([
-                    obtenerProductosActivos(),
+                    obtenerTodosLosProductosAdmin(),
                     obtenerUsuarios(),
                     obtenerTodosLosPedidos(),
                 ]);
