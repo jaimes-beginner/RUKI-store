@@ -27,8 +27,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     // OBTENER LOS PRODUCTOS EN OFERTA ACTIVOS CON PAGINACIÓN
     Page<Product> findAllByIsActiveTrueAndIsSaleTrue(Pageable pageable);
 
-    // OBTENER PRODUCTOS PAGINADOS PARA ADMINISTRADOR (INCLUYE INACTIVOS)
-    PageResponse<ProductResponse> getAdminProductsPaged(int page, int size);
+
 
     /*
         Listar productos activos por categoría
