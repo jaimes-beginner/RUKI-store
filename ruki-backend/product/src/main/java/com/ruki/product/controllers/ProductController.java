@@ -217,7 +217,7 @@ public class ProductController {
             @RequestParam(required = false) @Positive BigDecimal maxPrice, 
             @RequestParam(required = false, defaultValue = "newest") String sort,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "12") int sizePage
+            @RequestParam(defaultValue = "6") int sizePage
     ) {
         return ResponseEntity.ok(productService.filterProducts(categoryId, size, minPrice, maxPrice, sort, page, sizePage));
     }
