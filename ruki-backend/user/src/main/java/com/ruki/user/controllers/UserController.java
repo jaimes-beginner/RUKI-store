@@ -78,33 +78,6 @@ public class UserController {
     }
 
     /* 
-        Endpoint para obtener todos los usuarios activos (isActive = true)
-    */
-    @GetMapping("/active")
-    @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "Listar usuarios activos", description = "Retorna todos los usuarios con isActive en true")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Lista obtenida correctamente")
-    })
-    public ResponseEntity<List<UserResponse>> getAllActiveUsers() {
-        return ResponseEntity.ok(userService.getAllActiveUsers());
-    }
-
-    /* 
-        Endpoint para obtener todos los usuarios (solo para administradores)
-    */
-    @GetMapping("/admin/all")
-    @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "Listar todos los usuarios (Administrador RUKI)", description = "Retorna todos los usuarios para el panel de administrador")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Lista obtenida correctamente"),
-            @ApiResponse(responseCode = "403", description = "Acceso denegado para usuarios sin rol ADMIN")
-    })
-    public ResponseEntity<List<UserResponse>> getAllUsersForAdmin() {
-        return ResponseEntity.ok(userService.getAllUsers());
-    }
-
-    /* 
         Endpoint para actualizar un usuario
     */
     @PutMapping("/update/{id}")
