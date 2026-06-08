@@ -44,12 +44,15 @@ export async function iniciarPagoStripe(orderId) {
     return response.json(); 
 }
 
-/*
-    Función asincrona para obtener el 
-    historial de pedidos del usuario logueado
-*/
-export async function obtenerMisPedidos() {
-    const response = await fetch(`${API_BASE_URL}/api-ruki/orders/me`, {
+// FUNCIÓN ASÍNCRONA PARA OBTENER EL HISTORIAL DE PEDIDOS DEL USUARIO LOGUEADO CON PAGINACIÓN
+export async function obtenerMisPedidos(status = '', orderId = '', page = 0, size = 8) {
+    const params = new URLSearchParams();
+    params.append("page", page);
+    params.append("size", size);
+    if (status && status !== 'TODOS') params.append("status", status);
+    if (orderId) params.append("orderId", orderId);
+
+    const response = await fetch(`${API_BASE_URL}/api-ruki/orders/me?${params.toString()}`, {
         headers: { "Authorization": `Bearer ${getToken()}` }
     });
     if (!response.ok) throw new Error("Error al obtener tu historial de pedidos");
@@ -86,16 +89,20 @@ export async function cancelarMiPedido(id) {
 /* ENDPOINTS DEL ADMINISTRADOR */
 /*===============================*/
 
-/*
-    Función asincrona para obtener 
-    todos los pedidos
-*/
+// FUNCIÓN ASÍNCRONA PARA OBTENER TODOS LOS PEDIDOS (SOLO PARA ADMIN)
 export async function obtenerTodosLosPedidos() {
-    const response = await fetch(`${API_BASE_URL}/api-ruki/orders/admin/all`, {
-        headers: { "Authorization": `Bearer ${getToken()}` }
+    const response = await fetch(`${API_BASE_URL}/api-ruki/orders/admin/all`, { 
+        headers: { "Authorization": `Bearer ${getToken()}` } 
     });
-    if (!response.ok) throw new Error("No tienes permisos o hubo un error al obtener pedidos");
-    return response.json();
+    if (!response.ok) throw new Error("Error"); return response.json();
+}
+
+// FUNCIÓN ASÍNCRONA PARA OBTENER LOS PEDIDOS CON PAGINACIÓN (SOLO PARA ADMIN)
+export async function obtenerPedidosPaginados(page = 0, size = 9) {
+    const response = await fetch(`${API_BASE_URL}/api-ruki/orders/admin/paged?page=${page}&size=${size}`, { 
+        headers: { "Authorization": `Bearer ${getToken()}` } 
+    });
+    if (!response.ok) throw new Error("Error"); return response.json();
 }
 
 /*
