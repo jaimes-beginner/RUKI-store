@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useCart } from '../../../contexts/CartContext';
 import { obtenerNewArrivals, obtenerCategoriasActivas } from '../../../services/ProductoService';
-import './NewArriivals.css'; 
+import './NewArriivals.css';
 
 /* 
     Variantes para la animación en cascada del Grid 
@@ -20,17 +20,14 @@ const itemVariants = {
 
 export default function NewArrivals() {
     const { addToCart } = useCart();
-    
-    /*
-        Estados base
-    */
-    const [allProducts, setAllProducts] = useState([]); 
-    const [products, setProducts] = useState([]);      
+
+    const [allProducts, setAllProducts] = useState([]);
+    const [products, setProducts] = useState([]);
     const [categorias, setCategorias] = useState([]);
-    
-    /*
-        Estado de filtros
-    */
+
+    const [currentPage, setCurrentPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+
     const [filtros, setFiltros] = useState({
         categoryId: '',
         size: '',
@@ -47,28 +44,34 @@ export default function NewArrivals() {
         setTimeout(() => setToast({ ...toast, mostrar: false }), 3000);
     };
 
-    /*
-        Cargar datos iniciales (Categorías y New Arrivals)
-    */
+    // CARGAR LOS DATOS INICIALES
     useEffect(() => {
         const cargarDatos = async () => {
             setLoading(true);
             try {
                 const [catsData, newArrivalsData] = await Promise.all([
                     obtenerCategoriasActivas(),
-                    obtenerNewArrivals()
+
+                    // PASAMOS LA PAGINA ACTUAL
+                    obtenerNewArrivals(currentPage, 6) 
                 ]);
                 setCategorias(catsData);
-                setAllProducts(newArrivalsData);
-                setProducts(newArrivalsData);
+                
+                // EXTRAEMOS LOS PRODUCTOS DE LA PROPIEDAD 'content'
+                setAllProducts(newArrivalsData.content);
+                setProducts(newArrivalsData.content);
+                
+                // GUARDAMOS EL TOTAL DE PÁGINAS PARA LOS BOTONES
+                setTotalPages(newArrivalsData.totalPages);
             } catch (err) {
                 setError(err.message || "Error al cargar los datos");
             } finally {
                 setLoading(false);
             }
         };
+
         cargarDatos();
-    }, []);
+    }, [currentPage]);
 
     /*
         Aplicar filtros locales cuando el usuario interactúa
@@ -96,7 +99,7 @@ export default function NewArrivals() {
                     Si el producto no tiene variantes complejas, lo 
                     dejamos pasar por defecto
                 */
-                return true; 
+                return true;
             });
         }
 
@@ -126,9 +129,9 @@ export default function NewArrivals() {
         if (!product.imageUrls || product.imageUrls.length === 0) {
             return ['https://via.placeholder.com/400x500?text=Sin+Imagen'];
         }
-        return [...new Set(product.imageUrls)]; 
-    }; 
-    
+        return [...new Set(product.imageUrls)];
+    };
+
     const getSelectedIndex = (productId) => selectedImages[productId] ?? 0;
 
     const handleSelectImage = (productId, imageIndex) => {
@@ -152,9 +155,9 @@ export default function NewArrivals() {
 
             {/* HERO BANNER */}
             <section className="na-hero-section">
-                <motion.div 
-                    initial={{ opacity: 0, y: -20 }} 
-                    animate={{ opacity: 1, y: 0 }} 
+                <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6 }}
                     className="na-hero-content"
                 >
@@ -166,22 +169,22 @@ export default function NewArrivals() {
 
             <div className="container px-4 px-lg-5 pb-5">
                 <div className="row g-5">
-                    
+
                     {/* PANEL DE FILTROS LATERAL (GLASSMORPHISM) */}
                     <aside className="col-lg-3 d-none d-lg-block">
                         <div className="na-filter-sidebar position-sticky p-4" style={{ top: '180px' }}>
                             <h3 className="fw-bolder mb-4 text-white" style={{ letterSpacing: '-0.02em' }}>Filtros</h3>
-                            
+
                             {/* TALLAS */}
                             <div className="na-filter-group mb-4">
                                 <h4 className="small fw-bold mb-3" style={{ letterSpacing: '1px', fontSize: '0.75rem', color: '#a1a1a6' }}>TALLA</h4>
                                 <div className="na-size-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                                     {['XS', 'S', 'M', 'L', 'XL', 'Única'].map(size => (
-                                        <motion.button 
-                                            whileHover={{ scale: 1.05 }} 
-                                            whileTap={{ scale: 0.95 }} 
-                                            key={size} 
-                                            type="button" 
+                                        <motion.button
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
+                                            key={size}
+                                            type="button"
                                             className={`na-size-btn ${filtros.size === size ? 'active' : ''}`}
                                             onClick={() => handleFilterChange('size', size)}
                                         >
@@ -213,7 +216,7 @@ export default function NewArrivals() {
                     {/* ÁREA DE PRODUCTOS */}
                     <div className="col-lg-9">
                         <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
-                            <span className="fw-semibold" style={{fontSize: '14px', color: '#a1a1a6'}}>
+                            <span className="fw-semibold" style={{ fontSize: '14px', color: '#a1a1a6' }}>
                                 Mostrando {products.length} productos
                             </span>
                             {/* SELECTOR DE ORDENAMIENTO ESTILIZADO */}
@@ -234,7 +237,7 @@ export default function NewArrivals() {
                             <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '40vh' }}>
                                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center">
                                     <i className="fas fa-circle-notch fa-spin fa-2x mb-3 text-white"></i>
-                                    <p className="fw-bold" style={{color: '#a1a1a6'}}>Actualizando lanzamientos...</p>
+                                    <p className="fw-bold" style={{ color: '#a1a1a6' }}>Actualizando lanzamientos...</p>
                                 </motion.div>
                             </div>
                         ) : error ? (
@@ -243,7 +246,7 @@ export default function NewArrivals() {
                             </div>
                         ) : products.length === 0 ? (
                             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="na-empty-state text-center py-5">
-                                <i className="fas fa-box-open fa-3x mb-3" style={{color: '#444'}}></i>
+                                <i className="fas fa-box-open fa-3x mb-3" style={{ color: '#444' }}></i>
                                 <h4 className="text-white">No hay resultados</h4>
                                 <p>No encontramos lanzamientos que coincidan con tus filtros.</p>
                                 <button className="btn btn-outline-light mt-2" onClick={() => setFiltros({ categoryId: '', size: '', sort: 'newest' })}>
@@ -251,7 +254,7 @@ export default function NewArrivals() {
                                 </button>
                             </motion.div>
                         ) : (
-                            <motion.div 
+                            <motion.div
                                 className="row g-4"
                                 variants={containerVariants}
                                 initial="hidden"
@@ -261,11 +264,11 @@ export default function NewArrivals() {
                                     <motion.div key={product.id} className="col-12 col-sm-6 col-md-4" variants={itemVariants}>
                                         <article className="na-card d-flex flex-column">
                                             <div className="na-image-wrap">
-                                                
+
                                                 {/* ETIQUETAS DINÁMICAS APILADAS (NEW, OFERTA, STOCK) */}
                                                 <div className="na-badge-container d-flex flex-column align-items-start gap-2">
                                                     <span className="na-card-badge shadow-sm" style={{ backgroundColor: '#ffffff', color: '#000000', borderColor: '#ffffff' }}>NEW</span>
-                                                    
+
                                                     {product.sale && product.basePrice > 0 && (
                                                         <span className="na-card-badge shadow-sm" style={{ backgroundColor: '#ff3b30', color: '#ffffff', borderColor: '#ff3b30' }}>
                                                             OFERTA -{Math.round(((product.basePrice - product.salePrice) / product.basePrice) * 100)}%
@@ -278,12 +281,12 @@ export default function NewArrivals() {
                                                         <span className="na-card-badge error shadow-sm" style={{ backgroundColor: '#ff3b30', color: '#ffffff', borderColor: '#ff3b30' }}>AGOTADO</span>
                                                     )}
                                                 </div>
-                                                
+
                                                 <Link to={`/producto/${product.id}`}>
                                                     <AnimatePresence mode="wait">
-                                                        <motion.img 
-                                                            key={getDisplayImage(product)} 
-                                                            src={getDisplayImage(product)} 
+                                                        <motion.img
+                                                            key={getDisplayImage(product)}
+                                                            src={getDisplayImage(product)}
                                                             alt={product.name}
                                                             initial={{ opacity: 0 }}
                                                             animate={{ opacity: 1 }}
@@ -310,17 +313,17 @@ export default function NewArrivals() {
                                                         </button>
                                                     ))}
                                                 </div>
-                                                
+
                                                 <h3 className="na-product-title">{product.name}</h3>
                                                 <p className="na-product-desc mb-2">
                                                     {product.description || "Nueva colección RUKI."}
                                                 </p>
-                                                
+
                                                 <div className="mb-3">
                                                     {product.sale ? (
                                                         <div className="d-flex align-items-center gap-2">
                                                             <span className="text-danger fw-bold fs-5">${Number(product.salePrice).toLocaleString('es-CL')}</span>
-                                                            <span className="text-decoration-line-through small" style={{color: '#666'}}>${Number(product.basePrice).toLocaleString('es-CL')}</span>
+                                                            <span className="text-decoration-line-through small" style={{ color: '#666' }}>${Number(product.basePrice).toLocaleString('es-CL')}</span>
                                                         </div>
                                                     ) : (
                                                         <span className="fw-bold fs-5 text-white">${Number(product.basePrice).toLocaleString('es-CL')}</span>
@@ -336,6 +339,31 @@ export default function NewArrivals() {
                             </motion.div>
                         )}
                     </div>
+
+                    {/* CONTROLES DE PAGINACIÓN */}
+                    {totalPages > 1 && (
+                        <div className="d-flex justify-content-center align-items-center gap-3 mt-5">
+                            <button
+                                className="btn btn-outline-light"
+                                disabled={currentPage === 0}
+                                onClick={() => { setCurrentPage(prev => prev - 1); window.scrollTo(0, 0); }}>
+                                <i className="fas fa-chevron-left"></i> Anterior
+                            </button>
+
+                            <span className="text-white fw-bold">
+                                Página {currentPage + 1} de {totalPages}
+                            </span>
+
+                            <button
+                                className="btn btn-outline-light"
+                                disabled={currentPage >= totalPages - 1}
+                                onClick={() => { setCurrentPage(prev => prev + 1); window.scrollTo(0, 0); }}>
+                                Siguiente <i className="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    )}
+
+
                 </div>
             </div>
 

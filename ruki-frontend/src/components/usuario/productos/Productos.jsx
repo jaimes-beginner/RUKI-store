@@ -24,6 +24,9 @@ export default function Productos() {
     const [productosReales, setProductosReales] = useState([]);
     const [categorias, setCategorias] = useState([]);
 
+    const [currentPage, setCurrentPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+
     const [filtros, setFiltros] = useState({
         categoryId: '',
         size: '',
@@ -49,17 +52,16 @@ export default function Productos() {
             .catch(err => console.error("Error al cargar categorías", err));
     }, []);
 
-    /*
-        Cargar el catálogo CADA VEZ que cambie algún filtro
-    */
+    // CARGAR EL CATÁLOGO CADA VEZ QUE CAMBIE ALGÚN FILTRO O LA PÁGINA
     useEffect(() => {
         const cargarCatalogo = async () => {
             setLoading(true);
-            if (productosReales.length === 0) setLoading(true);
-
             try {
-                const data = await filtrarProductos(filtros);
-                setProductosReales(data);
+
+                // PASAMOS LOS FILTROS Y LA PÁGINA ACTUAL
+                const data = await filtrarProductos(filtros, currentPage, 6);
+                setProductosReales(data.content);
+                setTotalPages(data.totalPages);
                 setError(null);
             } catch (err) {
                 setError(err.message || "Error al cargar el catálogo");
@@ -69,21 +71,18 @@ export default function Productos() {
         };
 
         cargarCatalogo();
-    }, [filtros]);
+    }, [filtros, currentPage]);
 
     const handleFilterChange = (key, value) => {
         setFiltros(prev => {
             if (prev[key] === value) {
-                return {
-                    ...prev,
-                    [key]: ''
-                };
+                return { ...prev, [key]: '' };
             }
-            return {
-                ...prev,
-                [key]: value
-            };
+            return { ...prev, [key]: value };
         });
+
+        // SI EL USUARIO CAMBIA UN FILTRO, VOLVEMOS A LA PRIMERA PÁGINA
+        setCurrentPage(0);
     };
 
     const getGallery = (product) => {
@@ -314,8 +313,33 @@ export default function Productos() {
                                     </motion.div>
                                 ))}
                             </motion.div>
+
+
                         )}
+
+                        {/* CONTROLES DE PAGINACIÓN */}
+                        {totalPages > 1 && (
+                            <div className="d-flex justify-content-center align-items-center gap-3 mt-5">
+                                <button
+                                    className="btn btn-outline-light"
+                                    disabled={currentPage === 0}
+                                    onClick={() => { setCurrentPage(prev => prev - 1); window.scrollTo(0, 0); }}>
+                                    <i className="fas fa-chevron-left"></i> Anterior
+                                </button>
+                                <span className="text-white fw-bold">
+                                    Página {currentPage + 1} de {totalPages}
+                                </span>
+                                <button
+                                    className="btn btn-outline-light"
+                                    disabled={currentPage >= totalPages - 1}
+                                    onClick={() => { setCurrentPage(prev => prev + 1); window.scrollTo(0, 0); }}>
+                                    Siguiente <i className="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
+                        )}
+
                     </div>
+
                 </div>
             </div>
 
