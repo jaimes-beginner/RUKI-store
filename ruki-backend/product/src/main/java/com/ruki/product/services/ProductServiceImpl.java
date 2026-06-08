@@ -11,11 +11,14 @@ import com.ruki.product.exceptions.ResourceNotFoundException;
 import com.ruki.product.repositories.CategoryRepository;
 import com.ruki.product.repositories.ProductRepository;
 import com.ruki.product.requests.CategoryResponse;
+import com.ruki.product.requests.PageResponse;
 import com.ruki.product.requests.ProductCreate;
 import com.ruki.product.requests.ProductResponse;
 import com.ruki.product.requests.ProductUpdate;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j; 
+import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest; 
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -88,17 +91,24 @@ public class ProductServiceImpl implements ProductService {
         return toResponse(saved);
     }
 
-    /*
-        Método para obtener todos los productos activos
-    */
+    // MÉTOOD PARA OBTENER TODOS LOS PRODUCOS ACTIVOS CON PAGINACIÓN
     @Override
     @Transactional(readOnly = true)
-    public List<ProductResponse> getAllActiveProducts() {
-        log.debug("Obteniendo todos los productos activos.");
-        return productRepository.findAllByIsActiveTrue()
-            .stream()
-            .map(this::toResponse)
-            .toList();
+    public PageResponse<ProductResponse> getAllActiveProducts(int page, int size) {
+
+        log.debug("Obteniendo productos activos. Página: {}, Tamaño: {}", page, size);
+        Page<Product> productPage = productRepository.findAllByIsActiveTrue(PageRequest.of(page, size));
+        
+        List<ProductResponse> content = productPage.getContent().stream().map(this::toResponse).toList();
+        
+        return PageResponse.<ProductResponse>builder()
+                .content(content)
+                .pageNumber(productPage.getNumber())
+                .pageSize(productPage.getSize())
+                .totalElements(productPage.getTotalElements())
+                .totalPages(productPage.getTotalPages())
+                .last(productPage.isLast())
+                .build();
     }
 
     /*
@@ -315,35 +325,42 @@ public class ProductServiceImpl implements ProductService {
         log.info("Stock general para producto {} añadido en {}. Nuevo stock total: {}", id, quantity, product.getStock());
     }
 
-    /*
-        Método para obtener los últimos productos agregados (New Arrivals)
-    */
+    // MÉTODO PARA OBTENER LOS PRODUCTOS NUEVOS (NEW ARRIVALS)
     @Override
     @Transactional(readOnly = true)
-    public List<ProductResponse> getNewArrivals() {
-        log.debug("Obteniendo los últimos 12 productos activos (New Arrivals).");
+    public PageResponse<ProductResponse> getNewArrivals(int page, int size) {
+        log.debug("Obteniendo New Arrivals. Página: {}, Tamaño: {}", page, size);
+        Page<Product> productPage = productRepository.findByIsActiveTrueOrderByCreatedAtDesc(PageRequest.of(page, size));
         
-        /*
-            Usar el método con Pageable para mayor 
-            flexibilidad, aunque aquí sea fijo a 12
-        */
-        return productRepository.findByIsActiveTrueOrderByCreatedAtDesc(PageRequest.of(0, 12))
-                .stream()
-                .map(this::toResponse)
-                .toList();
+        List<ProductResponse> content = productPage.getContent().stream().map(this::toResponse).toList();
+        
+        return PageResponse.<ProductResponse>builder()
+                .content(content)
+                .pageNumber(productPage.getNumber())
+                .pageSize(productPage.getSize())
+                .totalElements(productPage.getTotalElements())
+                .totalPages(productPage.getTotalPages())
+                .last(productPage.isLast())
+                .build();
     }
 
-    /*
-        Método para obtener productos en oferta (isSale = true)
-    */
+    // MÉTODO PARA OBTENER LOS PRODUCTOS EN OFERTA (SALE PRODUCTS)
     @Override
     @Transactional(readOnly = true)
-    public List<ProductResponse> getSaleProducts() {
-        log.debug("Obteniendo todos los productos activos en oferta.");
-        return productRepository.findAllByIsActiveTrueAndIsSaleTrue()
-                .stream()
-                .map(this::toResponse)
-                .toList();
+    public PageResponse<ProductResponse> getSaleProducts(int page, int size) {
+        log.debug("Obteniendo Sale Products. Página: {}, Tamaño: {}", page, size);
+        Page<Product> productPage = productRepository.findAllByIsActiveTrueAndIsSaleTrue(PageRequest.of(page, size));
+        
+        List<ProductResponse> content = productPage.getContent().stream().map(this::toResponse).toList();
+        
+        return PageResponse.<ProductResponse>builder()
+                .content(content)
+                .pageNumber(productPage.getNumber())
+                .pageSize(productPage.getSize())
+                .totalElements(productPage.getTotalElements())
+                .totalPages(productPage.getTotalPages())
+                .last(productPage.isLast())
+                .build();
     }
 
     /*

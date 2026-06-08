@@ -1,6 +1,7 @@
 package com.ruki.product.repositories;
 
 import com.ruki.product.entities.Product;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable; 
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,10 +15,14 @@ import java.util.Optional;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
-    /*
-        Listar todos los productos activos
-    */
-    List<Product> findAllByIsActiveTrue();
+    // OBTENER LOS PRODUCTOS ACTIVOS CON PAGINACIÓN
+    Page<Product> findAllByIsActiveTrue(Pageable pageable);
+
+    // OBTENER LOS PRODUCTOS ACTIVOS ORDENADOS POR FECHA DE CREACIÓN DESCENDENTE CON PAGINACIÓN
+    Page<Product> findByIsActiveTrueOrderByCreatedAtDesc(Pageable pageable);
+
+    // OBTENER LOS PRODUCTOS EN OFERTA ACTIVOS CON PAGINACIÓN
+    Page<Product> findAllByIsActiveTrueAndIsSaleTrue(Pageable pageable);
 
     /*
         Listar productos activos por categoría
@@ -29,11 +34,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
         por fecha de creación descendente
     */
     List<Product> findTop12ByIsActiveTrueOrderByCreatedAtDesc();
-
-    /*
-        Obtener todos los productos activos que están en oferta
-    */
-    List<Product> findAllByIsActiveTrueAndIsSaleTrue();
 
     /*
         Buscar un producto por su ID y que esté activo
@@ -54,9 +54,4 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
                                        @Param("maxPrice") BigDecimal maxPrice,
                                        Sort sort);
 
-    /*
-        Método para obtener los últimos N productos 
-        activos (para New Arrivals, si N es variable)
-    */
-    List<Product> findByIsActiveTrueOrderByCreatedAtDesc(Pageable pageable);
 }

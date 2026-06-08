@@ -1,6 +1,7 @@
 package com.ruki.product.controllers;
 
-import com.ruki.product.exceptions.ApiErrorResponse; 
+import com.ruki.product.exceptions.ApiErrorResponse;
+import com.ruki.product.requests.PageResponse;
 import com.ruki.product.requests.ProductCreate;
 import com.ruki.product.requests.ProductResponse;
 import com.ruki.product.requests.ProductUpdate;
@@ -50,16 +51,16 @@ public class ProductController {
         return ResponseEntity.ok(productService.createProduct(request));
     }
 
-    /*
-        Endpoint para listar productos activos
-    */
+    // ENDPOINT PARA OBTENER LOS PRODUCTOS ACTIVOS CON PAGINACIÓN
     @GetMapping("/active")
-    @Operation(summary = "Listar productos activos", description = "Retorna todos los productos visibles para el público")
+    @Operation(summary = "Listar productos activos", description = "Retorna todos los productos visibles para el público paginados")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Lista obtenida correctamente")
     })
-    public ResponseEntity<List<ProductResponse>> getAllActiveProducts() {
-        return ResponseEntity.ok(productService.getAllActiveProducts());
+    public ResponseEntity<PageResponse<ProductResponse>> getAllActiveProducts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size) {
+        return ResponseEntity.ok(productService.getAllActiveProducts(page, size));
     }
 
     /*
@@ -167,34 +168,34 @@ public class ProductController {
         return ResponseEntity.ok().build();
     }
 
-    /*
-        Endpoint para obtener productos recientes (New Arrivals)
-    */
+    // ENDPOINT PARA OBTENER LOS PRODUCTOS NUEVOS (NEW ARRIVALS)
     @GetMapping("/new-arrivals")
     @Operation(
         summary = "Obtener productos recientes (New Arrivals)",
-        description = "Devuelve los últimos 12 productos activos ordenados por fecha de creación descendente. (Acceso Público)"
+        description = "Devuelve los últimos 12 productos activos ordenados por fecha de creación descendente y paginados. (Acceso Público)"
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Lista de productos recientes obtenida exitosamente")
     })
-    public ResponseEntity<List<ProductResponse>> getNewArrivals() {
-        return ResponseEntity.ok(productService.getNewArrivals());
+    public ResponseEntity<PageResponse<ProductResponse>> getNewArrivals(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size) {
+        return ResponseEntity.ok(productService.getNewArrivals(page, size));
     }
 
-    /*
-        Endpoint para obtener productos en oferta (Sale)
-    */
+    // ENDPOINT PARA OBTENER LOS PRODUCTOS EN OFERTA (SALE)
     @GetMapping("/sale")
     @Operation(
         summary = "Obtener productos en oferta (Sale)",
-        description = "Devuelve todos los productos activos que tienen la bandera de oferta activada. (Acceso Público)"
+        description = "Devuelve todos los productos activos que tienen la bandera de oferta activada paginados. (Acceso Público)"
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Lista de productos en oferta obtenida exitosamente")
     })
-    public ResponseEntity<List<ProductResponse>> getSaleProducts() {
-        return ResponseEntity.ok(productService.getSaleProducts());
+    public ResponseEntity<PageResponse<ProductResponse>> getSaleProducts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size) {
+        return ResponseEntity.ok(productService.getSaleProducts(page, size));
     }
 
     /*
