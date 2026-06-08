@@ -130,17 +130,31 @@ public class OrderController {
     // ENDPOINT PARA OBTENER TODAS LAS ORDENES (ADMIN)
     @GetMapping("/admin/all")
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "Listar todos los pedidos (ADMIN)", description = "Retorna todas las boletas del sistema paginadas. Requiere rol ROLE_ADMIN.")
+    @Operation(summary = "Listar todos los pedidos (ADMIN)", description = "Retorna todas las boletas del sistema. Requiere rol ROLE_ADMIN.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Lista obtenida exitosamente", content = @Content(schema = @Schema(implementation = OrderResponse.class))),
             @ApiResponse(responseCode = "403", description = "No tienes permisos de Administrador", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @PreAuthorize("hasRole('ADMIN')") 
-    public ResponseEntity<PageResponse<OrderResponse>> getAllOrdersAdmin(
-            @RequestParam(defaultValue = "0") int page,
+    public ResponseEntity<List<OrderResponse>> getAllOrdersAdmin() {
+        return ResponseEntity.ok(orderService.getAllOrdersAdmin());
+
+    }
+
+    // ENDPOINT PARA OBTENER TODAS LAS ORDENES (ADMIN)
+    @GetMapping("/admin/paged")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Listar todos los pedidos (ADMIN)", description = "Retorna todas las boletas del sistema paginados. Requiere rol ROLE_ADMIN.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lista obtenida exitosamente", content = @Content(schema = @Schema(implementation = OrderResponse.class))),
+            @ApiResponse(responseCode = "403", description = "No tienes permisos de Administrador", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
+    })
+    @PreAuthorize("hasRole('ADMIN')") 
+    public ResponseEntity<PageResponse<OrderResponse>> getAllOrdersAdminPaged(
+            @RequestParam(defaultValue = "0") int page, 
             @RequestParam(defaultValue = "9") int size
-    ) {
-        return ResponseEntity.ok(orderService.getAllOrdersAdmin(page, size));
+    ){
+        return ResponseEntity.ok(orderService.getAllOrdersAdminPaged(page, size));
     }
 
     /*

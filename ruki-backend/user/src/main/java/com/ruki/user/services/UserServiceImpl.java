@@ -208,7 +208,7 @@ public class UserServiceImpl implements UserService {
     // MÉTODO PARA OBTENER A TODOS LOS USUARIOS CON PAGINACIÓN (ADMIN)
     @Override
     @Transactional(readOnly = true)
-    public PageResponse<UserResponse> getAllUsers(int page, int size) {
+    public PageResponse<UserResponse> getAllUsersPaged(int page, int size) {
         log.info("Obteniendo todos los usuarios paginados para el administrador.");
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
         Page<User> userPage = userRepository.findAll(pageRequest);

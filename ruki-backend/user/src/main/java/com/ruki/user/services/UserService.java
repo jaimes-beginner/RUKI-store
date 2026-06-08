@@ -17,6 +17,6 @@ public interface UserService {
     void deleteUser(Long id);
     void reactivateUser(Long id);
     PageResponse<UserResponse> getAllActiveUsers(int page, int size);
-    PageResponse<UserResponse> getAllUsers(int page, int size);
-    
+    PageResponse<UserResponse> getAllUsersPaged(int page, int size);
+
 }

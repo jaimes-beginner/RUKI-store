@@ -49,6 +49,13 @@ public class UserController {
         return ResponseEntity.ok(userService.createUser(userCreate));
     }
 
+    // ENDPOINT PARA OBTENER A TODOS LOS USUARIOS 
+    @GetMapping("/admin/all")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<UserResponse>> getAllUsersForAdmin() {
+        return ResponseEntity.ok(userService.getAllUsers());
+    }
+
     /* 
         Endpoint para obtener un usuario por su id
     */
@@ -151,15 +158,15 @@ public class UserController {
     }
 
     // ENDPOINT PARA OBTENER A TODOS LOS USUARIOS CON PAGINACIÓN (ADMIN)
-    @GetMapping("/admin/all")
+    @GetMapping("/admin/paged")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Listar todos los usuarios (ADMIN)", description = "Retorna todos los usuarios paginados")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<PageResponse<UserResponse>> getAllUsersForAdmin(
+    public ResponseEntity<PageResponse<UserResponse>> getAllUsersPaged(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "9") int size
     ) {
-        return ResponseEntity.ok(userService.getAllUsers(page, size));
+        return ResponseEntity.ok(userService.getAllUsersPaged(page, size));
     }
 
 }

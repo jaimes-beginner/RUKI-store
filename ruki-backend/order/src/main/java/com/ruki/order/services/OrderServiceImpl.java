@@ -426,9 +426,7 @@ public class OrderServiceImpl implements OrderService {
         return toResponse(savedOrder);
     }
 
-    /*
-         Método para obtener todas las órdenes (solo para administradores).
-    */
+    // MÉTODO PARA OBTENER TODOS LOS PEDIDOS (ADMINISTRADOR)
     @Override
     @Transactional(readOnly = true)
     @PreAuthorize("hasRole('ADMIN')")
@@ -531,7 +529,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional(readOnly = true)
     @PreAuthorize("hasRole('ADMIN')")
-    public PageResponse<OrderResponse> getAllOrdersAdmin(int page, int size) {
+    public PageResponse<OrderResponse> getAllOrdersAdminPaged(int page, int size) {
         log.debug("ORDER | Obteniendo todos los pedidos paginados para el administrador.");
         
         // ORDENAMOS POR ID DESCENDENTE PARA VER LOS PEDIDOS MÁS RECIENTES PRIMERO
