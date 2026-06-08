@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useCart } from '../../../contexts/CartContext';
-import { obtenerNewArrivals, obtenerCategoriasActivas } from '../../../services/ProductoService';
+import { filtrarProductos, obtenerCategoriasActivas } from '../../../services/ProductoService';
 import './NewArriivals.css';
 
 /* 
@@ -21,7 +21,6 @@ const itemVariants = {
 export default function NewArrivals() {
     const { addToCart } = useCart();
 
-    const [allProducts, setAllProducts] = useState([]);
     const [products, setProducts] = useState([]);
     const [categorias, setCategorias] = useState([]);
 
@@ -49,77 +48,35 @@ export default function NewArrivals() {
         const cargarDatos = async () => {
             setLoading(true);
             try {
+
+                // EL ESTADO INICIAL DE sort ya es NEWEST, EL BACKEND AUTOMÁTICAMENTE ORDENARÁ POR FECHA
                 const [catsData, newArrivalsData] = await Promise.all([
                     obtenerCategoriasActivas(),
-
-                    // PASAMOS LA PAGINA ACTUAL
-                    obtenerNewArrivals(currentPage, 6) 
+                    filtrarProductos(filtros, currentPage, 6)
                 ]);
+                
                 setCategorias(catsData);
-                
-                // EXTRAEMOS LOS PRODUCTOS DE LA PROPIEDAD 'content'
-                setAllProducts(newArrivalsData.content);
                 setProducts(newArrivalsData.content);
-                
-                // GUARDAMOS EL TOTAL DE PÁGINAS PARA LOS BOTONES
                 setTotalPages(newArrivalsData.totalPages);
+                setError(null);
             } catch (err) {
                 setError(err.message || "Error al cargar los datos");
             } finally {
                 setLoading(false);
             }
         };
-
         cargarDatos();
-    }, [currentPage]);
+    }, [filtros, currentPage]);
 
-    /*
-        Aplicar filtros locales cuando el usuario interactúa
-    */
-    useEffect(() => {
-        let filtrados = [...allProducts];
-
-        /*
-            Filtro por Categoría
-        */
-        if (filtros.categoryId !== '') {
-            filtrados = filtrados.filter(p => p.category?.id === filtros.categoryId || p.categoryId === filtros.categoryId);
-        }
-
-        /*
-            Filtro por Talla (Buscando en variants)
-        */
-        if (filtros.size !== '') {
-            filtrados = filtrados.filter(p => {
-                if (p.variants && p.variants.length > 0) {
-                    return p.variants.some(v => v.size === filtros.size && v.stock > 0);
-                }
-
-                /*
-                    Si el producto no tiene variantes complejas, lo 
-                    dejamos pasar por defecto
-                */
-                return true;
-            });
-        }
-
-        /*
-            Ordenamiento
-        */
-        if (filtros.sort === 'priceAsc') {
-            filtrados.sort((a, b) => (a.sale ? a.salePrice : a.basePrice) - (b.sale ? b.salePrice : b.basePrice));
-        } else if (filtros.sort === 'priceDesc') {
-            filtrados.sort((a, b) => (b.sale ? b.salePrice : b.basePrice) - (a.sale ? a.salePrice : a.basePrice));
-        }
-
-        setProducts(filtrados);
-    }, [filtros, allProducts]);
 
     const handleFilterChange = (key, value) => {
         setFiltros(prev => ({
             ...prev,
-            [key]: prev[key] === value ? '' : value // Toggle
+            [key]: prev[key] === value ? '' : value 
         }));
+        
+        // SI EL USUARIO CAMBIA UN FILTRO, VOLVEMOS A LA PRIMERA PÁGINA
+        setCurrentPage(0);
     };
 
     /*

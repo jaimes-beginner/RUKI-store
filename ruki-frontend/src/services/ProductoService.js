@@ -48,8 +48,9 @@ export async function obtenerProductosPorCategoria(categoryId) {
 }
 
 
-// FUNCIÓN ASINCRONA PARA FILTRAR PRODUCTOS DINÁMICAMENTE POR CATEGORÍA, TALLA, RANGO DE PRECIO Y ORDENAMIENTO
-export async function filtrarProductos(filtros = {}, page = 0, size = 6) {
+// FUNCIÓN ASINCRONA PARA FILTRAR PRODUCTOS DINÁMICAMENTE POR CATEGORÍA, TALLA, RANGO DE 
+// PRECIO, ORDENAMIENTO Y SI ESTÁ EN OFERTA, CON PAGINACIÓN
+export async function filtrarProductos(filtros = {}, page = 0, size = 12) {
     const params = new URLSearchParams();
     
     if (filtros.categoryId) params.append("categoryId", filtros.categoryId);
@@ -57,8 +58,8 @@ export async function filtrarProductos(filtros = {}, page = 0, size = 6) {
     if (filtros.minPrice) params.append("minPrice", filtros.minPrice);
     if (filtros.maxPrice) params.append("maxPrice", filtros.maxPrice);
     if (filtros.sort) params.append("sort", filtros.sort);
-    
-    // AHORA AÑADIMOS LOS PARÁMETROS DE PAGINACIÓN
+    if (filtros.isSale !== undefined) params.append("isSale", filtros.isSale);
+
     params.append("page", page);
     params.append("sizePage", size);
 
@@ -69,7 +70,6 @@ export async function filtrarProductos(filtros = {}, page = 0, size = 6) {
     if (!response.ok) throw new Error("Error al filtrar los productos");
     return response.json();
 }
-
 
 /*=========================================*/
 /* ENDPOINTS PRIVADOS (ADMINISTRADOR)      */

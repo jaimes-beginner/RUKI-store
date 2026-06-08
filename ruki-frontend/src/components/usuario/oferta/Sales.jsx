@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useCart } from '../../../contexts/CartContext';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { obtenerOfertas, obtenerCategoriasActivas } from '../../../services/ProductoService';
+import { filtrarProductos, obtenerCategoriasActivas } from '../../../services/ProductoService';
 import './Sales.css';
 
 const containerVariants = {
@@ -18,7 +18,6 @@ const itemVariants = {
 export default function Sales() {
     const { addToCart } = useCart();
 
-    const [allProducts, setAllProducts] = useState([]);
     const [products, setProducts] = useState([]);
     const [categorias, setCategorias] = useState([]);
 
@@ -46,18 +45,19 @@ export default function Sales() {
         const cargarDatos = async () => {
             setLoading(true);
             try {
+
+                // INYECTAMOS AL A FUERZA EL FILTRO DE isSale PARA OBTENER SOLO LOS PRODUCTOS EN OFERTA
+                const filtrosParaOfertas = { ...filtros, isSale: true };
+                
                 const [catsData, ofertasData] = await Promise.all([
                     obtenerCategoriasActivas(),
-
-                    // PASAMOS LA PAGINA
-                    obtenerOfertas(currentPage, 6)
+                    filtrarProductos(filtrosParaOfertas, currentPage, 6)
                 ]);
-
-                // EXTRAYENDO LOS CONTENT's Y GUARDAMOS EL TOTAL DE PÁGINAS
+                
                 setCategorias(catsData);
-                setAllProducts(ofertasData.content);
                 setProducts(ofertasData.content);
                 setTotalPages(ofertasData.totalPages);
+                setError(null);
             } catch (err) {
                 setError(err.message || "Error al cargar los datos");
             } finally {
@@ -65,40 +65,16 @@ export default function Sales() {
             }
         };
         cargarDatos();
-    }, [currentPage]);
-
-    useEffect(() => {
-        let filtrados = [...allProducts];
-
-        if (filtros.categoryId !== '') {
-            filtrados = filtrados.filter(p => p.category?.id === filtros.categoryId || p.categoryId === filtros.categoryId);
-        }
-
-        if (filtros.size !== '') {
-            filtrados = filtrados.filter(p => {
-                if (p.variants && p.variants.length > 0) {
-                    return p.variants.some(v => v.size === filtros.size && v.stock > 0);
-                }
-                return true;
-            });
-        }
-
-        if (filtros.sort === 'priceAsc') {
-            filtrados.sort((a, b) => a.salePrice - b.salePrice);
-        } else if (filtros.sort === 'priceDesc') {
-            filtrados.sort((a, b) => b.salePrice - a.salePrice);
-        } else if (filtros.sort === 'discountDesc') {
-            filtrados.sort((a, b) => calcularDescuento(b.basePrice, b.salePrice) - calcularDescuento(a.basePrice, a.salePrice));
-        }
-
-        setProducts(filtrados);
-    }, [filtros, allProducts]);
+    }, [filtros, currentPage]);
 
     const handleFilterChange = (key, value) => {
         setFiltros(prev => ({
             ...prev,
             [key]: prev[key] === value ? '' : value
         }));
+        
+        // SI EL USUARIO CAMBIA UN FILTRO, VOLVEMOS A LA PRIMERA PÁGINA
+        setCurrentPage(0);
     };
 
     const getGallery = (product) => {
