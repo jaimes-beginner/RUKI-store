@@ -1,5 +1,6 @@
 package com.ruki.user.services;
 
+import com.ruki.user.requests.PageResponse;
 import com.ruki.user.requests.UserCreate;
 import com.ruki.user.requests.UserResponse;
 import com.ruki.user.requests.UserUpdate;
@@ -15,5 +16,7 @@ public interface UserService {
     UserResponse updateUser(Long id, UserUpdate userUpdate);
     void deleteUser(Long id);
     void reactivateUser(Long id);
+    PageResponse<UserResponse> getAllActiveUsers(int page, int size);
+    PageResponse<UserResponse> getAllUsers(int page, int size);
     
 }

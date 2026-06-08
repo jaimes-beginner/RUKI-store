@@ -6,11 +6,16 @@ import com.ruki.user.exceptions.ForbiddenOperationException;
 import com.ruki.user.exceptions.ResourceConflictException;
 import com.ruki.user.exceptions.ResourceNotFoundException;
 import com.ruki.user.repositories.UserRepository;
+import com.ruki.user.requests.PageResponse;
 import com.ruki.user.requests.UserCreate;
 import com.ruki.user.requests.UserResponse;
 import com.ruki.user.requests.UserUpdate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -182,6 +187,38 @@ public class UserServiceImpl implements UserService {
         user.setActive(true);
         userRepository.save(user);
         log.info("Usuario con ID {} reactivado.", id);
+    }
+
+    // MÉTODO PARA OBTENER A LOS USUARIOS ACTIVOS CON PAGINACIÓN
+    @Override
+    @Transactional(readOnly = true)
+    public PageResponse<UserResponse> getAllActiveUsers(int page, int size) {
+        log.debug("Obteniendo usuarios activos paginados.");
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+        Page<User> userPage = userRepository.findAllByIsActive(true, pageRequest);
+        
+        List<UserResponse> content = userPage.getContent().stream().map(this::toResponse).toList();
+        
+        return PageResponse.<UserResponse>builder()
+                .content(content).pageNumber(userPage.getNumber()).pageSize(userPage.getSize())
+                .totalElements(userPage.getTotalElements()).totalPages(userPage.getTotalPages()).last(userPage.isLast())
+                .build();
+    }
+
+    // MÉTODO PARA OBTENER A TODOS LOS USUARIOS CON PAGINACIÓN (ADMIN)
+    @Override
+    @Transactional(readOnly = true)
+    public PageResponse<UserResponse> getAllUsers(int page, int size) {
+        log.info("Obteniendo todos los usuarios paginados para el administrador.");
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+        Page<User> userPage = userRepository.findAll(pageRequest);
+        
+        List<UserResponse> content = userPage.getContent().stream().map(this::toResponse).toList();
+        
+        return PageResponse.<UserResponse>builder()
+                .content(content).pageNumber(userPage.getNumber()).pageSize(userPage.getSize())
+                .totalElements(userPage.getTotalElements()).totalPages(userPage.getTotalPages()).last(userPage.isLast())
+                .build();
     }
 
     /*

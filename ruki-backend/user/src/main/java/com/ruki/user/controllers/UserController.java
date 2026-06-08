@@ -1,5 +1,6 @@
 package com.ruki.user.controllers;
 
+import com.ruki.user.requests.PageResponse;
 import com.ruki.user.requests.UserCreate;
 import com.ruki.user.requests.UserResponse;
 import com.ruki.user.requests.UserUpdate;
@@ -13,6 +14,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
@@ -161,6 +164,29 @@ public class UserController {
     public ResponseEntity<Void> reactivateUser(@PathVariable @Positive Long id) {
         userService.reactivateUser(id);
         return ResponseEntity.ok().build();
+    }
+
+    // ENDPOINT PARA OBTENER A LOS USUARIOS ACTIVOS CON PAGINACIÓN
+    @GetMapping("/active")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Listar usuarios activos", description = "Retorna usuarios activos paginados")
+    public ResponseEntity<PageResponse<UserResponse>> getAllActiveUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "9") int size
+    ) {
+        return ResponseEntity.ok(userService.getAllActiveUsers(page, size));
+    }
+
+    // ENDPOINT PARA OBTENER A TODOS LOS USUARIOS CON PAGINACIÓN (ADMIN)
+    @GetMapping("/admin/all")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Listar todos los usuarios (ADMIN)", description = "Retorna todos los usuarios paginados")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<PageResponse<UserResponse>> getAllUsersForAdmin(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "9") int size
+    ) {
+        return ResponseEntity.ok(userService.getAllUsers(page, size));
     }
 
 }

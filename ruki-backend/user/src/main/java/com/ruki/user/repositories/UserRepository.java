@@ -1,6 +1,9 @@
 package com.ruki.user.repositories;
 
 import com.ruki.user.entities.User;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.List;
@@ -8,6 +11,9 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
+
+    // MÉTODO PARA OBTENER A LOS USUARIOS ACTIVOS O INACTIVOS CON PAGINACIÓN
+    Page<User> findAllByIsActive(boolean isActive, Pageable pageable);
 
     /*
         Método para buscar a un usuario por su correo electrónico (activo o inactivo)
