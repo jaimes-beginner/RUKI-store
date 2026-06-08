@@ -59,7 +59,7 @@ public class ProductController {
     })
     public ResponseEntity<PageResponse<ProductResponse>> getAllActiveProducts(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "12") int size) {
+            @RequestParam(defaultValue = "6") int size) {
         return ResponseEntity.ok(productService.getAllActiveProducts(page, size));
     }
 
@@ -179,7 +179,7 @@ public class ProductController {
     })
     public ResponseEntity<PageResponse<ProductResponse>> getNewArrivals(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "12") int size) {
+            @RequestParam(defaultValue = "6") int size) {
         return ResponseEntity.ok(productService.getNewArrivals(page, size));
     }
 
@@ -194,7 +194,7 @@ public class ProductController {
     })
     public ResponseEntity<PageResponse<ProductResponse>> getSaleProducts(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "12") int size) {
+            @RequestParam(defaultValue = "6") int size) {
         return ResponseEntity.ok(productService.getSaleProducts(page, size));
     }
 
