@@ -127,19 +127,20 @@ public class OrderController {
         return ResponseEntity.ok(orderService.cancelMyOrder(id, currentUserId, isAdmin));
     }
 
-    /*
-        Endpoint para que un ADMIN vea todas las órdenes (sin Anti-IDOR)
-    */
+    // ENDPOINT PARA OBTENER TODAS LAS ORDENES (ADMIN)
     @GetMapping("/admin/all")
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "Listar todos los pedidos (ADMIN)", description = "Retorna todas las boletas del sistema. Requiere rol ROLE_ADMIN.")
+    @Operation(summary = "Listar todos los pedidos (ADMIN)", description = "Retorna todas las boletas del sistema paginadas. Requiere rol ROLE_ADMIN.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Lista obtenida exitosamente", content = @Content(schema = @Schema(implementation = OrderResponse.class))),
             @ApiResponse(responseCode = "403", description = "No tienes permisos de Administrador", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @PreAuthorize("hasRole('ADMIN')") 
-    public ResponseEntity<List<OrderResponse>> getAllOrdersAdmin() {
-        return ResponseEntity.ok(orderService.getAllOrdersAdmin());
+    public ResponseEntity<PageResponse<OrderResponse>> getAllOrdersAdmin(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "9") int size
+    ) {
+        return ResponseEntity.ok(orderService.getAllOrdersAdmin(page, size));
     }
 
     /*

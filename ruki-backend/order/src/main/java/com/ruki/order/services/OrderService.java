@@ -16,5 +16,6 @@ public interface OrderService {
     OrderResponse updateOrderStatusAdmin(Long orderId, OrderStatus newStatus); 
     OrderResponse updateStatusFromPayment(Long orderId, String status);
     OrderResponse createPhysicalOrder(OrderCreate request, Long adminId);
+    PageResponse<OrderResponse> getAllOrdersAdmin(int page, int size);
 
 }

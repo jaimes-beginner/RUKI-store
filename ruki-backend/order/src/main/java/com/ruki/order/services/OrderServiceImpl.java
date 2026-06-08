@@ -527,6 +527,31 @@ public class OrderServiceImpl implements OrderService {
         return toResponse(savedOrder);
     }
 
+    // MÉTODO PARA OBTENER ÓRDENES PAGINADAS PARA EL ADMINISTRADOR
+    @Override
+    @Transactional(readOnly = true)
+    @PreAuthorize("hasRole('ADMIN')")
+    public PageResponse<OrderResponse> getAllOrdersAdmin(int page, int size) {
+        log.debug("ORDER | Obteniendo todos los pedidos paginados para el administrador.");
+        
+        // ORDENAMOS POR ID DESCENDENTE PARA VER LOS PEDIDOS MÁS RECIENTES PRIMERO
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+        Page<Order> orderPage = orderRepository.findAll(pageRequest);
+        
+        List<OrderResponse> content = orderPage.getContent().stream()
+                .map(this::toResponse)
+                .toList();
+                
+        return PageResponse.<OrderResponse>builder()
+                .content(content)
+                .pageNumber(orderPage.getNumber())
+                .pageSize(orderPage.getSize())
+                .totalElements(orderPage.getTotalElements())
+                .totalPages(orderPage.getTotalPages())
+                .last(orderPage.isLast())
+                .build();
+    }
+
     /*
          Método auxiliar para convertir una entidad Order a un OrderResponse.
     */
