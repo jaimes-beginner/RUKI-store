@@ -6,9 +6,21 @@ spring:
     name: ruki-gateway
   cloud:
     gateway:
+
+      # CONFIGURACIÓN DE RESILIENCIA CON TIMEOUTS
+      httpclient:
+        connect-timeout: 2000 # 2 SEGUNDOS PARA CONETARSE
+        response-timeout: 5s  # 5 SEGUNDOS MÁXIMOS PARA RESPONDER
       
       default-filters:
         - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_UNIQUE
+
+        # PARA REINTENTAR PETICIONES GET FALLIDAS AUTOMÁTICAMENTE
+        - name: Retry
+          args:
+            retries: 3
+            methods: GET
+            series: SERVER_ERROR
       
       globalcors:
         cors-configurations:
@@ -21,26 +33,32 @@ spring:
             allowCredentials: true
 
       routes:
+
+        # MICROSERVICIO DE USUARIO
         - id: user-service
           uri: ${USER_SERVICE_URL:http://localhost:8080}
           predicates:
             - Path=/api-ruki/auth/**,/api-ruki/users/**,/api-ruki/addresses/**
 
+        # MICROSERVICIO DE PRODUCTOS
         - id: product-service
           uri: ${PRODUCT_SERVICE_URL:http://localhost:8081}
           predicates:
             - Path=/api-ruki/products/**,/api-ruki/categories/**
 
+        # MICROSERVICIO DE PEDIDOS
         - id: order-service
           uri: ${ORDER_SERVICE_URL:http://localhost:8082}
           predicates:
             - Path=/api-ruki/orders/**
 
+        # MICROSERVICIO DE PAGOS
         - id: payment-service
           uri: ${PAYMENT_SERVICE_URL:http://localhost:8083}
           predicates:
             - Path=/api-ruki/payments/**
 
+        # RUTAS DE SWAGGER UI
         - id: user-service-docs
           uri: ${USER_SERVICE_URL:http://localhost:8080}
           predicates:
@@ -80,3 +98,13 @@ springdoc:
         url: /v3/api-docs/order
       - name: Payment Service
         url: /v3/api-docs/payment
+
+# EXPONER ENDPOINTS DE SALUD PARA MONITORIEO (DOCKER/K8S)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
