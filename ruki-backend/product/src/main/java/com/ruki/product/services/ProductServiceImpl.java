@@ -1,8 +1,6 @@
 package com.ruki.product.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.ruki.product.entities.Category;
 import com.ruki.product.entities.Product;
 import com.ruki.product.entities.ProductVariant;
@@ -17,7 +15,6 @@ import com.ruki.product.requests.ProductResponse;
 import com.ruki.product.requests.ProductUpdate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest; 
 import org.springframework.data.domain.Sort;
@@ -36,6 +33,7 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final ObjectMapper objectMapper;
 
     @Override
     public ProductResponse createProduct(ProductCreate request) {
@@ -144,10 +142,8 @@ public class ProductServiceImpl implements ProductService {
         ProductResponse response = toResponse(product);
 
         try {
-            ObjectMapper tempMapper = new ObjectMapper();
-            tempMapper.registerModule(new JavaTimeModule());
-            tempMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-            log.info("PRODUCT | JSON de salida para producto {}: {}", id, tempMapper.writeValueAsString(response));
+            // AHORA USAMOS EL OBJECT MAPPER INYECTADO, NO CREAMOS UNO NUEVO
+            log.info("PRODUCT | JSON de salida para producto {}: {}", id, objectMapper.writeValueAsString(response));
         } catch (Exception e) {
             log.error("PRODUCT | Error al serializar ProductResponse para log: {}", e.getMessage());
         }
