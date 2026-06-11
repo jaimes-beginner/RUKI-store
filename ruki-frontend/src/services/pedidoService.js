@@ -1,140 +1,43 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://137.184.109.26:8000";
+import api from '@/config/api';
 
-const getToken = () => localStorage.getItem("ruki_token");
+/*----------------------------------*/
+/*             CLIENTE              */
+/*----------------------------------*/
 
-/*===============================*/
-/* ENDPOINTS DEL CLIENTE */
-/*===============================*/
+// FUNCIÓN PARA CREAR UN PEDIDO
+export const crearPedido = (orderData, idempotencyKey) => 
+    api.post('/orders/create', orderData, { headers: { 'Idempotency-Key': idempotencyKey } });
 
-/*
-    Función asincrona para 
-    crear un nuevo pedido
-*/
-export async function crearPedido(orderData, idempotencyKey) { 
-    const response = await fetch(`${API_BASE_URL}/api-ruki/orders/create`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${getToken()}`,
-            "Idempotency-Key": idempotencyKey 
-        },
-        body: JSON.stringify(orderData),
-    });
-    if (!response.ok) {
-        const err = await response.json().catch(() => ({}));
-        throw new Error(err.message || "Error al generar el pedido");
-    }
-    return response.json();
-}
-
-/*
-    Función asincrona para iniciar el pago con Stripe
-*/
-export async function iniciarPagoStripe(orderId) {
-    const token = getToken();
-    const response = await fetch(`${API_BASE_URL}/api-ruki/payments/create?orderId=${orderId}`, {
-        method: "POST", headers: {"Authorization": `Bearer ${token}`
-        }
-    });
-    if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || "Error al conectar con la pasarela de pagos");
-    }
-    
-    return response.json(); 
-}
-
-// FUNCIÓN ASÍNCRONA PARA OBTENER EL HISTORIAL DE PEDIDOS DEL USUARIO LOGUEADO CON PAGINACIÓN
-export async function obtenerMisPedidos(status = '', orderId = '', page = 0, size = 8) {
-    const params = new URLSearchParams();
-    params.append("page", page);
-    params.append("size", size);
+// FUNCIÓN PARA OBTENER LOS PEDIDOS DE UN USUARIO
+export const obtenerMisPedidos = (status = '', orderId = '', page = 0, size = 8) => {
+    const params = new URLSearchParams({ page, size });
     if (status && status !== 'TODOS') params.append("status", status);
     if (orderId) params.append("orderId", orderId);
+    return api.get(`/orders/me?${params.toString()}`);
+};
 
-    const response = await fetch(`${API_BASE_URL}/api-ruki/orders/me?${params.toString()}`, {
-        headers: { "Authorization": `Bearer ${getToken()}` }
-    });
-    if (!response.ok) throw new Error("Error al obtener tu historial de pedidos");
-    return response.json();
-}
+// FUNCIÓN PARA INICIAR EL PROCESO DE PAGO CON STRIPE
+export const iniciarPagoStripe = (orderId) => api.post(`/payments/create?orderId=${orderId}`);
 
-/*
-    Función asincrona para obtener el detalle de 
-    un pedido específico, solo si pertenece al usuario 
-    logueado o si el usuario es ADMIN
-*/
-export async function obtenerPedidoPorId(id) {
-    const response = await fetch(`${API_BASE_URL}/api-ruki/orders/${id}`, {
-        headers: { "Authorization": `Bearer ${getToken()}` }
-    });
-    if (!response.ok) throw new Error(response.status === 404 ? "Pedido no encontrado" : "Acceso denegado a este pedido");
-    return response.json();
-}
+// FUNCIÓN PARA OBTENER LOS DETALLES DE UN PEDIDO POR SU ID
+export const obtenerPedidoPorId = (id) => api.get(`/orders/${id}`);
 
-/*
-    Función asincrona para cancelar un pedido 
-    específico del usuario logueado.
-*/
-export async function cancelarMiPedido(id) {
-    const response = await fetch(`${API_BASE_URL}/api-ruki/orders/me/${id}/cancel`, {
-        method: "PATCH",
-        headers: { "Authorization": `Bearer ${getToken()}` }
-    });
-    if (!response.ok) throw new Error("Error al cancelar el pedido. Puede que ya esté en camino.");
-    return response.json();
-}
+// FUNCIÓN PARA CANCELAR UN PEDIDO PROPIO (En discusión)
+export const cancelarMiPedido = (id) => api.patch(`/orders/me/${id}/cancel`);
 
-/*===============================*/
-/* ENDPOINTS DEL ADMINISTRADOR */
-/*===============================*/
 
-// FUNCIÓN ASÍNCRONA PARA OBTENER TODOS LOS PEDIDOS (SOLO PARA ADMIN)
-export async function obtenerTodosLosPedidos() {
-    const response = await fetch(`${API_BASE_URL}/api-ruki/orders/admin/all`, { 
-        headers: { "Authorization": `Bearer ${getToken()}` } 
-    });
-    if (!response.ok) throw new Error("Error"); return response.json();
-}
+/*----------------------------------*/
+/*          ADMINISTRADOR           */
+/*----------------------------------*/
 
-// FUNCIÓN ASÍNCRONA PARA OBTENER LOS PEDIDOS CON PAGINACIÓN (SOLO PARA ADMIN)
-export async function obtenerPedidosPaginados(page = 0, size = 9) {
-    const response = await fetch(`${API_BASE_URL}/api-ruki/orders/admin/paged?page=${page}&size=${size}`, { 
-        headers: { "Authorization": `Bearer ${getToken()}` } 
-    });
-    if (!response.ok) throw new Error("Error"); return response.json();
-}
+// OBTENER TODOS LOS PEDIDOS
+export const obtenerTodosLosPedidos = () => api.get('/orders/admin/all');
 
-/*
-    Función asincrona para actualizar 
-    el estado de un pedido específico
-*/
-export async function actualizarEstadoPedido(id, status) {
-    const response = await fetch(`${API_BASE_URL}/api-ruki/orders/admin/${id}/status?status=${status}`, {
-        method: "PUT",
-        headers: { "Authorization": `Bearer ${getToken()}` }
-    });
-    if (!response.ok) throw new Error("Error al actualizar el estado del pedido");
-    return response.json();
-}
+// OBTENER PEDIDOS PAGINADOS PARA ADMIN
+export const obtenerPedidosPaginados = (page = 0, size = 9) => api.get(`/orders/admin/paged?page=${page}&size=${size}`);
 
-/*
-    Función asincrona para Administradores en tienda física
-    que registra la venta inmediatamente como pagada y entregada.
-*/
-export async function crearPedidoFisico(orderData) {
-    const response = await fetch(`${API_BASE_URL}/api-ruki/orders/physical`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${getToken()}`
-        },
-        body: JSON.stringify(orderData),
-    });
+// ACTUALIZAR EL ESTADO DE UN PEDIDO
+export const actualizarEstadoPedido = (id, status) => api.put(`/orders/admin/${id}/status?status=${status}`);
 
-    if (!response.ok) {
-        const err = await response.json().catch(() => ({}));
-        throw new Error(err.message || "Error al procesar la venta en tienda física");
-    }
-    return response.json();
-}
+// CREAR UN PEDIDO FÍSICO
+export const crearPedidoFisico = (orderData) => api.post('/orders/physical', orderData);
