@@ -1,14 +1,13 @@
 // @vitest-environment jsdom
-
 import React from 'react';
 import { render, screen, cleanup, fireEvent } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import PaymentSuccessPage from './PaymentSuccessPage';
 
-// Mocks
 const mockNavigate = vi.fn();
 const mockClearCart = vi.fn();
 
-vi.mock('../../../contexts/CartContext', () => ({
+vi.mock('@/contexts/CartContext', () => ({
   useCart: () => ({ clearCart: mockClearCart }),
 }));
 
@@ -29,28 +28,17 @@ vi.mock('framer-motion', () => ({
   },
 }));
 
-afterEach(() => {
-  cleanup();
-  vi.restoreAllMocks();
-});
+afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
-describe('PagoExitoso', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
+describe('PaymentSuccessPage', () => {
+  beforeEach(() => { vi.clearAllMocks(); });
 
   it('vacía el carrito al montarse y muestra número de orden, y botones navegan', async () => {
-    const mod = await vi.importActual('./PagoExitoso');
-    const PagoExitoso = mod.default || mod.PagoExitoso;
-
-    render(<PagoExitoso />);
+    render(<PaymentSuccessPage />);
 
     expect(mockClearCart).toHaveBeenCalled();
-
-    // orderId aparece con '#12345'
     expect(screen.getByText(/#12345/)).toBeTruthy();
 
-    // Botones navegan correctamente
     const seguirComprar = screen.getByText(/Seguir comprando/i);
     const volverInicio = screen.getByText(/Volver al inicio/i);
 

@@ -4,9 +4,9 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { describe, test, expect } from 'vitest';
-import Footer from '../usuario/footer/FooterUsuario';
+import Footer from './Footer';
 
-describe('FooterUsuario', () => {
+describe('Footer', () => {
   test('renderiza logo, secciones y año actual', () => {
     render(
       <BrowserRouter>

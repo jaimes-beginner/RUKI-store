@@ -23,7 +23,7 @@ export const iniciarPagoStripe = (orderId) => api.post(`/payments/create?orderId
 export const obtenerPedidoPorId = (id) => api.get(`/orders/${id}`);
 
 // FUNCIÓN PARA CANCELAR UN PEDIDO PROPIO (En discusión)
-export const cancelarMiPedido = (id) => api.patch(`/orders/me/${id}/cancel`);
+export const cancelarMiPedido = (id) => api.put(`/orders/me/${id}/cancel`);
 
 
 /*----------------------------------*/

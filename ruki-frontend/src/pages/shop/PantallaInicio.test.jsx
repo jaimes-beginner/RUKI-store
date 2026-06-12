@@ -1,19 +1,15 @@
 // @vitest-environment jsdom
-
 import React from 'react';
 import { render, screen, cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
-import PantallaInicio from './PantallaInicio';
-import { useAuth } from './contexts/AuthContext';
+import HomePage from './HomePage';
 
-// Mock del contexto de autenticación
-vi.mock('../../../contexts/AuthContext', () => ({
+vi.mock('@/contexts/AuthContext', () => ({
   useAuth: vi.fn(),
 }));
 
-// Mock ligero de framer-motion
 vi.mock('framer-motion', () => ({
   motion: {
     div: ({ children, ...props }) => <div {...props}>{children}</div>,
@@ -22,36 +18,27 @@ vi.mock('framer-motion', () => ({
   },
 }));
 
-afterEach(() => {
-  cleanup();
-  vi.restoreAllMocks();
-});
+afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
-describe('PantallaInicio', () => {
+describe('HomePage', () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it('muestra botones de auth cuando no está autenticado', () => {
+  it('muestra botones de auth cuando no está autenticado', async () => {
+    const { useAuth } = await import('@/contexts/AuthContext');
     useAuth.mockReturnValue({ isAuthenticated: false, usuario: null });
 
-    render(
-      <MemoryRouter>
-        <PantallaInicio />
-      </MemoryRouter>,
-    );
+    render(<MemoryRouter><HomePage /></MemoryRouter>);
 
     expect(screen.getByText(/Explorar Colección/i)).toBeInTheDocument();
     expect(screen.getByText(/Crear Cuenta/i)).toBeInTheDocument();
     expect(screen.getByText(/Iniciar Sesión/i)).toBeInTheDocument();
   });
 
-  it('muestra panel de control cuando está autenticado', () => {
+  it('muestra panel de control cuando está autenticado', async () => {
+    const { useAuth } = await import('@/contexts/AuthContext');
     useAuth.mockReturnValue({ isAuthenticated: true, usuario: { role: 'CUSTOMER' } });
 
-    render(
-      <MemoryRouter>
-        <PantallaInicio />
-      </MemoryRouter>,
-    );
+    render(<MemoryRouter><HomePage /></MemoryRouter>);
 
     expect(screen.getByText(/Mi Panel de Control/i)).toBeInTheDocument();
   });
