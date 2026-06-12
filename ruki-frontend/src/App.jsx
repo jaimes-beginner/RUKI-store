@@ -1,96 +1,81 @@
-import { Routes, Route } from 'react-router-dom'
-import { PaginaPrincipalCliente } from './page/Cliente/PaginaPrinicpal.jsx'
-import { PaginaNuevosCliente } from './page/Cliente/PaginaNuevos.jsx'
-import { PaginaSaleCliente } from './page/Cliente/PaginaSale.jsx'
-import { PaginaProductosCliente } from './page/Cliente/PaginaProductos.jsx'
-import { PaginaBlogCliente } from './page/Cliente/BlogPagina.jsx'
-import { PaginaFAQCliente } from './page/Cliente/FAQPagina.jsx'
+import { Routes, Route } from 'react-router-dom';
 
-import { CrearReporteDashboard } from './page/Admin/CrearReporteDashboard.jsx'
+// LAYOUTS
+import MainLayout from '@/components/layout/MainLayout';
+import AdminLayout from '@/components/layout/AdminLayout';
 
-import { AdminRoute } from './security/AdminRoute.jsx'
-import { InventarioAdmin } from './components/admin/gestion/InventarioAdmin.jsx'
-import { InventarioAdminPage } from './page/Admin/InventarioAdminPage.jsx'
-import { UsuariosAdminPage } from './page/Admin/UsuariosAdminPage.jsx'
-import { PedidosAdminPage } from './page/Admin/PedidosAdminPage.jsx'
-import { CheckoutPage } from './page/Cliente/CheckoutPage.jsx'
-import { PagoExitosoPage } from './page/Cliente/PagoExitosoPage.jsx'
-import { PublicRoute } from './security/PublicRoute.jsx'
-import { PerfilPage } from './page/Cliente/PerfilPage.jsx'
-import { ProductoDetallePage } from './page/Cliente/ProductoDetallePage.jsx'
-import { MisPedidosPage } from './page/Cliente/MisPedidosPage.jsx'
-import { RegistrarUsuarioPage } from './page/Auth/RegistrarUsuarioPage.jsx'
-import { LoginUsuarioPage } from './page/Auth/LoginUsuarioPage.jsx'
-import { ForgotPasswordPage } from './page/Auth/ForgotPasswordPage.jsx'
-import { ResetPasswordPage } from './page/Auth/ResetPasswordPage.jsx'
-import { POSAdminPage } from './page/Admin/POSAdminPage.jsx'
+// SEGURIDAD
+import PublicRoute from '@/routes/PublicRoute';
+import AdminRoute from '@/routes/AdminRoute';
 
+// PÁGINAS DE CLIENTE / TIENDA
+import HomePage from '@/pages/shop/HomePage';
+import ProductsPage from '@/pages/shop/ProductsPage';
+import ProductDetailPage from '@/pages/shop/ProductDetailPage';
+import NewArrivalsPage from '@/pages/shop/NewArrivalsPage';
+import SalePage from '@/pages/shop/SalePage';
+import CheckoutPage from '@/pages/shop/CheckoutPage';
+import PaymentSuccessPage from '@/pages/shop/PaymentSuccessPage';
+
+// PÁGINAS DE USUARIO
+import BlogPage from '@/pages/user/BlogPage';
+import FAQPage from '@/pages/user/FAQPage';
+import ProfilePage from '@/pages/user/ProfilePage';
+import MyOrdersPage from '@/pages/user/MyOrdersPage';
+
+// PÁGINAS DE AUTENTICACIÓN
+import LoginPage from '@/pages/auth/LoginPage';
+import RegisterPage from '@/pages/auth/RegisterPage';
+import ForgotPasswordPage from '@/pages/auth/ForgotPasswordPage';
+import ResetPasswordPage from '@/pages/auth/ResetPasswordPage';
+
+// PÁGINAS DE ADMINISTRADOR
+import DashboardPage from '@/pages/admin/DashboardPage';
+import InventoryPage from '@/pages/admin/InventoryPage';
+import UsersPage from '@/pages/admin/UsersPage';
+import OrdersPage from '@/pages/admin/OrdersPage';
+import POSPage from '@/pages/admin/POSPage';
 
 function App() {
   return (
-      <Routes>
+    <Routes>
+      {/* RUTAS PÚBLICAS Y DE CLIENTE */}
+      <Route element={<MainLayout />}>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/new-arrivals" element={<NewArrivalsPage />} />
+        <Route path="/productos" element={<ProductsPage />} />
+        <Route path="/producto/:id" element={<ProductDetailPage />} />
+        <Route path="/sale" element={<SalePage />} />
+        <Route path="/noticias" element={<BlogPage />} />
+        <Route path="/faq" element={<FAQPage />} />
 
-        {/* RUTAS PÚBLICAS */}
-        <Route path="/" element={<PaginaPrincipalCliente />} />
-        <Route path="/new-arrivals" element={<PaginaNuevosCliente />} />
-        <Route path="/productos" element={<PaginaProductosCliente />} />
-        <Route path="/noticias" element={<PaginaBlogCliente />} />
-        <Route path="/faq" element={<PaginaFAQCliente />} />
-        <Route path="/sale" element={<PaginaSaleCliente />} />
-        <Route path="/mi-perfil" element={<PerfilPage />} />
-        <Route path="/producto/:id" element={<ProductoDetallePage />} />
-        <Route path="/mis-pedidos" element={<MisPedidosPage />} />
-
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        <Route path="/reset-password" element={<ResetPasswordPage />} />
-
-        <Route path="/crear-usuario" element={
-          <PublicRoute>
-            <RegistrarUsuarioPage />
-          </PublicRoute>
-        } />
-
-        <Route path="/login" element={
-          <PublicRoute>
-            <LoginUsuarioPage />
-          </PublicRoute>
-        } />
-
+        {/* RUTAS PROTEGIDAS DE CLIENTE */}
+        <Route path="/mi-perfil" element={<ProfilePage />} />
+        <Route path="/mis-pedidos" element={<MyOrdersPage />} />
         <Route path="/checkout" element={<CheckoutPage />} />
-        <Route path="/pago-exitoso" element={<PagoExitosoPage />} />
+        <Route path="/pago-exitoso" element={<PaymentSuccessPage />} />
+      </Route>
 
-        <Route path="/admin/reporte-dashboard" element={
-          <AdminRoute>
-            <CrearReporteDashboard />
-          </AdminRoute>
-        } />
+      {/* RUTAS DE AUTENTICACIÓN */}
+      <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
+      <Route path="/crear-usuario" element={<PublicRoute><RegisterPage /></PublicRoute>} />
+      
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
 
-        <Route path="/inventario-admin" element={
-          <AdminRoute>
-            <InventarioAdminPage />
-          </AdminRoute>
-        } />
+      {/* RUTAS DE ADMINISTRADOR */}
+      <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
+        <Route path="dashboard" element={<DashboardPage />} />
+        <Route path="inventario" element={<InventoryPage />} />
+        <Route path="usuarios" element={<UsersPage />} />
+        <Route path="pedidos" element={<OrdersPage />} />
+        <Route path="pos" element={<POSPage />} />
+      </Route>
 
-        <Route path="/usuarios-admin" element={
-          <AdminRoute>
-            <UsuariosAdminPage />
-          </AdminRoute>
-        } />
-
-        <Route path="/pedidos-admin" element={
-          <AdminRoute>
-            <PedidosAdminPage />
-          </AdminRoute>
-        } />
-
-        <Route path="/pos-admin" element={
-          <AdminRoute>
-            <POSAdminPage />
-          </AdminRoute>
-        } />
-
-      </Routes>
-  )
+      {/* RUTA 404 (PAGINA NO ENCONTRADA) */}
+      <Route path="*" element={<div className="text-center mt-5"><h1>404 - Página no encontrada</h1></div>} />
+    </Routes>
+  );
 }
 
-export default App
+export default App;

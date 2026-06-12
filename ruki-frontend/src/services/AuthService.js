@@ -1,72 +1,20 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://137.184.109.26:8000";
+import api from '@/config/api';
 
-/*
-	Función asincrona para poder logear a un usuario
-*/
-export async function loginUsuario(credenciales) {
-    const response = await fetch(`${API_BASE_URL}/api-ruki/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(credenciales)
-    });
-    
-    if (!response.ok) {
-        const error = await response.json().catch(() => ({}));
-        throw new Error(error.message || "Credenciales incorrectas");
-    }
-    return response.json(); 
-}
+/*----------------------------------*/
+/*             CLIENTE              */
+/*----------------------------------*/
+/*----------------------------------*/
+/*          ADMINISTRADOR           */
+/*----------------------------------*/
 
-/*
-	Función asincrona para poder registrar/crear un nuevo usuario
-*/
-export async function registrarUsuario(userData) {
-    const response = await fetch(`${API_BASE_URL}/api-ruki/users/create`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(userData)
-    });
+// FUNCIÓN PARA LOGEAR UN USUARIO
+export const loginUsuario = (credenciales) => api.post('/auth/login', credenciales);
 
-    if (!response.ok) {
-        const error = await response.json().catch(() => ({}));
-        throw new Error(error.message || "Error al registrar el usuario");
-    }
-    return response.json();
-}
+// FUNCIÓN PARA CREAR UN USUARIO
+export const registrarUsuario = (userData) => api.post('/users/create', userData);
 
-/*
-    Función asíncrona para recuperar contraseña de un usuario 
-    en caso de olvido
-*/
-export async function forgotPassword(email) {
-    const response = await fetch(`${API_BASE_URL}/api-ruki/auth/forgot-password`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email })
-    });
+// FUNCIÓN PARA RECUPERAR CONSTRASEÑA OLVIDADA
+export const forgotPassword = (email) => api.post('/auth/forgot-password', { email });
 
-    if (!response.ok) {
-        const errorText = await response.text().catch(() => "");
-        throw new Error(errorText || "Error al solicitar recuperación de contraseña");
-    }
-    
-    return response.text();
-}
-
-/*
-    Función asíncrona para restablecer contraseña de un usuario
-*/
-export async function resetPassword(token, newPassword) {
-    const response = await fetch(`${API_BASE_URL}/api-ruki/auth/reset-password`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, newPassword })
-    });
-
-    if (!response.ok) {
-        const errorText = await response.text().catch(() => "");
-        throw new Error(errorText || "Error al restablecer la contraseña");
-    }
-    
-    return response.text();
-}
+// FUNCIÓN PARA RESETEAR LA CONTRASEÑA
+export const resetPassword = (token, newPassword) => api.post('/auth/reset-password', { token, newPassword });
