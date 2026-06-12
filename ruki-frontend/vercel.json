@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/api-ruki/:path*",
+      "destination": "http://137.184.109.26:8000/api-ruki/:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
