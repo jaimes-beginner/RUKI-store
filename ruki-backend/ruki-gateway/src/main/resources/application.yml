@@ -9,8 +9,8 @@ spring:
 
       # CONFIGURACIÓN DE RESILIENCIA CON TIMEOUTS
       httpclient:
-        connect-timeout: 2000 # 2 SEGUNDOS PARA CONETARSE
-        response-timeout: 5s  # 5 SEGUNDOS MÁXIMOS PARA RESPONDER
+        connect-timeout: 10000 # 10 SEGUNDOS PARA CONETARSE
+        response-timeout: 30s  # 30 SEGUNDOS MÁXIMOS PARA RESPONDER
       
       default-filters:
         - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_UNIQUE
