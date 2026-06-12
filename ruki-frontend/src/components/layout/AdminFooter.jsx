@@ -9,19 +9,14 @@ export default function AdminFooter() {
   return (
     <footer className="admin-footer-glass pt-5 pb-4">
       <div className="container-fluid px-4">
-        <div className="row justify-content-between">
+        <div className="row justify-content-between text-center text-md-start">
           <div className="col-md-5 mb-4">
-            <h5 className="admin-footer-title">
-              <i className="fas fa-shield-alt me-2 text-danger"></i>
-              ZONA ADMIN RUKI
+            <h5 className="admin-footer-title justify-content-center justify-content-md-start d-flex align-items-center">
+              <i className="fas fa-shield-alt me-2 text-danger"></i> ZONA ADMIN RUKI
             </h5>
-            <p className="admin-footer-text">
-              En <strong>RUKI</strong> se forjan atletas, gestionando el éxito desde el estilo.
-            </p>
-            <p className="admin-footer-text font-italic">
-              Gestionando la comunidad de Ruki, un WOD a la vez.
-            </p>
-            <div className="mt-4 d-flex gap-3">
+            <p className="admin-footer-text">En <strong>RUKI</strong> se forjan atletas, gestionando el éxito desde el estilo.</p>
+            <p className="admin-footer-text font-italic">Gestionando la comunidad de Ruki, un WOD a la vez.</p>
+            <div className="mt-4 d-flex gap-3 justify-content-center justify-content-md-start">
               <motion.a whileHover={{ y: -3, scale: 1.1 }} href="#" className="admin-social-icon"><i className="fab fa-facebook-f"></i></motion.a>
               <motion.a whileHover={{ y: -3, scale: 1.1 }} href="#" className="admin-social-icon"><i className="fab fa-twitter"></i></motion.a>
               <motion.a whileHover={{ y: -3, scale: 1.1 }} href="#" className="admin-social-icon"><i className="fab fa-instagram"></i></motion.a>
@@ -29,7 +24,7 @@ export default function AdminFooter() {
             </div>
           </div>
 
-          <div className="col-md-3 mb-4 ms-auto text-md-end">
+          <div className="col-md-3 mb-4 ms-auto text-center text-md-end">
             <h5 className="admin-footer-title">ENLACES RÁPIDOS</h5>
             <ul className="list-unstyled d-flex flex-column gap-2 mt-3">
               <li><Link to="/" className="admin-footer-link">Ver Tienda Pública</Link></li>
@@ -44,9 +39,7 @@ export default function AdminFooter() {
 
         <div className="row align-items-center">
           <div className="col-md-6 text-center text-md-start">
-            <p className="admin-footer-bottom-text mb-0">
-              &copy; {currentYear} RUKI. Panel de Administración. Todos los derechos reservados.
-            </p>
+            <p className="admin-footer-bottom-text mb-0">&copy; {currentYear} RUKI. Panel de Administración. Todos los derechos reservados.</p>
           </div>
           <div className="col-md-6 text-center text-md-end mt-3 mt-md-0 d-flex justify-content-center justify-content-md-end gap-4">
             <Link to="#" className="admin-footer-bottom-link disabled-link">Política de Privacidad</Link>

@@ -6,7 +6,8 @@ import { filtrarProductos, obtenerCategoriasActivas } from '@/services/ProductoS
 import './NewArrivalsPage.css'; 
 
 const containerVariants = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.1 } } };
-const itemVariants = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } } };
+// Actualizamos el itemVariants para que tenga el efecto "spring" (rebote suave) igual que los otros
+const itemVariants = { hidden: { opacity: 0, scale: 0.9, y: 20 }, visible: { opacity: 1, scale: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } } };
 
 export default function NewArrivalsPage() {
     const { addToCart } = useCart();
@@ -19,6 +20,8 @@ export default function NewArrivalsPage() {
     const [error, setError] = useState(null);
     const [selectedImages, setSelectedImages] = useState({});
     const [toast, setToast] = useState({ mostrar: false, mensaje: '', tipo: '' });
+    
+    const [showMobileFilters, setShowMobileFilters] = useState(false);
 
     const mostrarToast = (mensaje, tipo) => {
         setToast({ mostrar: true, mensaje, tipo });
@@ -71,11 +74,27 @@ export default function NewArrivalsPage() {
                 </motion.div>
             </section>
 
-            <div className="container px-4 px-lg-5 pb-5">
-                <div className="row g-5">
-                    <aside className="col-lg-3 d-none d-lg-block">
-                        <div className="na-filter-sidebar position-sticky p-4" style={{ top: '180px' }}>
-                            <h3 className="fw-bolder mb-4 text-white" style={{ letterSpacing: '-0.02em' }}>Filtros</h3>
+            <div className="container px-3 px-lg-5 pb-5">
+                
+                <div className="d-block d-lg-none mb-4">
+                    <motion.button 
+                        whileTap={{ scale: 0.95 }}
+                        className="btn btn-outline-light border-dark w-100 d-flex justify-content-between align-items-center"
+                        onClick={() => setShowMobileFilters(!showMobileFilters)}
+                    >
+                        <span className="fw-bold"><i className="fas fa-filter me-2"></i> Filtros</span>
+                        <motion.i animate={{ rotate: showMobileFilters ? 180 : 0 }} transition={{ duration: 0.3 }} className="fas fa-chevron-down"></motion.i>
+                    </motion.button>
+                </div>
+
+                <div className="row g-4 g-lg-5">
+                    <aside className={`col-lg-3 ${showMobileFilters ? 'd-block' : 'd-none d-lg-block'}`}>
+                        <motion.div layout className="na-filter-sidebar position-sticky p-4" style={{ top: '100px' }}>
+                            <div className="d-flex justify-content-between align-items-center mb-4">
+                                <h3 className="fw-bolder text-white m-0" style={{ letterSpacing: '-0.02em' }}>Filtros</h3>
+                                <button className="btn-close btn-close-white d-lg-none" onClick={() => setShowMobileFilters(false)}></button>
+                            </div>
+                            
                             <div className="na-filter-group mb-4">
                                 <h4 className="small fw-bold mb-3" style={{ letterSpacing: '1px', fontSize: '0.75rem', color: '#a1a1a6' }}>TALLA</h4>
                                 <div className="na-size-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
@@ -94,7 +113,7 @@ export default function NewArrivalsPage() {
                                     ))}
                                 </ul>
                             </div>
-                        </div>
+                        </motion.div>
                     </aside>
 
                     <div className="col-lg-9">
@@ -126,55 +145,57 @@ export default function NewArrivalsPage() {
                                 <button className="btn btn-outline-light mt-2" onClick={() => setFiltros({ categoryId: '', size: '', sort: 'newest' })}>Limpiar Filtros</button>
                             </motion.div>
                         ) : (
-                            <motion.div className="row g-4" variants={containerVariants} initial="hidden" animate="visible">
-                                {products.map((product) => (
-                                    <motion.div key={product.id} className="col-12 col-sm-6 col-md-4" variants={itemVariants}>
-                                        <article className="na-card d-flex flex-column">
-                                            <div className="na-image-wrap">
-                                                <div className="na-badge-container d-flex flex-column align-items-start gap-2">
-                                                    <span className="na-card-badge shadow-sm" style={{ backgroundColor: '#ffffff', color: '#000000', borderColor: '#ffffff' }}>NEW</span>
-                                                    {product.sale && product.basePrice > 0 && <span className="na-card-badge shadow-sm" style={{ backgroundColor: '#ff3b30', color: '#ffffff', borderColor: '#ff3b30' }}>OFERTA -{Math.round(((product.basePrice - product.salePrice) / product.basePrice) * 100)}%</span>}
-                                                    {product.stock > 0 && product.stock <= 5 && <span className="na-card-badge warning shadow-sm" style={{ backgroundColor: '#ff9500', color: '#ffffff', borderColor: '#ff9500' }}>¡ÚLTIMOS {product.stock}!</span>}
-                                                    {product.stock === 0 && <span className="na-card-badge error shadow-sm" style={{ backgroundColor: '#ff3b30', color: '#ffffff', borderColor: '#ff3b30' }}>AGOTADO</span>}
+                            /* AÑADIMOS LAYOUT Y ANIMATEPRESENCE AQUÍ */
+                            <motion.div layout className="row g-3 g-md-4" variants={containerVariants} initial="hidden" animate="visible">
+                                <AnimatePresence>
+                                    {products.map((product) => (
+                                        <motion.div layout key={product.id} className="col-6 col-md-4" variants={itemVariants} exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.2 } }}>
+                                            <article className="na-card d-flex flex-column">
+                                                <div className="na-image-wrap">
+                                                    <div className="na-badge-container d-flex flex-column align-items-start gap-1 gap-md-2">
+                                                        <span className="na-card-badge shadow-sm" style={{ backgroundColor: '#ffffff', color: '#000000', borderColor: '#ffffff' }}>NEW</span>
+                                                        {product.sale && product.basePrice > 0 && <span className="na-card-badge shadow-sm" style={{ backgroundColor: '#ff3b30', color: '#ffffff', borderColor: '#ff3b30' }}>-{Math.round(((product.basePrice - product.salePrice) / product.basePrice) * 100)}%</span>}
+                                                        {product.stock > 0 && product.stock <= 5 && <span className="na-card-badge warning shadow-sm" style={{ backgroundColor: '#ff9500', color: '#ffffff', borderColor: '#ff9500' }}>¡ÚLTIMOS {product.stock}!</span>}
+                                                        {product.stock === 0 && <span className="na-card-badge error shadow-sm" style={{ backgroundColor: '#ff3b30', color: '#ffffff', borderColor: '#ff3b30' }}>AGOTADO</span>}
+                                                    </div>
+                                                    <Link to={`/producto/${product.id}`}>
+                                                        <AnimatePresence mode="wait">
+                                                            <motion.img key={getDisplayImage(product)} src={getDisplayImage(product)} alt={product.name} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="na-main-img" />
+                                                        </AnimatePresence>
+                                                    </Link>
                                                 </div>
-                                                <Link to={`/producto/${product.id}`}>
-                                                    <AnimatePresence mode="wait">
-                                                        <motion.img key={getDisplayImage(product)} src={getDisplayImage(product)} alt={product.name} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="na-main-img" />
-                                                    </AnimatePresence>
-                                                </Link>
-                                            </div>
-                                            <div className="na-card-info d-flex flex-column flex-grow-1">
-                                                <div className="na-thumbs">
-                                                    {getGallery(product).length > 1 && getGallery(product).map((thumb, index) => (
-                                                        <button key={`${product.id}-${index}`} type="button" className={`na-thumb-btn ${getSelectedIndex(product.id) === index ? 'is-active' : ''}`} onMouseEnter={() => handleSelectImage(product.id, index)} onClick={() => handleSelectImage(product.id, index)}><img src={thumb} alt={`Miniatura ${index + 1}`} /></button>
-                                                    ))}
+                                                <div className="na-card-info d-flex flex-column flex-grow-1">
+                                                    <div className="na-thumbs">
+                                                        {getGallery(product).length > 1 && getGallery(product).map((thumb, index) => (
+                                                            <button key={`${product.id}-${index}`} type="button" className={`na-thumb-btn ${getSelectedIndex(product.id) === index ? 'is-active' : ''}`} onMouseEnter={() => handleSelectImage(product.id, index)} onClick={() => handleSelectImage(product.id, index)}><img src={thumb} alt={`Miniatura ${index + 1}`} /></button>
+                                                        ))}
+                                                    </div>
+                                                    <h3 className="na-product-title text-truncate">{product.name}</h3>
+                                                    <p className="na-product-desc mb-2 d-none d-md-block">{product.description || "Nueva colección RUKI."}</p>
+                                                    <div className="mb-2 mb-md-3 mt-auto">
+                                                        {product.sale ? (
+                                                            <div className="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-1 gap-md-2">
+                                                                <span className="text-danger fw-bold fs-6 fs-md-5">${Number(product.salePrice).toLocaleString('es-CL')}</span>
+                                                                <span className="text-decoration-line-through small" style={{ color: '#666' }}>${Number(product.basePrice).toLocaleString('es-CL')}</span>
+                                                            </div>
+                                                        ) : (
+                                                            <span className="fw-bold fs-6 fs-md-5 text-white">${Number(product.basePrice).toLocaleString('es-CL')}</span>
+                                                        )}
+                                                    </div>
                                                 </div>
-                                                <h3 className="na-product-title">{product.name}</h3>
-                                                <p className="na-product-desc mb-2">{product.description || "Nueva colección RUKI."}</p>
-                                                <div className="mb-3">
-                                                    {product.sale ? (
-                                                        <div className="d-flex align-items-center gap-2">
-                                                            <span className="text-danger fw-bold fs-5">${Number(product.salePrice).toLocaleString('es-CL')}</span>
-                                                            <span className="text-decoration-line-through small" style={{ color: '#666' }}>${Number(product.basePrice).toLocaleString('es-CL')}</span>
-                                                        </div>
-                                                    ) : (
-                                                        <span className="fw-bold fs-5 text-white">${Number(product.basePrice).toLocaleString('es-CL')}</span>
-                                                    )}
-                                                </div>
-                                                <div style={{ flexGrow: 1 }}></div>
-                                            </div>
-                                        </article>
-                                    </motion.div>
-                                ))}
+                                            </article>
+                                        </motion.div>
+                                    ))}
+                                </AnimatePresence>
                             </motion.div>
                         )}
                     </div>
 
                     {totalPages > 1 && (
                         <div className="d-flex justify-content-center align-items-center gap-3 mt-5">
-                            <button className="btn btn-outline-light" disabled={currentPage === 0} onClick={() => { setCurrentPage(prev => prev - 1); window.scrollTo(0, 0); }}><i className="fas fa-chevron-left"></i> Anterior</button>
-                            <span className="text-white fw-bold">Página {currentPage + 1} de {totalPages}</span>
-                            <button className="btn btn-outline-light" disabled={currentPage >= totalPages - 1} onClick={() => { setCurrentPage(prev => prev + 1); window.scrollTo(0, 0); }}>Siguiente <i className="fas fa-chevron-right"></i></button>
+                            <button className="btn border-dark" disabled={currentPage === 0} onClick={() => { setCurrentPage(prev => prev - 1); window.scrollTo(0, 0); }}><i className="fas fa-chevron-left"></i></button>
+                            <span className="text-white fw-bold small">Página {currentPage + 1} de {totalPages}</span>
+                            <button className="btn border-dark" disabled={currentPage >= totalPages - 1} onClick={() => { setCurrentPage(prev => prev + 1); window.scrollTo(0, 0); }}><i className="fas fa-chevron-right"></i></button>
                         </div>
                     )}
                 </div>

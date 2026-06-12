@@ -173,9 +173,24 @@
   .ruki-footer-card-glass { width: 100%; justify-content: center; }
 }
 
-@media (max-width: 768px) {
-  .ruki-footer-top-glass { grid-template-columns: 1fr; gap: 20px; }
-  .ruki-footer-links { flex-direction: column; gap: 30px; align-items: center; text-align: center; }
-  .ruki-footer-column:first-of-type, .ruki-footer-column:last-of-type { text-align: center; }
-  .ruki-footer-divider { height: 1px; width: 80%; }
+@media (max-width: 768px) { 
+  /* Mantenemos las 2 columnas en celular y ajustamos el espacio */
+  .ruki-footer-top-glass { 
+    grid-template-columns: repeat(2, 1fr); 
+    gap: 10px; 
+    padding: 16px 10px;
+  } 
+  /* Achicamos un poco la letra para que no se desborde en pantallas pequeñas */
+  .ruki-top-label {
+    font-size: 13px;
+    text-align: center;
+  }
+  .ruki-footer-links { 
+    flex-direction: column; 
+    text-align: center; 
+  } 
+  .ruki-footer-divider { 
+    height: 1px; 
+    width: 100%; 
+  } 
 }

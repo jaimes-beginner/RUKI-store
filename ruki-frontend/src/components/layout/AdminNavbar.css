@@ -96,9 +96,7 @@
 }
 
 @media (max-width: 768px) {
-    .admin-header-wrapper .admin-topbar { flex-direction: column; gap: 12px; padding-inline: 12px !important; }
-    .admin-header-wrapper .admin-brand-centered { position: static; transform: none; }
-    .admin-header-wrapper .admin-topbar-side { width: 100%; justify-content: center !important; }
-    .admin-header-wrapper .admin-bottom-navbar .nav { flex-wrap: wrap; justify-content: center; gap: 0.5rem !important; }
-    .admin-header-wrapper .admin-nav-link { font-size: 0.75rem; padding: 6px 12px !important; }
+    .admin-topbar { min-height: 64px; }
+    .admin-dropdown-menu-glass { right: -10px !important; width: 240px; }
+    .admin-bottom-navbar .nav { flex-wrap: nowrap; overflow-x: auto; }
 }

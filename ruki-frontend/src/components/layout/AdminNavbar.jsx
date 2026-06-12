@@ -20,21 +20,21 @@ export default function AdminNavbar() {
     return (
         <header className="admin-header-wrapper">
             {/* BARRA SUPERIOR OSCURA SÓLIDA */}
-            <Navbar variant="dark" className="py-4 admin-top-navbar">
-                <Container fluid className="admin-topbar d-flex justify-content-between align-items-center px-4 px-lg-5">
+            <Navbar variant="dark" className="py-3 py-md-4 admin-top-navbar">
+                <Container fluid className="admin-topbar d-flex justify-content-between align-items-center px-3 px-lg-5">
                     
-                    <div className="admin-topbar-side d-none d-lg-flex flex-column justify-content-center">
-                        <div className="d-flex align-items-center gap-2 mb-1">
+                    <div className="admin-topbar-side d-flex flex-column justify-content-center">
+                        {/* Ocultamos el texto en celular, pero mantenemos el div para hacer espacio */}
+                        <div className="d-none d-md-flex align-items-center gap-2 mb-1">
                             <span className="server-status-dot pulse"></span>
                             <span className="server-status-text">SISTEMAS OPERATIVOS</span>
                         </div>
-                    </div> 
+                    </div>
                     
-                    {/* ACTUALIZADO: Ruta al dashboard */}
-                    <Navbar.Brand as={Link} to="/admin/dashboard" className="admin-brand-centered">
+                    <Navbar.Brand as={Link} to="/admin/dashboard" className="admin-brand-centered m-0">
                         <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="d-flex align-items-center">
                             <img src="/imagenes/logo.png" alt="RUKI logo" className="admin-logo" />
-                            <Badge bg="danger" className="ms-2 admin-badge-pill shadow-sm">ADMIN</Badge>
+                            <Badge bg="danger" className="ms-2 admin-badge-pill shadow-sm d-none d-sm-block">ADMIN</Badge>
                         </motion.div>
                     </Navbar.Brand>
                     
@@ -50,16 +50,12 @@ export default function AdminNavbar() {
                                 <span className="d-none d-md-inline text-white small fw-bold">
                                     {usuario?.firstName || 'Administrador'}
                                 </span>
-                                <motion.div animate={{ rotate: adminMenuOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
-                                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#86868b" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                                    <polyline points="6 9 12 15 18 9"></polyline>
-                                  </svg>
+                                <motion.div animate={{ rotate: adminMenuOpen ? 180 : 0 }} transition={{ duration: 0.2 }} className="d-none d-md-block">
+                                  <i className="fas fa-chevron-down text-secondary" style={{fontSize: '12px'}}></i>
                                 </motion.div>
                             </button>
 
-                            {adminMenuOpen && (
-                                <div style={{ position: 'fixed', inset: 0, zIndex: 1055 }} onClick={() => setAdminMenuOpen(false)}></div>
-                            )}
+                            {adminMenuOpen && <div style={{ position: 'fixed', inset: 0, zIndex: 1055 }} onClick={() => setAdminMenuOpen(false)}></div>}
 
                             <AnimatePresence>
                                 {adminMenuOpen && (
@@ -75,24 +71,12 @@ export default function AdminNavbar() {
                                             <small className="text-secondary d-block" style={{fontSize: '10px'}}>CONECTADO COMO</small>
                                             <strong className="text-white" style={{fontSize: '13px'}}>{usuario?.email || 'admin@ruki.com'}</strong>
                                         </div>
-                                        
                                         <Link to="/" className="py-2 admin-dropdown-item text-decoration-none d-flex align-items-center" onClick={() => setAdminMenuOpen(false)}>
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="me-2 text-info">
-                                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline>
-                                            </svg>
-                                            Ver Tienda Pública
+                                            <i className="fas fa-store me-2 text-info"></i> Ver Tienda Pública
                                         </Link>
-
                                         <div className="admin-divider"></div>
-                                        
-                                        <button 
-                                            onClick={() => { handleLogout(); setAdminMenuOpen(false); }} 
-                                            className="py-2 text-danger admin-dropdown-item bg-transparent border-0 w-100 text-start d-flex align-items-center"
-                                        >
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="me-2">
-                                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line>
-                                            </svg>
-                                            Cerrar sesión
+                                        <button onClick={() => { handleLogout(); setAdminMenuOpen(false); }} className="py-2 text-danger admin-dropdown-item bg-transparent border-0 w-100 text-start d-flex align-items-center">
+                                            <i className="fas fa-sign-out-alt me-2"></i> Cerrar sesión
                                         </button>
                                     </motion.div>
                                 )}
@@ -102,24 +86,23 @@ export default function AdminNavbar() {
                 </Container>
             </Navbar>
 
-            {/* BARRA INFERIOR SÓLIDA */}
+            {/* BARRA INFERIOR SÓLIDA (DESLIZABLE EN CELULAR) */}
             <Navbar className="py-2 admin-bottom-navbar">
-                <Container fluid className="px-4 px-lg-5">
-                    <Nav className="mx-auto gap-2 gap-md-4 gap-lg-5">
-                        {/* ACTUALIZADO: Rutas anidadas de administrador */}
-                        <NavLink to="/admin/dashboard" className={({ isActive }) => `admin-nav-link text-decoration-none ${isActive ? 'nav-active' : ''}`}>
+                <Container fluid className="px-0 px-lg-5">
+                    <Nav className="mx-auto d-flex flex-row flex-nowrap overflow-auto gap-3 gap-md-4 px-3 px-md-0 ruki-scroll-nav hide-scrollbar">
+                        <NavLink to="/admin/dashboard" className={({ isActive }) => `admin-nav-link text-decoration-none text-nowrap ${isActive ? 'nav-active' : ''}`}>
                             <i className="fas fa-chart-pie me-2 d-none d-md-inline"></i>DASHBOARD
                         </NavLink>
-                        <NavLink to="/admin/inventario" className={({ isActive }) => `admin-nav-link text-decoration-none ${isActive ? 'nav-active' : ''}`}>
+                        <NavLink to="/admin/inventario" className={({ isActive }) => `admin-nav-link text-decoration-none text-nowrap ${isActive ? 'nav-active' : ''}`}>
                             <i className="fas fa-box-open me-2 d-none d-md-inline"></i>PRODUCTOS
                         </NavLink>
-                        <NavLink to="/admin/usuarios" className={({ isActive }) => `admin-nav-link text-decoration-none ${isActive ? 'nav-active' : ''}`}>
+                        <NavLink to="/admin/usuarios" className={({ isActive }) => `admin-nav-link text-decoration-none text-nowrap ${isActive ? 'nav-active' : ''}`}>
                             <i className="fas fa-users me-2 d-none d-md-inline"></i>USUARIOS
                         </NavLink>
-                        <NavLink to="/admin/pedidos" className={({ isActive }) => `admin-nav-link text-decoration-none ${isActive ? 'nav-active' : ''}`}>
+                        <NavLink to="/admin/pedidos" className={({ isActive }) => `admin-nav-link text-decoration-none text-nowrap ${isActive ? 'nav-active' : ''}`}>
                             <i className="fas fa-truck-fast me-2 d-none d-md-inline"></i>LOGÍSTICA
                         </NavLink>
-                        <NavLink to="/admin/pos" className={({ isActive }) => `admin-nav-link text-decoration-none ${isActive ? 'nav-active' : ''}`}>
+                        <NavLink to="/admin/pos" className={({ isActive }) => `admin-nav-link text-decoration-none text-nowrap ${isActive ? 'nav-active' : ''}`}>
                             <i className="fas fa-cash-register me-2 d-none d-md-inline"></i>POS / TIENDA
                         </NavLink>
                     </Nav>

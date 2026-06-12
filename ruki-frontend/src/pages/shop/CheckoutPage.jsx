@@ -91,10 +91,10 @@ export default function CheckoutPage() {
                 <div className="chk-glow-blob chk-blob-purple"></div>
             </div>
 
-            <motion.div className="container pt-5 pb-5" initial="hidden" animate="visible" variants={pageVariants}>
+            <motion.div className="container pt-4 pt-md-5 pb-5 px-3 px-md-4" initial="hidden" animate="visible" variants={pageVariants}>
                 <div className="d-flex align-items-center justify-content-between mb-4">
-                    <h2 className="fw-bolder text-white m-0">Finalizar Compra</h2>
-                    <span className="secure-badge d-flex align-items-center">
+                    <h2 className="fw-bolder text-white m-0 fs-3 fs-md-2">Finalizar Compra</h2>
+                    <span className="secure-badge d-flex align-items-center d-none d-sm-flex">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="me-2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
                         Checkout Seguro
                     </span>
@@ -102,53 +102,62 @@ export default function CheckoutPage() {
 
                 <AnimatePresence>
                     {error && (
-                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="alert ios-alert d-flex align-items-center mb-4 fw-bold small">
-                            <i className="fas fa-exclamation-triangle me-2 fs-5"></i>{error}
+                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="alert ios-alert d-flex align-items-center mb-4 fw-bold small text-start">
+                            <i className="fas fa-exclamation-triangle me-2 fs-5 flex-shrink-0"></i>
+                            <span>{error}</span>
                         </motion.div>
                     )}
                 </AnimatePresence>
 
                 <div className="row gap-4 gap-lg-0">
                     <div className="col-lg-7 pe-lg-4">
-                        <div className="checkout-card mb-4">
+                        
+                        {/* DATOS DE CONTACTO */}
+                        <div className="checkout-card mb-4 text-start">
                             <div className="d-flex align-items-center mb-4">
-                                <div className="step-number">1</div>
+                                <div className="step-number flex-shrink-0">1</div>
                                 <h5 className="fw-bolder m-0 ms-3 text-white" style={{ letterSpacing: '-0.02em' }}>Datos de Contacto</h5>
                             </div>
                             <div className="contact-info-box">
                                 <div className="d-flex align-items-center">
-                                    <div className="rounded-circle d-flex justify-content-center align-items-center me-3 shadow-sm" style={{ width: '44px', height: '44px', background: 'rgba(255,255,255,0.1)' }}>
+                                    <div className="rounded-circle d-flex justify-content-center align-items-center me-3 shadow-sm flex-shrink-0" style={{ width: '44px', height: '44px', background: 'rgba(255,255,255,0.1)' }}>
                                         <i className="fas fa-user text-white"></i>
                                     </div>
-                                    <div>
-                                        <p className="m-0 fw-bold text-white">{usuario?.firstName} {usuario?.lastName}</p>
-                                        <p className="m-0 text-secondary small">{usuario?.email}</p>
+                                    <div className="text-start overflow-hidden">
+                                        <p className="m-0 fw-bold text-white text-truncate">{usuario?.firstName} {usuario?.lastName}</p>
+                                        <p className="m-0 text-secondary small text-truncate">{usuario?.email}</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="checkout-card mb-4">
+                        {/* DIRECCIÓN DE ENVÍO */}
+                        <div className="checkout-card mb-4 text-start">
                             <div className="d-flex align-items-center mb-4">
-                                <div className="step-number">2</div>
+                                <div className="step-number flex-shrink-0">2</div>
                                 <h5 className="fw-bolder m-0 ms-3 text-white" style={{ letterSpacing: '-0.02em' }}>Dirección de Envío</h5>
                             </div>
                             {direcciones.length === 0 ? (
-                                <div className="alert ios-alert small mb-0 d-flex align-items-center">
-                                    <i className="fas fa-exclamation-triangle me-2"></i>
-                                    No tienes direcciones registradas. Por favor, agrega una en tu perfil antes de continuar.
+                                <div className="alert ios-alert small mb-0 d-flex align-items-center text-start">
+                                    <i className="fas fa-exclamation-triangle me-2 flex-shrink-0"></i>
+                                    <span>No tienes direcciones registradas. Por favor, agrega una en tu perfil antes de continuar.</span>
                                 </div>
                             ) : (
                                 <div className="address-grid">
                                     {direcciones.map(dir => (
                                         <div key={dir.id} className={`address-card ${direccionSeleccionada === dir.id ? 'selected' : ''}`} onClick={() => setDireccionSeleccionada(dir.id)}>
                                             <div className="d-flex justify-content-between align-items-start">
-                                                <div>
-                                                    <p className="fw-bold mb-1 text-white d-flex align-items-center"><i className="fas fa-map-marker-alt text-secondary me-2"></i>{dir.street}</p>
-                                                    <p className="small text-secondary mb-0 ms-4">{dir.city}, {dir.region}{dir.zipCode && ` • CP: ${dir.zipCode}`}</p>
-                                                    {dir.referenceInfo && <p className="small text-muted mb-0 ms-4 mt-1 fst-italic">"{dir.referenceInfo}"</p>}
+                                                <div className="text-start pe-2">
+                                                    <p className="fw-bold mb-1 text-white d-flex align-items-start">
+                                                        <i className="fas fa-map-marker-alt text-secondary me-2 mt-1 flex-shrink-0"></i>
+                                                        <span>{dir.street}</span>
+                                                    </p>
+                                                    <p className="small text-success mb-0 ms-4">
+                                                        {dir.city}, {dir.region}{dir.zipCode && ` • CP: ${dir.zipCode}`}
+                                                    </p>
+                                                    {dir.referenceInfo && <p className="small text-secondary mb-0 ms-4 mt-1 fst-italic">{dir.referenceInfo}</p>}
                                                 </div>
-                                                <div className="radio-circle mt-1">{direccionSeleccionada === dir.id && <div className="radio-inner"></div>}</div>
+                                                <div className="radio-circle mt-1 flex-shrink-0">{direccionSeleccionada === dir.id && <div className="radio-inner"></div>}</div>
                                             </div>
                                         </div>
                                     ))}
@@ -157,21 +166,22 @@ export default function CheckoutPage() {
                         </div>
                     </div>
 
+                    {/* RESUMEN DEL PEDIDO */}
                     <div className="col-lg-5">
-                        <div className="checkout-card summary-card sticky-top" style={{ top: '100px' }}>
+                        <div className="checkout-card summary-card sticky-top text-start" style={{ top: '100px' }}>
                             <h5 className="fw-bold mb-4 text-white">Resumen del Pedido</h5>
                             <div className="summary-items-container mb-4">
                                 {cart.map((item, index) => (
                                     <motion.div key={item.uniqueId} className="d-flex align-items-center summary-item" custom={index} variants={itemVariants} initial="hidden" animate="visible" transition={{ delay: index * 0.1 }}>
-                                        <div className="summary-img-wrapper position-relative">
+                                        <div className="summary-img-wrapper position-relative flex-shrink-0">
                                             <img src={item.imageUrls?.[0] || 'https://via.placeholder.com/60'} alt={item.name} />
                                             <span className="summary-item-qty">{item.cantidad}</span>
                                         </div>
-                                        <div className="flex-grow-1 ms-3">
-                                            <p className="fw-semibold mb-0 small text-white">{item.name}</p>
+                                        <div className="flex-grow-1 ms-3 overflow-hidden">
+                                            <p className="fw-semibold mb-0 small text-white text-truncate">{item.name}</p>
                                             <p className="text-secondary small m-0">Talla: {item.selectedSize}</p>
                                         </div>
-                                        <div className="fw-bold small text-white">
+                                        <div className="fw-bold small text-white ms-2 flex-shrink-0">
                                             ${((Number(item.precioFinal) || Number(item.cartPrice) || Number(item.basePrice) || 0) * item.cantidad).toLocaleString('es-CL')}
                                         </div>
                                     </motion.div>

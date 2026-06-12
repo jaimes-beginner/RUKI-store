@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useCart } from '@/contexts/CartContext'; // <-- Alias
-import { filtrarProductos, obtenerCategoriasActivas } from '@/services/ProductoService'; // <-- Alias
-import './ProductsPage.css'; // <-- Renombra tu Productos.css a ProductsPage.css
+import { useCart } from '@/contexts/CartContext';
+import { filtrarProductos, obtenerCategoriasActivas } from '@/services/ProductoService';
+import './ProductsPage.css';
 
 const containerVariants = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.1 } } };
-const itemVariants = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } } };
+const itemVariants = { hidden: { opacity: 0, scale: 0.9, y: 20 }, visible: { opacity: 1, scale: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } } };
 
 export default function ProductsPage() {
     const { addToCart } = useCart();
@@ -19,6 +19,9 @@ export default function ProductsPage() {
     const [error, setError] = useState(null);
     const [selectedImages, setSelectedImages] = useState({});
     const [toast, setToast] = useState({ mostrar: false, mensaje: '', tipo: '' });
+    
+    // Estado para el menú de filtros en celular
+    const [showMobileFilters, setShowMobileFilters] = useState(false);
 
     const mostrarToast = (mensaje, tipo) => {
         setToast({ mostrar: true, mensaje, tipo });
@@ -82,18 +85,36 @@ export default function ProductsPage() {
                 </motion.div>
             </section>
 
-            <div className="container px-4 px-lg-5 pb-5">
-                <div className="row g-5">
-                    <aside className="col-lg-3 d-none d-lg-block">
-                        <div className="prod-filter-sidebar position-sticky p-4" style={{ top: '180px' }}>
-                            <h3 className="fw-bolder mb-4 text-white" style={{ letterSpacing: '-0.02em' }}>Filtros</h3>
+            <div className="container px-3 px-lg-5 pb-5">
+                
+                {/* BOTÓN DE FILTROS MÓVIL ANIMADO */}
+                <div className="d-block d-lg-none mb-4">
+                    <motion.button 
+                        whileTap={{ scale: 0.95 }}
+                        className="btn btn-outline-light border-dark w-100 d-flex justify-content-between align-items-center"
+                        onClick={() => setShowMobileFilters(!showMobileFilters)}
+                    >
+                        <span className="fw-bold"><i className="fas fa-filter me-2"></i> Filtros</span>
+                        <motion.i 
+                            animate={{ rotate: showMobileFilters ? 180 : 0 }} 
+                            transition={{ duration: 0.3 }}
+                            className="fas fa-chevron-down"
+                        ></motion.i>
+                    </motion.button>
+                </div>
+
+                <div className="row g-4 g-lg-5">
+                    <aside className={`col-lg-3 ${showMobileFilters ? 'd-block' : 'd-none d-lg-block'}`}>
+                        <motion.div layout className="prod-filter-sidebar position-sticky p-4" style={{ top: '100px' }}>
+                            <div className="d-flex justify-content-between align-items-center mb-4">
+                                <h3 className="fw-bolder text-white m-0" style={{ letterSpacing: '-0.02em' }}>Filtros</h3>
+                                <button className="btn-close btn-close-white d-lg-none" onClick={() => setShowMobileFilters(false)}></button>
+                            </div>
                             <div className="prod-filter-group mb-4">
                                 <h4 className="small fw-bold mb-3" style={{ letterSpacing: '1px', fontSize: '0.75rem', color: '#a1a1a6' }}>TALLA</h4>
                                 <div className="prod-size-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                                     {['XS', 'S', 'M', 'L', 'XL', 'Única'].map(size => (
-                                        <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} key={size} type="button" className={`prod-size-btn ${filtros.size === size ? 'active' : ''}`} onClick={() => handleFilterChange('size', size)}>
-                                            {size}
-                                        </motion.button>
+                                        <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} key={size} type="button" className={`prod-size-btn ${filtros.size === size ? 'active' : ''}`} onClick={() => handleFilterChange('size', size)}>{size}</motion.button>
                                     ))}
                                 </div>
                             </div>
@@ -102,14 +123,12 @@ export default function ProductsPage() {
                                 <ul className="list-unstyled p-0 m-0 d-flex flex-column gap-2 prod-scrollable-list">
                                     {[{ id: '', name: 'Todos' }, ...categorias].map(cat => (
                                         <li key={cat.id || 'todos'}>
-                                            <button className={`prod-cat-btn ${filtros.categoryId === cat.id ? 'active' : ''}`} onClick={() => handleFilterChange('categoryId', cat.id)}>
-                                                {cat.name}
-                                            </button>
+                                            <button className={`prod-cat-btn ${filtros.categoryId === cat.id ? 'active' : ''}`} onClick={() => handleFilterChange('categoryId', cat.id)}>{cat.name}</button>
                                         </li>
                                     ))}
                                 </ul>
                             </div>
-                        </div>
+                        </motion.div>
                     </aside>
 
                     <div className="col-lg-9">
@@ -139,63 +158,56 @@ export default function ProductsPage() {
                                 <button className="btn btn-outline-light mt-2" onClick={() => setFiltros({ categoryId: '', size: '', sort: 'newest' })}>Limpiar Filtros</button>
                             </motion.div>
                         ) : (
-                            <motion.div className="row g-4" variants={containerVariants} initial="hidden" animate="visible">
-                                {productosReales.map((product) => (
-                                    <motion.div key={product.id} className="col-12 col-sm-6 col-md-4" variants={itemVariants}>
-                                        <article className="prod-card d-flex flex-column">
-                                            <div className="prod-image-wrap">
-                                                <div className="prod-badge-container d-flex flex-column align-items-start gap-2">
-                                                    {product.sale && product.basePrice > 0 && (
-                                                        <span className="prod-card-badge shadow-sm" style={{ backgroundColor: '#ff3b30', color: '#fff' }}>
-                                                            OFERTA -{Math.round(((product.basePrice - product.salePrice) / product.basePrice) * 100)}%
-                                                        </span>
-                                                    )}
-                                                    {product.stock > 0 && product.stock <= 5 && <span className="prod-card-badge warning shadow-sm">¡ÚLTIMOS {product.stock}!</span>}
-                                                    {product.stock === 0 && <span className="prod-card-badge error shadow-sm">AGOTADO</span>}
+                            /* AÑADIMOS LAYOUT A LA GRILLA PARA QUE LOS PRODUCTOS FLOTEN AL FILTRAR */
+                            <motion.div layout className="row g-3 g-md-4" variants={containerVariants} initial="hidden" animate="visible">
+                                <AnimatePresence>
+                                    {productosReales.map((product) => (
+                                        /* AÑADIMOS LAYOUT AL ITEM Y COL-6 PARA CELULAR */
+                                        <motion.div layout key={product.id} className="col-6 col-md-4" variants={itemVariants} exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.2 } }}>
+                                            <article className="prod-card d-flex flex-column">
+                                                <div className="prod-image-wrap">
+                                                    <div className="prod-badge-container d-flex flex-column align-items-start gap-1 gap-md-2">
+                                                        {product.sale && product.basePrice > 0 && <span className="prod-card-badge shadow-sm" style={{ backgroundColor: '#ff3b30', color: '#fff' }}>OFERTA -{Math.round(((product.basePrice - product.salePrice) / product.basePrice) * 100)}%</span>}
+                                                        {product.stock > 0 && product.stock <= 5 && <span className="prod-card-badge warning shadow-sm">¡ÚLTIMOS {product.stock}!</span>}
+                                                        {product.stock === 0 && <span className="prod-card-badge error shadow-sm">AGOTADO</span>}
+                                                    </div>
+                                                    <Link to={`/producto/${product.id}`}>
+                                                        <AnimatePresence mode="wait">
+                                                            <motion.img key={getDisplayImage(product)} src={getDisplayImage(product)} alt={product.name} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="prod-main-img" />
+                                                        </AnimatePresence>
+                                                    </Link>
                                                 </div>
-                                                <Link to={`/producto/${product.id}`}>
-                                                    <AnimatePresence mode="wait">
-                                                        <motion.img key={getDisplayImage(product)} src={getDisplayImage(product)} alt={product.name} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="prod-main-img" />
-                                                    </AnimatePresence>
-                                                </Link>
-                                            </div>
-                                            <div className="prod-card-info d-flex flex-column flex-grow-1">
-                                                <div className="prod-thumbs">
-                                                    {getGallery(product).length > 1 && getGallery(product).map((thumb, index) => (
-                                                        <button key={`${product.id}-${index}`} type="button" className={`prod-thumb-btn ${getSelectedIndex(product.id) === index ? 'is-active' : ''}`} onMouseEnter={() => handleSelectImage(product.id, index)} onClick={() => handleSelectImage(product.id, index)}>
-                                                            <img src={thumb} alt="miniatura" />
-                                                        </button>
-                                                    ))}
+                                                <div className="prod-card-info d-flex flex-column flex-grow-1">
+                                                    <div className="prod-thumbs">
+                                                        {getGallery(product).length > 1 && getGallery(product).map((thumb, index) => (
+                                                            <button key={`${product.id}-${index}`} type="button" className={`prod-thumb-btn ${getSelectedIndex(product.id) === index ? 'is-active' : ''}`} onMouseEnter={() => handleSelectImage(product.id, index)} onClick={() => handleSelectImage(product.id, index)}><img src={thumb} alt="miniatura" /></button>
+                                                        ))}
+                                                    </div>
+                                                    <h3 className="prod-product-title text-truncate">{product.name}</h3>
+                                                    <p className="prod-product-desc mb-2 d-none d-md-block">{product.description || "Equipamiento RUKI."}</p>
+                                                    <div className="mb-2 mb-md-3 mt-auto">
+                                                        {product.sale ? (
+                                                            <div className="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-1 gap-md-2">
+                                                                <span className="text-danger fw-bold fs-6 fs-md-5">${Number(product.salePrice).toLocaleString('es-CL')}</span>
+                                                                <span className="text-decoration-line-through small" style={{ color: '#666' }}>${Number(product.basePrice).toLocaleString('es-CL')}</span>
+                                                            </div>
+                                                        ) : (
+                                                            <span className="fw-bold fs-6 fs-md-5 text-white">${Number(product.basePrice).toLocaleString('es-CL')}</span>
+                                                        )}
+                                                    </div>
                                                 </div>
-                                                <h3 className="prod-product-title mt-2">{product.name}</h3>
-                                                <p className="prod-product-desc mb-2">{product.description || "Equipamiento RUKI."}</p>
-                                                <div className="mb-3">
-                                                    {product.sale ? (
-                                                        <div className="d-flex align-items-center gap-2">
-                                                            <span className="text-danger fw-bold fs-5">${Number(product.salePrice).toLocaleString('es-CL')}</span>
-                                                            <span className="text-decoration-line-through small" style={{ color: '#666' }}>${Number(product.basePrice).toLocaleString('es-CL')}</span>
-                                                        </div>
-                                                    ) : (
-                                                        <span className="fw-bold fs-5 text-white">${Number(product.basePrice).toLocaleString('es-CL')}</span>
-                                                    )}
-                                                </div>
-                                                <div style={{ flexGrow: 1 }}></div>
-                                            </div>
-                                        </article>
-                                    </motion.div>
-                                ))}
+                                            </article>
+                                        </motion.div>
+                                    ))}
+                                </AnimatePresence>
                             </motion.div>
                         )}
 
                         {totalPages > 1 && (
                             <div className="d-flex justify-content-center align-items-center gap-3 mt-5">
-                                <button className="btn btn-outline-light" disabled={currentPage === 0} onClick={() => { setCurrentPage(prev => prev - 1); window.scrollTo(0, 0); }}>
-                                    <i className="fas fa-chevron-left"></i> Anterior
-                                </button>
-                                <span className="text-white fw-bold">Página {currentPage + 1} de {totalPages}</span>
-                                <button className="btn btn-outline-light" disabled={currentPage >= totalPages - 1} onClick={() => { setCurrentPage(prev => prev + 1); window.scrollTo(0, 0); }}>
-                                    Siguiente <i className="fas fa-chevron-right"></i>
-                                </button>
+                                <button className="btn border-dark" disabled={currentPage === 0} onClick={() => { setCurrentPage(prev => prev - 1); window.scrollTo(0, 0); }}><i className="fas fa-chevron-left"></i></button>
+                                <span className="text-white fw-bold small">Página {currentPage + 1} de {totalPages}</span>
+                                <button className="btn border-dark" disabled={currentPage >= totalPages - 1} onClick={() => { setCurrentPage(prev => prev + 1); window.scrollTo(0, 0); }}><i className="fas fa-chevron-right"></i></button>
                             </div>
                         )}
                     </div>
@@ -206,8 +218,7 @@ export default function ProductsPage() {
                 <AnimatePresence>
                     {toast.mostrar && (
                         <motion.div initial={{ opacity: 0, y: 50, scale: 0.9 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 20, scale: 0.9 }} className={`prod-toast ${toast.tipo === 'error' ? 'error' : 'success'}`}>
-                            <i className={`fas ${toast.tipo === 'error' ? 'fa-exclamation-triangle' : 'fa-check-circle'} me-2 fs-5`}></i>
-                            {toast.mensaje}
+                            <i className={`fas ${toast.tipo === 'error' ? 'fa-exclamation-triangle' : 'fa-check-circle'} me-2 fs-5`}></i>{toast.mensaje}
                         </motion.div>
                     )}
                 </AnimatePresence>

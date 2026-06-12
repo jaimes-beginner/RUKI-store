@@ -1,33 +1,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-/* ========================================= */
-/* ESTRUCTURA BASE Y GLOW BLOBS              */
-/* ========================================= */
 .profile-main-wrapper {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     min-height: calc(100vh - 120px);
-    background-color: #020202; /* Fondo ultra oscuro */
+    background-color: #020202; 
     position: relative;
-    overflow: hidden;
+    overflow-x: hidden; /* Evita el scroll horizontal */
     color: #ffffff;
 }
 
-.profile-glow-container {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-    overflow: hidden;
-}
-
-.profile-glow-blob {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(140px);
-    opacity: 0.15;
-    animation: pulseProfile 12s infinite alternate ease-in-out;
-}
-
+.profile-glow-container { position: absolute; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+.profile-glow-blob { position: absolute; border-radius: 50%; filter: blur(140px); opacity: 0.15; animation: pulseProfile 12s infinite alternate ease-in-out; }
 .profile-blob-blue { width: 45vw; height: 45vw; background: #0a84ff; top: -10%; left: -10%; }
 .profile-blob-purple { width: 40vw; height: 40vw; background: #5e5ce6; bottom: 5%; right: -5%; animation-delay: -4s; }
 
@@ -36,9 +19,6 @@
     to { transform: scale(1.1) translate(3%, 3%); }
 }
 
-/* ========================================= */
-/* CABECERA (GLASS)                          */
-/* ========================================= */
 .profile-page-header-glass {
     margin-bottom: 24px;
     padding: 32px 24px;
@@ -46,25 +26,10 @@
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.profile-page-header-glass h1 {
-    font-weight: 800;
-    color: #ffffff;
-    font-size: clamp(28px, 4vw, 36px);
-    margin-bottom: 4px;
-    letter-spacing: -0.04em;
-}
-
-.profile-page-header-glass p {
-    color: #a1a1a6;
-    font-weight: 500;
-    font-size: 16px;
-    margin: 0;
-}
+.profile-page-header-glass h1 { font-weight: 800; color: #ffffff; font-size: clamp(28px, 4vw, 36px); margin-bottom: 4px; letter-spacing: -0.04em; }
+.profile-page-header-glass p { color: #a1a1a6; font-weight: 500; font-size: 16px; margin: 0; }
 .profile-page-header-glass strong { color: #ffffff; }
 
-/* ========================================= */
-/* TARJETAS GLASSMORPHISM                    */
-/* ========================================= */
 .profile-card-glass {
     background: rgba(20, 20, 20, 0.45);
     backdrop-filter: blur(24px) saturate(180%);
@@ -75,145 +40,77 @@
     overflow: hidden;
 }
 
-.profile-header-glass {
-    padding: 20px 24px;
-    font-weight: 800;
-    color: #ffffff;
-    font-size: 15px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    background: rgba(0, 0, 0, 0.2);
-}
+.profile-header-glass { padding: 20px 24px; font-weight: 800; color: #ffffff; font-size: 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); background: rgba(0, 0, 0, 0.2); }
 
-.btn-edit-toggle {
-    background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: #ffffff;
-    font-size: 12px;
-    font-weight: 700;
-    padding: 6px 14px;
-    border-radius: 10px;
-    transition: all 0.2s;
-}
+.btn-edit-toggle { background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); color: #ffffff; font-size: 12px; font-weight: 700; padding: 6px 14px; border-radius: 10px; transition: all 0.2s; }
 .btn-edit-toggle:hover { background: rgba(255, 255, 255, 0.1); border-color: #ffffff; }
 
-/* ========================================= */
-/* FORMULARIOS (DARK)                        */
-/* ========================================= */
+/* FORZAMOS ALINEACIÓN A LA IZQUIERDA EN LOS LABELS */
 .ios-input-group label {
-    display: block; font-size: 11px; font-weight: 800; color: #a1a1a6; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;
+    display: block; 
+    text-align: left; 
+    font-size: 11px; 
+    font-weight: 800; 
+    color: #a1a1a6; 
+    text-transform: uppercase; 
+    letter-spacing: 0.05em; 
+    margin-bottom: 8px;
 }
 
 .ios-input-wrapper { position: relative; }
-.input-icon {
-    position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #666666; font-size: 14px; pointer-events: none;
-}
+.input-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #666666; font-size: 14px; pointer-events: none; }
 
 .ios-input-glass, .ios-select-glass {
-    background: rgba(0, 0, 0, 0.5); 
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 14px; 
-    color: #ffffff;
-    padding: 12px 16px 12px 44px; /* Espacio para el icono */
-    font-size: 13px; font-weight: 500; transition: all 0.3s ease; width: 100%;
+    background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 14px; color: #ffffff; padding: 12px 16px 12px 44px; font-size: 13px; font-weight: 500; transition: all 0.3s ease; width: 100%;
 }
 
-.ios-select-glass {
-    appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23a1a1a6'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat; background-position: right 14px center; background-size: 18px; cursor: pointer; color-scheme: dark;
-}
-
+.ios-select-glass { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23a1a1a6'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; background-size: 18px; cursor: pointer; color-scheme: dark; }
 .ios-input-glass::placeholder { color: #555555; }
-.ios-input-glass:focus, .ios-select-glass:focus {
-    background: #000000; border-color: #0a84ff; outline: none; box-shadow: 0 0 0 4px rgba(10, 132, 255, 0.2);
-}
+.ios-input-glass:focus, .ios-select-glass:focus { background: #000000; border-color: #0a84ff; outline: none; box-shadow: 0 0 0 4px rgba(10, 132, 255, 0.2); }
+.ios-input-glass:disabled { background: rgba(255, 255, 255, 0.03); color: #666666; cursor: not-allowed; border-color: transparent; }
+.input-helper-text { font-size: 11px; font-weight: 500; color: #a1a1a6; display: block; text-align: left; }
 
-.ios-input-glass:disabled {
-    background: rgba(255, 255, 255, 0.03); color: #666666; cursor: not-allowed; border-color: transparent;
-}
-
-.input-helper-text { font-size: 11px; font-weight: 500; color: #a1a1a6; display: block; }
-
-/* ========================================= */
-/* DIRECCIONES DE ENVÍO                      */
-/* ========================================= */
-.ios-badge-glass-subtle {
-    background: rgba(255, 255, 255, 0.05); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 4px 10px; border-radius: 8px; font-size: 10px; font-weight: 800; letter-spacing: 0.05em;
-}
+.ios-badge-glass-subtle { background: rgba(255, 255, 255, 0.05); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.1); padding: 4px 10px; border-radius: 8px; font-size: 10px; font-weight: 800; letter-spacing: 0.05em; }
 
 .address-list { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
-
-.address-item {
-    background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 16px; transition: all 0.2s ease;
-}
+.address-item { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 16px; transition: all 0.2s ease; }
 .address-item:hover { background: rgba(255, 255, 255, 0.06); border-color: rgba(255, 255, 255, 0.15); }
 
 .address-street { font-weight: 700; color: #ffffff; font-size: 14px; margin-bottom: 4px; }
 .address-details { color: #a1a1a6; font-size: 13px; font-weight: 500; }
-
-.ios-badge-zipcode {
-    display: inline-block; background: rgba(0, 0, 0, 0.3); color: #86868b; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.05);
-}
+.ios-badge-zipcode { display: inline-block; background: rgba(0, 0, 0, 0.3); color: #86868b; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.05); }
 
 .empty-address-state { text-align: center; padding: 48px 24px; color: #a1a1a6; }
-.empty-icon-glass {
-    width: 64px; height: 64px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 50%;
-    display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; color: #666666;
-}
+.empty-icon-glass { width: 64px; height: 64px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; color: #666666; }
 
-/* ========================================= */
-/* BOTONES MODERNOS                          */
-/* ========================================= */
-.ios-btn {
-    border-radius: 14px; padding: 14px; font-weight: 800; font-size: 13px; border: none; transition: all 0.2s; box-shadow: 0 4px 12px rgba(255,255,255,0.1);
-}
+.ios-btn { border-radius: 14px; padding: 14px; font-weight: 800; font-size: 13px; border: none; transition: all 0.2s; box-shadow: 0 4px 12px rgba(255,255,255,0.1); }
 .ios-btn-dark { background: #ffffff; color: #000000; }
 .ios-btn-dark:hover:not(:disabled) { background: #d2d2d7; box-shadow: 0 6px 16px rgba(255,255,255,0.2); transform: translateY(-1px); }
 .ios-btn-dark:disabled { background: rgba(255, 255, 255, 0.1); color: #666; box-shadow: none; cursor: not-allowed; }
-
 .ios-btn-outline { background: transparent; color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: none; }
 .ios-btn-outline:hover:not(:disabled) { background: rgba(255, 255, 255, 0.1); border-color: #ffffff; }
 
-/* ========================================= */
-/* MODAL GLASSMORPHISM                       */
-/* ========================================= */
-.modal-content.profile-modal-glass {
-    background: rgba(20, 20, 20, 0.85); /* Fondo muy oscuro pero transparente */
-    backdrop-filter: blur(40px) saturate(200%);
-    -webkit-backdrop-filter: blur(40px) saturate(200%);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 28px;
-    color: #ffffff;
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
-}
-
+.modal-content.profile-modal-glass { background: rgba(20, 20, 20, 0.85); backdrop-filter: blur(40px) saturate(200%); -webkit-backdrop-filter: blur(40px) saturate(200%); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 28px; color: #ffffff; box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6); }
 .modal-custom-title { font-weight: 800; color: #ffffff; letter-spacing: -0.02em; }
-
-.btn-close-glass {
-    background: rgba(255, 255, 255, 0.1);
-    border: none;
-    color: #ffffff;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-}
+.btn-close-glass { background: rgba(255, 255, 255, 0.1); border: none; color: #ffffff; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; }
 .btn-close-glass:hover { background: rgba(255, 255, 255, 0.2); transform: scale(1.1); }
 
-/* ========================================= */
-/* TOASTS                                    */
-/* ========================================= */
 .profile-toast-container { position: fixed; top: 24px; right: 24px; z-index: 1100; }
-.profile-ios-toast-glass {
-    padding: 14px 24px; border-radius: 16px; font-size: 14px; font-weight: 700; display: flex; align-items: center; 
-    background: #111111; color: #ffffff; box-shadow: 0 10px 40px rgba(0,0,0,0.5); border: 1px solid #333333;
-}
+.profile-ios-toast-glass { padding: 14px 24px; border-radius: 16px; font-size: 14px; font-weight: 700; display: flex; align-items: center; background: #111111; color: #ffffff; box-shadow: 0 10px 40px rgba(0,0,0,0.5); border: 1px solid #333333; }
 .profile-ios-toast-glass.success { border-bottom: 3px solid #34c759; }
 .profile-ios-toast-glass.error { border-bottom: 3px solid #ff3b30; }
 
-@media (max-width: 992px) {
+/* ========================================= */
+/* RESPONSIVE (CELULARES)                    */
+/* ========================================= */
+@media (max-width: 768px) {
+    .profile-page-header-glass { padding: 24px 16px; }
+    .profile-page-header-glass h1 { font-size: 28px; }
+    .profile-card-glass { border-radius: 20px; }
+    .profile-header-glass { padding: 16px; }
+    .card-body.p-4 { padding: 20px 16px !important; }
+    .address-item { padding: 16px; }
+    .address-street { font-size: 13px; }
+    .address-details { font-size: 12px; }
     .profile-toast-container { right: 16px; left: 16px; display: flex; justify-content: center; }
 }

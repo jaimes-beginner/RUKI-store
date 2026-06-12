@@ -46,11 +46,12 @@ export default function HomePage() {
                                 Explorar Colección <i className="fas fa-shopping-bag ms-2"></i>
                             </Link>
                             
+                            {/* Quitamos el div d-flex que rompía el diseño en celular */}
                             {!isAuthenticated ? (
-                                <div className="d-flex gap-3">
+                                <>
                                     <Link to="/crear-usuario" className="saas-btn saas-btn-secondary">Crear Cuenta</Link>
                                     <Link to="/login" className="saas-btn saas-btn-outline">Iniciar Sesión</Link>
-                                </div>
+                                </>
                             ) : (
                                 <Link to={usuario?.role === 'ADMIN' ? '/admin/dashboard' : '/mis-pedidos'} className="saas-btn saas-btn-secondary">
                                     <i className="fas fa-user-circle me-2"></i> Mi Panel de Control

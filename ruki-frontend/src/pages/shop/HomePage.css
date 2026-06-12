@@ -3,7 +3,7 @@
 .saas-home-main {
     width: 100%;
     min-height: 100vh;
-    background: #050505; /* Fondo más oscuro aún */
+    background: #050505; 
     font-family: 'Inter', sans-serif;
     color: #ffffff;
     overflow-x: hidden;
@@ -11,9 +11,6 @@
     flex-direction: column;
 }
 
-/* ========================================= */
-/* GLOW BLOBS (Las luces de fondo)           */
-/* ========================================= */
 .saas-glow-container {
     position: fixed;
     inset: 0;
@@ -38,9 +35,6 @@
     to { transform: scale(1.2) translate(5%, 5%); }
 }
 
-/* ========================================= */
-/* ESTRUCTURA DE CONTENIDO                   */
-/* ========================================= */
 .saas-content-wrapper {
     position: relative;
     z-index: 1;
@@ -97,9 +91,6 @@
     line-height: 1.5;
 }
 
-/* ========================================= */
-/* BOTONES                                   */
-/* ========================================= */
 .saas-hero-buttons {
     display: flex;
     gap: 20px;
@@ -125,16 +116,14 @@
 .saas-btn-outline { border: 1px solid rgba(255,255,255,0.3); color: #fff; }
 .saas-btn-outline:hover { border-color: #fff; background: rgba(255,255,255,0.05); }
 
-/* ========================================= */
-/* CARACTERÍSTICAS                           */
-/* ========================================= */
 .saas-philosophy-section {
     padding: 100px 0;
 }
 
 .saas-features-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    /* Ajustado a 260px para que quepa en celulares pequeños sin desbordar */
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 32px;
 }
 
@@ -163,6 +152,8 @@
 }
 
 @media (max-width: 768px) {
-    .saas-hero-buttons { flex-direction: column; width: 100%; max-width: 300px; margin: 0 auto; }
+    .saas-hero-section { padding: 60px 0 40px; } /* Menos espacio arriba en celular */
+    .saas-hero-buttons { flex-direction: column; width: 100%; max-width: 300px; margin: 0 auto; gap: 12px; }
     .saas-btn { width: 100%; text-align: center; }
+    .saas-feature-card { padding: 30px 20px; }
 }

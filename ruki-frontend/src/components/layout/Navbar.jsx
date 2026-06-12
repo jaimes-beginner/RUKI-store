@@ -25,15 +25,17 @@ export default function Navbar() {
     <>
       <header className="ruki-header">
         {/* BARRA SUPERIOR OSCURA */}
-        <BSNavbar variant="dark" className="py-4 ruki-top-navbar">
-          <Container fluid className="ruki-topbar d-flex justify-content-between align-items-center px-4 px-lg-5">
-            <div className="ruki-topbar-side"></div> 
+        <BSNavbar variant="dark" className="py-3 py-md-4 ruki-top-navbar">
+          <Container fluid className="ruki-topbar d-flex justify-content-between align-items-center px-3 px-lg-5">
             
-            <BSNavbar.Brand as={Link} to="/" className="ruki-brand-centered">
+            {/* Espaciador invisible para centrar el logo en Desktop */}
+            <div className="ruki-topbar-side"></div>
+            
+            <BSNavbar.Brand as={Link} to="/" className="ruki-brand-centered m-0">
               <img src="/imagenes/logo.png" alt="RUKI logo" className="ruki-logo" />
             </BSNavbar.Brand>
             
-            <div className="ruki-topbar-side d-flex justify-content-end align-items-center gap-3">
+            <div className="ruki-topbar-side d-flex justify-content-end align-items-center gap-3 gap-md-4">
               
               {/* LÓGICA DE SESIÓN */}
               {isAuthenticated ? (
@@ -48,16 +50,14 @@ export default function Navbar() {
                     <span className="d-none d-md-inline text-white small fw-bold">
                       {usuario?.firstName || 'Mi Cuenta'}
                     </span>
-                    <motion.div animate={{ rotate: userMenuOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                    <motion.div animate={{ rotate: userMenuOpen ? 180 : 0 }} transition={{ duration: 0.2 }} className="d-none d-md-block">
                       <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#86868b" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                         <polyline points="6 9 12 15 18 9"></polyline>
                       </svg>
                     </motion.div>
                   </button>
 
-                  {userMenuOpen && (
-                    <div style={{ position: 'fixed', inset: 0, zIndex: 1055 }} onClick={() => setUserMenuOpen(false)}></div>
-                  )}
+                  {userMenuOpen && <div style={{ position: 'fixed', inset: 0, zIndex: 1055 }} onClick={() => setUserMenuOpen(false)}></div>}
 
                   <AnimatePresence>
                     {userMenuOpen && (
@@ -73,31 +73,15 @@ export default function Navbar() {
                           <small className="text-secondary d-block" style={{fontSize: '10px'}}>CONECTADO COMO</small>
                           <strong className="text-white" style={{fontSize: '13px'}}>{usuario?.email || 'usuario@ruki.com'}</strong>
                         </div>
-                        
                         <Link to="/mi-perfil" className="py-2 user-dropdown-item text-decoration-none d-flex align-items-center" onClick={() => setUserMenuOpen(false)}>
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="me-2 text-info">
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle>
-                          </svg>
-                          Mi Perfil
+                          <i className="fas fa-user-circle me-2 text-info"></i> Mi Perfil
                         </Link>
-
                         <Link to="/mis-pedidos" className="py-2 user-dropdown-item text-decoration-none d-flex align-items-center" onClick={() => setUserMenuOpen(false)}>
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="me-2 text-warning">
-                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line>
-                          </svg>
-                          Mis Pedidos
+                          <i className="fas fa-box-open me-2 text-warning"></i> Mis Pedidos
                         </Link>
-                        
                         <div className="user-divider"></div>
-                        
-                        <button 
-                          onClick={() => { logout(); navigate('/'); setUserMenuOpen(false); }} 
-                          className="py-2 text-danger user-dropdown-item bg-transparent border-0 w-100 text-start d-flex align-items-center"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="me-2">
-                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line>
-                          </svg>
-                          Cerrar Sesión
+                        <button onClick={() => { logout(); navigate('/'); setUserMenuOpen(false); }} className="py-2 text-danger user-dropdown-item bg-transparent border-0 w-100 text-start d-flex align-items-center">
+                          <i className="fas fa-sign-out-alt me-2"></i> Cerrar Sesión
                         </button>
                       </motion.div>
                     )}
@@ -110,82 +94,53 @@ export default function Navbar() {
               )}
               
               {/* BOTÓN DEL CARRITO */}
-              <div className="ios-cart-btn" onClick={handleShow} style={{ color: '#ffffff', transition: 'opacity 0.2s', cursor: 'pointer' }} onMouseOver={(e) => e.currentTarget.style.opacity = '0.7'} onMouseOut={(e) => e.currentTarget.style.opacity = '1'}>
+              <div className="ios-cart-btn" onClick={handleShow} style={{ color: '#ffffff', transition: 'opacity 0.2s', cursor: 'pointer' }}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
                   <line x1="3" y1="6" x2="21" y2="6"></line>
                   <path d="M16 10a4 4 0 0 1-8 0"></path>
                 </svg>
-
-                {cartCount > 0 && (
-                  <Badge bg="danger" pill className="ios-cart-badge">
-                    {cartCount}
-                  </Badge>
-                )}
+                {cartCount > 0 && <Badge bg="danger" pill className="ios-cart-badge">{cartCount}</Badge>}
               </div>
 
             </div>
           </Container>
         </BSNavbar>
 
-        {/* BARRA INFERIOR CLARA */}
+        {/* BARRA INFERIOR CLARA (AHORA DESLIZABLE EN CELULAR) */}
         <BSNavbar className="py-2 ruki-bottom-navbar border-top border-dark">
-          <Container fluid className="px-4 px-lg-5">
-            <Nav className="mx-auto gap-2 gap-md-4 ruki-scroll-nav">
-              <NavLink to="/" className={({ isActive }) => `ruki-nav-link text-decoration-none ${isActive ? 'nav-active' : ''}`}>INICIO</NavLink>
-              <NavLink to="/new-arrivals" className={({ isActive }) => `ruki-nav-link text-decoration-none ${isActive ? 'nav-active' : ''}`}>NEW ARRIVALS</NavLink>
-              <NavLink to="/productos" className={({ isActive }) => `ruki-nav-link text-decoration-none ${isActive ? 'nav-active' : ''}`}>PRODUCTOS</NavLink>
-              <NavLink to="/sale" className={({ isActive }) => `ruki-nav-link text-decoration-none ${isActive ? 'nav-active' : ''}`}>SALE</NavLink>
-              <NavLink to="/noticias" className={({ isActive }) => `ruki-nav-link text-decoration-none ${isActive ? 'nav-active' : ''}`}>BLOG</NavLink>
-              <NavLink to="/faq" className={({ isActive }) => `ruki-nav-link text-decoration-none ${isActive ? 'nav-active' : ''}`}>FAQ</NavLink>
-              <a href="https://www.google.com/maps/search/Crossfit/@-33.4946527,-70.7525297,15z/data=!3m1!4b1?entry=ttu&g_ep=EgoyMDI2MDQyOS4wIKXMDSoASAFQAw%3D%3D" target="_blank" rel="noreferrer" className="ruki-nav-link text-decoration-none">UBICACIÓN</a>
+          <Container fluid className="px-0 px-lg-5">
+            <Nav className="mx-auto d-flex flex-row flex-nowrap overflow-auto gap-3 gap-md-4 px-3 px-md-0 ruki-scroll-nav hide-scrollbar">
+              <NavLink to="/" className={({ isActive }) => `ruki-nav-link text-decoration-none text-nowrap ${isActive ? 'nav-active' : ''}`}>INICIO</NavLink>
+              <NavLink to="/new-arrivals" className={({ isActive }) => `ruki-nav-link text-decoration-none text-nowrap ${isActive ? 'nav-active' : ''}`}>NEW ARRIVALS</NavLink>
+              <NavLink to="/productos" className={({ isActive }) => `ruki-nav-link text-decoration-none text-nowrap ${isActive ? 'nav-active' : ''}`}>PRODUCTOS</NavLink>
+              <NavLink to="/sale" className={({ isActive }) => `ruki-nav-link text-decoration-none text-nowrap ${isActive ? 'nav-active' : ''}`}>SALE</NavLink>
+              <NavLink to="/noticias" className={({ isActive }) => `ruki-nav-link text-decoration-none text-nowrap ${isActive ? 'nav-active' : ''}`}>BLOG</NavLink>
+              <NavLink to="/faq" className={({ isActive }) => `ruki-nav-link text-decoration-none text-nowrap ${isActive ? 'nav-active' : ''}`}>FAQ</NavLink>
+              <a href="https://www.google.com/maps/search/Crossfit/@-33.4946527,-70.7525297,15z/data=!3m1!4b1?entry=ttu&g_ep=EgoyMDI2MDQyOS4wIKXMDSoASAFQAw%3D%3D" target="_blank" rel="noreferrer" className="ruki-nav-link text-decoration-none text-nowrap">UBICACIÓN</a>
             </Nav>
           </Container>
         </BSNavbar>
       </header>
 
-      {/* PANEL LATERAL DEL CARRITO */}
+      {/* PANEL LATERAL DEL CARRITO (Se mantiene igual) */}
       <AnimatePresence>
         {showCart && (
           <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="ruki-cart-backdrop"
-              onClick={handleClose}
-            />
-
-            <motion.div
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "spring", damping: 28, stiffness: 250 }}
-              className="ruki-cart-sidebar"
-            >
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} className="ruki-cart-backdrop" onClick={handleClose} />
+            <motion.div initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }} transition={{ type: "spring", damping: 28, stiffness: 250 }} className="ruki-cart-sidebar">
               <div className="ios-offcanvas-header d-flex justify-content-between align-items-center">
-                <h5 className="fw-bolder text-dark m-0" style={{ letterSpacing: '-0.02em' }}>
-                  Tu Carrito <span className="text-secondary fw-medium">({cartCount})</span>
-                </h5>
+                <h5 className="fw-bolder text-dark m-0" style={{ letterSpacing: '-0.02em' }}>Tu Carrito <span className="text-secondary fw-medium">({cartCount})</span></h5>
                 <button type="button" className="btn-close" aria-label="Cerrar" onClick={handleClose}></button>
               </div>
               
               <div className="d-flex flex-column flex-grow-1 p-0 " style={{ overflow: "hidden", backgroundColor: '#0a0a0a' }}>
                 {cart.length === 0 ? (
                   <div className="text-center mt-5 p-4 text-muted">
-                    <div className="ios-empty-cart-icon mb-3">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-secondary opacity-50">
-                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                        <line x1="3" y1="6" x2="21" y2="6"></line>
-                        <path d="M16 10a4 4 0 0 1-8 0"></path>
-                      </svg>
-                    </div>
+                    <div className="ios-empty-cart-icon mb-3"><i className="fas fa-shopping-bag fa-3x opacity-50"></i></div>
                     <h5 className="fw-bolder text-white mb-2">Tu carrito está vacío</h5>
                     <p className="small mb-4 text-secondary">Aún no has agregado ningún producto.</p>
-                    <button className="ios-btn-outline w-100" onClick={handleClose}>
-                      SEGUIR COMPRANDO
-                    </button>
+                    <button className="ios-btn-outline w-100" onClick={handleClose}>SEGUIR COMPRANDO</button>
                   </div>
                 ) : (
                   <>
@@ -194,72 +149,33 @@ export default function Navbar() {
                         {cart.map(item => {
                           const maxStock = item.variants?.find(v => v.size === item.selectedSize)?.stock ?? item.stock;
                           return (
-                            <motion.div 
-                              key={item.uniqueId} 
-                              layout
-                              initial={{ opacity: 0, x: 50 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-                              className="d-flex align-items-center ios-cart-item"
-                            >
+                            <motion.div key={item.uniqueId} layout initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }} className="d-flex align-items-center ios-cart-item">
                               <div className="ios-cart-img-wrapper">
-                                <img 
-                                  src={item.imageUrls && item.imageUrls[0] ? item.imageUrls[0] : 'https://via.placeholder.com/80'} 
-                                  alt={item.name} 
-                                  className="ios-cart-img" 
-                                />
+                                <img src={item.imageUrls && item.imageUrls[0] ? item.imageUrls[0] : 'https://via.placeholder.com/80'} alt={item.name} className="ios-cart-img" />
                               </div>
-                              
                               <div className="flex-grow-1">
                                 <h6 className="ios-cart-title fw-bold text-dark mb-0">{item.name}</h6>
                                 <small className="text-secondary d-block mb-1 " style={{fontSize: '0.8rem'}}>Talla: <span className="fw-semibold text-secondary">{item.selectedSize}</span></small>
-                                
-                                <p className="ios-cart-price mb-2 fw-semibold text-white">
-                                  ${(Number(item.precioFinal) || Number(item.cartPrice) || Number(item.basePrice) || 0).toLocaleString('es-CL')}
-                                </p>
-                                
+                                <p className="ios-cart-price mb-2 fw-semibold text-white">${(Number(item.precioFinal) || Number(item.cartPrice) || Number(item.basePrice) || 0).toLocaleString('es-CL')}</p>
                                 <div className="d-flex align-items-center">
                                   <button className="ios-btn-icon" onClick={() => updateQuantity(item.uniqueId, item.cantidad - 1)}>-</button>
                                   <span className="ios-cart-qty">{item.cantidad}</span>
                                   <button className="ios-btn-icon" onClick={() => updateQuantity(item.uniqueId, item.cantidad + 1)} disabled={item.cantidad >= maxStock}>+</button>
                                 </div>
                               </div>
-                              
-                              <button className="btn btn-link text-danger p-2 ms-2 text-decoration-none" onClick={() => removeFromCart(item.uniqueId)}>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                  <polyline points="3 6 5 6 21 6"></polyline>
-                                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                  <line x1="10" y1="11" x2="10" y2="17"></line>
-                                  <line x1="14" y1="11" x2="14" y2="17"></line>
-                                </svg>
-                              </button>
+                              <button className="btn btn-link text-danger p-2 ms-2 text-decoration-none" onClick={() => removeFromCart(item.uniqueId)}><i className="fas fa-trash-alt fs-5"></i></button>
                             </motion.div>
                           );
                         })}
                       </AnimatePresence>
                     </div>
-
                     <div className="ios-cart-footer">
-                      <div className="d-flex justify-content-between mb-1 text-secondary" style={{ fontSize: '13px', fontWeight: '500' }}>
-                        <span>Subtotal (Neto)</span>
-                        <span>${(cartSubtotal || 0).toLocaleString('es-CL')}</span>
-                      </div>
-                      
-                      <div className="d-flex justify-content-between mb-3 text-secondary" style={{ fontSize: '13px', fontWeight: '500' }}>
-                        <span>IVA (19%)</span>
-                        <span>${(cartIva || 0).toLocaleString('es-CL')}</span>
-                      </div>
-
+                      <div className="d-flex justify-content-between mb-1 text-secondary" style={{ fontSize: '13px', fontWeight: '500' }}><span>Subtotal (Neto)</span><span>${(cartSubtotal || 0).toLocaleString('es-CL')}</span></div>
+                      <div className="d-flex justify-content-between mb-3 text-secondary" style={{ fontSize: '13px', fontWeight: '500' }}><span>IVA (19%)</span><span>${(cartIva || 0).toLocaleString('es-CL')}</span></div>
                       <div className="mb-3" style={{ borderTop: '1px dashed rgba(0,0,0,0.15)' }}></div>
-
-                      <div className="d-flex justify-content-between mb-4 fw-bolder text-white fs-4" style={{ letterSpacing: '-0.02em' }}>
-                        <span>Total</span>
-                        <span>${(cartTotalAmount || 0).toLocaleString('es-CL')}</span>
-                      </div>
-
+                      <div className="d-flex justify-content-between mb-4 fw-bolder text-white fs-4" style={{ letterSpacing: '-0.02em' }}><span>Total</span><span>${(cartTotalAmount || 0).toLocaleString('es-CL')}</span></div>
                       <motion.button whileTap={{ scale: 0.95 }} className="ios-btn-dark w-100 py-3 d-flex justify-content-between align-items-center px-4" onClick={irAlCheckout}>
-                        <span>FINALIZAR COMPRA</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                        <span>FINALIZAR COMPRA</span><i className="fas fa-arrow-right"></i>
                       </motion.button>
                     </div>
                   </>

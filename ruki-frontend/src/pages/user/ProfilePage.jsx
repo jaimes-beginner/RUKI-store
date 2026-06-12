@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { obtenerMiPerfil, actualizarUsuario, crearDireccion, obtenerDireccionesActivasPorUsuario, eliminarDireccion } from '@/services/UsuarioService'; // <-- Alias
+import { obtenerMiPerfil, actualizarUsuario, crearDireccion, obtenerDireccionesActivasPorUsuario, eliminarDireccion } from '@/services/UsuarioService'; 
 import { Modal } from 'react-bootstrap';
 import { motion, AnimatePresence } from 'framer-motion';
 import { regiones } from '@/data/Regiones'; 
@@ -107,8 +107,10 @@ export default function ProfilePage() {
                 <div className="profile-glow-blob profile-blob-purple"></div>
             </div>
 
-            <div className="container mt-5 mb-5 position-relative" style={{ zIndex: 1 }}>
-                <motion.div className="profile-page-header-glass" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+            <div className="container mt-4 mt-md-5 mb-5 position-relative" style={{ zIndex: 1 }}>
+                
+                {/* CABECERA ALINEADA A LA IZQUIERDA */}
+                <motion.div className="profile-page-header-glass text-start" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
                     <h1>Mi Cuenta</h1>
                     <p>Gestiona tu <strong>perfil</strong> y tus <strong>direcciones de envío</strong>.</p>
                 </motion.div>
@@ -122,8 +124,10 @@ export default function ProfilePage() {
                     </div>
                 ) : (
                     <motion.div className="row g-4" variants={containerVariants} initial="hidden" animate="visible">
+                        
+                        {/* TARJETA DE INFORMACIÓN PERSONAL */}
                         <motion.div className="col-md-5" variants={cardVariants}>
-                            <div className="profile-card-glass h-100">
+                            <div className="profile-card-glass h-100 text-start">
                                 <div className="profile-header-glass d-flex justify-content-between align-items-center">
                                     <div><i className="fas fa-user-circle me-2" style={{ color: '#0a84ff' }}></i>Información Personal</div>
                                     <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="btn-edit-toggle" onClick={() => setEditMode(!editMode)}>
@@ -177,8 +181,9 @@ export default function ProfilePage() {
                             </div>
                         </motion.div>
 
+                        {/* TARJETA DE DIRECCIONES */}
                         <motion.div className="col-md-7" variants={cardVariants}>
-                            <div className="profile-card-glass h-100 d-flex flex-column">
+                            <div className="profile-card-glass h-100 d-flex flex-column text-start">
                                 <div className="profile-header-glass d-flex justify-content-between align-items-center">
                                     <div><i className="fas fa-map-marker-alt me-2" style={{ color: '#ff3b30' }}></i>Mis Direcciones</div>
                                     <span className="ios-badge-glass-subtle">{direcciones.length} REGISTRADAS</span>
@@ -186,7 +191,7 @@ export default function ProfilePage() {
 
                                 <div className="card-body p-0 flex-grow-1">
                                     {direcciones.length === 0 ? (
-                                        <div className="empty-address-state">
+                                        <div className="empty-address-state text-center">
                                             <div className="empty-icon-glass"><i className="fas fa-home fa-2x"></i></div>
                                             <p>No tienes direcciones registradas.</p>
                                         </div>
@@ -194,12 +199,13 @@ export default function ProfilePage() {
                                         <motion.div className="address-list" variants={containerVariants} initial="hidden" animate="visible">
                                             {direcciones.map((dir) => (
                                                 <motion.div key={dir.id} className="address-item d-flex justify-content-between align-items-center" variants={listItemVariants}>
-                                                    <div>
-                                                        <div className="address-street">{dir.street}</div>
-                                                        <div className="address-details">{dir.city}, {dir.region} {dir.referenceInfo ? ` • ${dir.referenceInfo}` : ''}</div>
-                                                        <div className="mt-1"><span className="ios-badge-zipcode">C.P: {dir.zipCode || 'N/A'}</span></div>
+                                                    {/* TEXTOS ALINEADOS A LA IZQUIERDA CON MARGEN DERECHO (pe-3) */}
+                                                    <div className="text-start pe-3 overflow-hidden">
+                                                        <div className="address-street text-truncate">{dir.street}</div>
+                                                        <div className="address-details text-truncate">{dir.city}, {dir.region} {dir.referenceInfo ? ` • ${dir.referenceInfo}` : ''}</div>
+                                                        <div className="mt-2"><span className="ios-badge-zipcode">C.P: {dir.zipCode || 'N/A'}</span></div>
                                                     </div>
-                                                    <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="btn btn-sm btn-outline-danger border-0 d-flex justify-content-center align-items-center" style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: 'rgba(255, 59, 48, 0.1)' }} onClick={() => { setAddressToDelete(dir.id); setShowDeleteModal(true); }} disabled={actionLoading}>
+                                                    <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="btn btn-sm btn-outline-danger border-0 d-flex justify-content-center align-items-center flex-shrink-0" style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: 'rgba(255, 59, 48, 0.1)' }} onClick={() => { setAddressToDelete(dir.id); setShowDeleteModal(true); }} disabled={actionLoading}>
                                                         <i className="fas fa-trash-alt"></i>
                                                     </motion.button>
                                                 </motion.div>
@@ -218,7 +224,8 @@ export default function ProfilePage() {
                     </motion.div>
                 )}
 
-                <Modal show={showAddressModal} onHide={() => setShowAddressModal(false)} centered backdrop="static" contentClassName="profile-modal-glass">
+                {/* MODAL: NUEVA DIRECCIÓN */}
+                <Modal show={showAddressModal} onHide={() => setShowAddressModal(false)} centered backdrop="static" contentClassName="profile-modal-glass text-start">
                     <div className="p-4">
                         <div className="d-flex justify-content-between align-items-center mb-4">
                             <h4 className="modal-custom-title mb-0">Nueva Dirección</h4>
@@ -278,6 +285,7 @@ export default function ProfilePage() {
                     </div>
                 </Modal>
 
+                {/* MODAL: CONFIRMACIÓN ELIMINAR DIRECCIÓN */}
                 <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered contentClassName="profile-modal-glass border-danger-glass">
                     <div className="p-4 text-center">
                         <div className="mb-4">
