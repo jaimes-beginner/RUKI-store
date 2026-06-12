@@ -7,7 +7,7 @@ export default function AdminLayout() {
         <div className="d-flex flex-column min-vh-100 bg-light">
             <AdminNavbar />
             
-            <main className="flex-grow-1 p-4">
+            <main className="flex-grow-1">
                 <Outlet />
             </main>
             
