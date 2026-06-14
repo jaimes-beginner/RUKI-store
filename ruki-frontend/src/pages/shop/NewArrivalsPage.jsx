@@ -171,7 +171,7 @@ export default function NewArrivalsPage() {
                                                         ))}
                                                     </div>
                                                     <h3 className="na-product-title text-truncate">{product.name}</h3>
-                                                    <p className="na-product-desc mb-2 d-none d-md-block">{product.description || "Nueva colección RUKI."}</p>
+                                                    <p className="na-product-desc mb-2">{product.description || "Nueva colección RUKI."}</p>
                                                     <div className="mb-2 mb-md-3 mt-auto">
                                                         {product.sale ? (
                                                             <div className="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-1 gap-md-2">

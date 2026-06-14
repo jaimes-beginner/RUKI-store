@@ -169,7 +169,7 @@ export default function SalePage() {
                                                         ))}
                                                     </div>
                                                     <h3 className="sale-product-title text-truncate">{product.name}</h3>
-                                                    <p className="sale-product-desc mb-2 d-none d-md-block">{product.description || "Oferta exclusiva RUKI."}</p>
+                                                    <p className="sale-product-desc mb-2">{product.description || "Oferta exclusiva RUKI."}</p>
                                                     <div className="sale-price-wrap mb-2 mb-md-3 mt-auto">
                                                         <div className="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-1 gap-md-2">
                                                             <span className="sale-price-new fs-6 fs-md-5">${Number(product.salePrice).toLocaleString('es-CL')}</span>

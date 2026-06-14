@@ -184,7 +184,7 @@ export default function ProductsPage() {
                                                         ))}
                                                     </div>
                                                     <h3 className="prod-product-title text-truncate">{product.name}</h3>
-                                                    <p className="prod-product-desc mb-2 d-none d-md-block">{product.description || "Equipamiento RUKI."}</p>
+                                                    <p className="prod-product-desc mb-2">{product.description || "Equipamiento RUKI."}</p>
                                                     <div className="mb-2 mb-md-3 mt-auto">
                                                         {product.sale ? (
                                                             <div className="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-1 gap-md-2">
