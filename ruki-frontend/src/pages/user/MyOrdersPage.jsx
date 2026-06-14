@@ -108,12 +108,13 @@ export default function MyOrdersPage() {
             </div>
 
             <div className="orders-container position-relative z-1">
-                <motion.div className="orders-page-header" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+                {/* CABECERA ALINEADA A LA IZQUIERDA */}
+                <motion.div className="orders-page-header text-start" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
                     <h1>Historial de Pedidos</h1>
                     <p>Revisa el detalle, estado y seguimiento de tus compras.</p>
                 </motion.div>
                 
-                {error && <div className="alert alert-danger border-danger bg-transparent text-danger rounded-4 mb-4"><i className="fas fa-exclamation-triangle me-2"></i>{error}</div>}
+                {error && <div className="alert alert-danger border-danger bg-transparent text-danger rounded-4 mb-4 text-start"><i className="fas fa-exclamation-triangle me-2"></i>{error}</div>}
 
                 {!isAuthenticated ? (
                     <div className="d-flex flex-column justify-content-center align-items-center text-center" style={{ minHeight: '40vh' }}>
@@ -164,11 +165,12 @@ export default function MyOrdersPage() {
                                         const direccionReal = pedido.shippingAddressId === null || !pedido.shippingAddressId ? "Venta Presencial | Retiro en Tienda Física (RUKI Store)" : (direccionesInfo[pedido.shippingAddressId] || "Dirección no encontrada en el perfil");
 
                                         return (
-                                            <motion.div key={pedido.id} className="order-card" layout initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}>
+                                            // FORZAMOS TEXT-START EN LA TARJETA COMPLETA
+                                            <motion.div key={pedido.id} className="order-card text-start" layout initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}>
                                                 <div className="order-header" onClick={() => toggleExpandir(pedido.id)}>
                                                     <div className="d-flex align-items-center gap-3">
                                                         <div className="order-icon"><i className={`fas ${statusBadge.icon} ${statusBadge.className.replace('badge-', 'text-')}`}></i></div>
-                                                        <div>
+                                                        <div className="text-start">
                                                             <span className="order-id-label">ORDEN #{pedido.id} • {formatearFecha(fechaPedido)}</span>
                                                             <h3 className="order-total-price">${Number(totalPedido).toLocaleString('es-CL')}</h3>
                                                         </div>
@@ -183,13 +185,13 @@ export default function MyOrdersPage() {
                                                     {isExpanded && (
                                                         <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3, ease: "easeInOut" }} className="order-body-expandable">
                                                             <div className="order-body">
-                                                                <div className="order-shipping-info mb-4">
+                                                                <div className="order-shipping-info mb-4 mt-3 text-start">
                                                                     <p className="order-section-title"><i className="fas fa-map-marker-alt me-2"></i>DIRECCIÓN DE ENVÍO</p>
                                                                     <div className="p-3 rounded-3 border-dark small fw-medium" style={{ backgroundColor: 'rgba(255,255,255,0.03)', color: '#e5e5ea' }}>{direccionReal}</div>
                                                                 </div>
 
-                                                                <p className="order-section-title"><i className="fas fa-box me-2"></i>PRODUCTOS ADQUIRIDOS</p>
-                                                                <div className="order-items-list " style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
+                                                                <p className="order-section-title text-start"><i className="fas fa-box me-2"></i>PRODUCTOS ADQUIRIDOS</p>
+                                                                <div className="order-items-list text-start" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
                                                                     {listaItems.map(item => {
                                                                         const prodCompleto = productosInfo[item.productId];
                                                                         const imgUrl = prodCompleto?.imageUrls?.[0] || 'https://via.placeholder.com/60?text=RUKI';
@@ -201,7 +203,7 @@ export default function MyOrdersPage() {
                                                                             <div key={item.id} className="order-item-row" style={{ backgroundColor: 'transparent', borderBottomColor: 'rgba(255,255,255,0.05)' }}>
                                                                                 <div className="d-flex align-items-center gap-3">
                                                                                     <img src={imgUrl} alt={prodName} className="order-item-img" style={{ borderColor: 'rgba(255,255,255,0.1)' }} />
-                                                                                    <div className="item-details">
+                                                                                    <div className="item-details text-start">
                                                                                         <span className="item-name text-white">{prodName}</span>
                                                                                         <div className="d-flex align-items-center gap-2 mt-1">
                                                                                             <span className="item-meta px-2 py-1 rounded-2 border-dark" style={{ backgroundColor: 'rgba(255,255,255,0.05)', borderColor: 'rgba(255,255,255,0.1)', color: '#a1a1a6' }}>Talla: {talla}</span>
@@ -210,7 +212,7 @@ export default function MyOrdersPage() {
                                                                                         </div>
                                                                                     </div>
                                                                                 </div>
-                                                                                <div className="item-price text-end text-white">
+                                                                                <div className="item-price text-start text-md-end text-white mt-2 mt-md-0">
                                                                                     ${Number(precioUnitario).toLocaleString('es-CL')} <br/>
                                                                                     <small className="text-secondary fw-normal" style={{fontSize: '12px'}}>Subtotal: ${(Number(precioUnitario) * (item.quantity || item.cantidad)).toLocaleString('es-CL')}</small>
                                                                                 </div>
@@ -219,7 +221,7 @@ export default function MyOrdersPage() {
                                                                     })}
                                                                 </div>
 
-                                                                <div className="order-payment-summary mt-4">
+                                                                <div className="order-payment-summary mt-4 text-start">
                                                                     <p className="order-section-title"><i className="fas fa-receipt me-2"></i>RESUMEN DE PAGO</p>
                                                                     <div className="p-3 rounded-3 border small border-dark" style={{ backgroundColor: 'rgba(0,0,0,0.3)', borderColor: 'rgba(255,255,255,0.08)' }}>
                                                                         <div className="d-flex justify-content-between mb-2 text-secondary fw-medium"><span>Subtotal (Neto)</span><span className="text-white opacity-75">${Number(pedido.subTotal || 0).toLocaleString('es-CL')}</span></div>
