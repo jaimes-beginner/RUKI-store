@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { obtenerProductosActivos } from '@/services/ProductoService'; 
+import { obtenerTodosLosProductosAdmin } from '@/services/ProductoService';
 import { useAuth } from '@/contexts/AuthContext';
 import { crearPedidoFisico } from '@/services/PedidoService'; 
 import './POSPage.css'; 
@@ -18,20 +18,6 @@ export default function POSPage() {
     const [productoSeleccionado, setProductoSeleccionado] = useState(null);
     const [alerta, setAlerta] = useState({ visible: false, mensaje: '', tipo: 'success' });
     const [confirmacion, setConfirmacion] = useState({ visible: false, mensaje: '', metodoPago: '' });
-
-    useEffect(() => {
-        const cargarCatalogo = async () => {
-            try {
-                const data = await obtenerProductosActivos();
-                setProductos(data.content || data); // Ajuste por si viene paginado
-            } catch (error) {
-                mostrarAlerta("Error al cargar catálogo", "error");
-            } finally {
-                setCargando(false);
-            }
-        };
-        cargarCatalogo();
-    }, []);
 
     const mostrarAlerta = (mensaje, tipo = 'success') => {
         setAlerta({ visible: true, mensaje, tipo });
@@ -64,6 +50,21 @@ export default function POSPage() {
         });
     };
 
+    useEffect(() => {
+        const cargarCatalogo = async () => {
+            try {
+                const data = await obtenerTodosLosProductosAdmin();
+                const soloActivos = data.filter(prod => prod.active === true);
+                setProductos(soloActivos); 
+            } catch (error) {
+                mostrarAlerta(`Error: ${error.message}`, "error");
+            } finally {
+                setCargando(false);
+            }
+        };
+        cargarCatalogo();
+    }, []);
+
     const quitarDelPOS = (id, size) => setCarritoPOS(prev => prev.filter(item => !(item.id === id && item.size === size)));
 
     const mathPOS = useMemo(() => {
@@ -82,14 +83,18 @@ export default function POSPage() {
         setConfirmacion({ visible: false, mensaje: '', metodoPago: '' }); 
         setProcesando(true);
         try {
+            // El backend calcula los precios por seguridad. Solo le enviamos lo estrictamente necesario.
             const payload = {
-                subTotal: mathPOS.subtotal, taxAmount: mathPOS.iva, totalAmount: mathPOS.total, paymentMethod: metodo,
-                items: carritoPOS.map(item => ({ productId: item.id, quantity: item.cantidad, size: item.size, unitPrice: item.precioFinal, price: item.precioFinal, precioEnCompra: item.precioFinal }))
+                items: carritoPOS.map(item => ({ 
+                    productId: item.id, 
+                    quantity: item.cantidad, 
+                    size: item.size 
+                }))
             };
             await crearPedidoFisico(payload);
             mostrarAlerta(`Venta en ${metodo} registrada. Stock actualizado.`, "success");
             setCarritoPOS([]); 
-            const data = await obtenerProductosActivos();
+            const data = await obtenerTodosLosProductosAdmin();
             setProductos(data.content || data);
         } catch (error) {
             mostrarAlerta(`Error: ${error.message}`, "error");
@@ -118,9 +123,10 @@ export default function POSPage() {
             <AnimatePresence>
                 {confirmacion.visible && (
                     <div className="pos-modal-backdrop" onClick={() => setConfirmacion({ visible: false, mensaje: '', metodoPago: '' })}>
-                        <motion.div className="pos-modal-content text-center" initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} onClick={(e) => e.stopPropagation()}>
+                        {/* MODAL ALINEADO A LA IZQUIERDA */}
+                        <motion.div className="pos-modal-content text-start" initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} onClick={(e) => e.stopPropagation()}>
                             <div className="mb-3">
-                                <i className={`fas ${confirmacion.metodoPago === 'Efectivo' ? 'fa-money-bill-wave text-success' : 'fa-credit-card text-white'} fa-3x mb-3`}></i>
+                                <i className={`fas ${confirmacion.metodoPago === 'Efectivo' ? 'fa-money-bill-wave text-success' : 'fa-credit-card text-white'} fa-2x mb-3`}></i>
                                 <h4 className="fw-bolder text-white mb-2">Procesar Venta</h4>
                                 <p className="text-secondary mb-0">{confirmacion.mensaje}</p>
                             </div>
@@ -133,11 +139,12 @@ export default function POSPage() {
                 )}
             </AnimatePresence>
 
-            <div className="container-fluid px-4 px-md-5">
+            <div className="container-fluid px-3 px-md-5">
                 <AnimatePresence>
                     {productoSeleccionado && (
                         <div className="pos-modal-backdrop" onClick={() => setProductoSeleccionado(null)}>
-                            <motion.div className="pos-modal-content" initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} onClick={(e) => e.stopPropagation()}>
+                            {/* MODAL ALINEADO A LA IZQUIERDA */}
+                            <motion.div className="pos-modal-content text-start" initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} onClick={(e) => e.stopPropagation()}>
                                 <div className="d-flex justify-content-between align-items-center mb-3">
                                     <h5 className="fw-bolder m-0 text-white">Elegir Talla</h5>
                                     <button className="btn-close" onClick={() => setProductoSeleccionado(null)}></button>
@@ -161,7 +168,8 @@ export default function POSPage() {
 
                 <motion.div className="row g-4 align-items-start" variants={containerVariants} initial="hidden" animate="visible">
                     <motion.div className="col-lg-8" variants={cardVariants}>
-                        <div className="pos-card h-100 d-flex flex-column pb-3">
+                        {/* TARJETA ALINEADA A LA IZQUIERDA */}
+                        <div className="pos-card h-100 d-flex flex-column pb-3 text-start">
                             <div className="pos-card-header d-flex justify-content-between align-items-center">
                                 <div><i className="fas fa-store me-2 opacity-50"></i> Catálogo Punto de Venta</div>
                                 <div className="pos-input-wrapper">
@@ -169,7 +177,7 @@ export default function POSPage() {
                                     <input type="text" className="pos-input" placeholder="Buscar por nombre o ID..." value={busqueda} onChange={(e) => setBusqueda(e.target.value)} disabled={cargando} />
                                 </div>
                             </div>
-                            <div className="row g-3 pos-scrollable p-4 flex-grow-1" style={{ maxHeight: '72vh', overflowY: 'auto' }}>
+                            <div className="row g-3 pos-scrollable p-3 p-md-4 flex-grow-1" style={{ maxHeight: '72vh', overflowY: 'auto' }}>
                                 {cargando ? (
                                     <div className="col-12 d-flex flex-column align-items-center justify-content-center" style={{ minHeight: '40vh' }}>
                                         <i className="fas fa-circle-notch fa-spin fa-3x text-white opacity-25 mb-3"></i>
@@ -191,11 +199,18 @@ export default function POSPage() {
                                                         <img src={prod.imageUrls?.[0] || '/imagenes/fondo.jpeg'} className="pos-product-img" alt={prod.name} />
                                                         {isSale && <span className="position-absolute top-0 start-0 m-2 badge bg-danger border border-danger">OFERTA</span>}
                                                     </div>
-                                                    <div className="card-body p-3 text-center d-flex flex-column justify-content-between">
-                                                        <small className="d-block fw-bold text-white text-truncate mb-1">{prod.name}</small>
-                                                        <span className="text-white fw-bolder fs-6 d-block">${finalPrice.toLocaleString('es-CL')}</span>
-                                                        <div className="mt-2" style={{ fontSize: '11px', fontWeight: '700' }}>
-                                                            {prod.stock > 0 ? <span className="stock-badge-ok">{prod.stock} disp.</span> : <span className="stock-badge-out">Agotado</span>}
+                                                    {/* TEXTOS ALINEADOS A LA IZQUIERDA */}
+                                                    <div className="card-body p-3 text-start d-flex flex-column justify-content-between">
+                                                        <div>
+                                                            <small className="d-block fw-bold text-white text-truncate mb-1">{prod.name}</small>
+                                                            {/* DESCRIPCIÓN CON 2 LÍNEAS MÁXIMO */}
+                                                            <p className="pos-product-desc">{prod.description || "Equipamiento RUKI."}</p>
+                                                        </div>
+                                                        <div className="mt-2">
+                                                            <span className="text-white fw-bolder fs-6 d-block mb-2">${finalPrice.toLocaleString('es-CL')}</span>
+                                                            <div style={{ fontSize: '11px', fontWeight: '700' }}>
+                                                                {prod.stock > 0 ? <span className="stock-badge-ok">{prod.stock} disp.</span> : <span className="stock-badge-out">Agotado</span>}
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </motion.div>
@@ -208,7 +223,8 @@ export default function POSPage() {
                     </motion.div>
 
                     <motion.div className="col-lg-4" variants={cardVariants}>
-                        <div className="pos-card h-100 d-flex flex-column">
+                        {/* TARJETA ALINEADA A LA IZQUIERDA */}
+                        <div className="pos-card h-100 d-flex flex-column text-start">
                             <div className="pos-card-header d-flex justify-content-between align-items-center">
                                 <div><i className="fas fa-receipt me-2 opacity-50"></i> Ticket de Caja</div>
                                 <span className="badge bg-white text-dark rounded-pill px-2 py-1" style={{fontSize: '11px'}}>{mathPOS.count} Ítems</span>
@@ -223,7 +239,7 @@ export default function POSPage() {
                                     ) : (
                                         carritoPOS.map(item => (
                                             <motion.div key={`${item.id}-${item.size}`} layout initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="d-flex justify-content-between align-items-center p-3 pos-ticket-item">
-                                                <div style={{ lineHeight: '1.4' }}>
+                                                <div className="text-start" style={{ lineHeight: '1.4' }}>
                                                     <strong className="d-block text-white text-truncate" style={{fontSize: '13px', maxWidth: '160px'}}>{item.name}</strong>
                                                     <small className="text-secondary" style={{ fontSize: '11px', fontWeight: '500' }}>{item.cantidad} x ${item.precioFinal.toLocaleString('es-CL')} <strong className="text-white opacity-75">(Talla: {item.size})</strong></small>
                                                 </div>
