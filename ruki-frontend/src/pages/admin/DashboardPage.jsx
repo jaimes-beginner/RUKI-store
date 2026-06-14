@@ -85,21 +85,23 @@ export default function DashboardPage() {
                 <div className="admin-glow-blob admin-blob-green"></div>
             </div>
 
-            <div className="container px-4 px-md-5 py-4">
-                <motion.div className="admin-dashboard-header" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+            <div className="container px-3 px-md-5 py-4">
+                
+                {/* CABECERA ALINEADA A LA IZQUIERDA */}
+                <motion.div className="admin-dashboard-header text-start" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
                     <h1 className="admin-title">Centro de Control</h1>
                     <p className="admin-subtitle">Bienvenido, <strong>Administrador</strong>. Resumen global de operaciones RUKI.</p>
                 </motion.div>
 
                 <AnimatePresence>
-                    {cargando && <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="admin-alert info mb-4"><i className="fas fa-circle-notch fa-spin me-2"></i> Sincronizando red de datos...</motion.div>}
-                    {error && <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="admin-alert error mb-4"><i className="fas fa-exclamation-triangle me-2"></i> {error}</motion.div>}
+                    {cargando && <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="admin-alert info mb-4 text-start"><i className="fas fa-circle-notch fa-spin me-2"></i> Sincronizando red de datos...</motion.div>}
+                    {error && <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="admin-alert error mb-4 text-start"><i className="fas fa-exclamation-triangle me-2"></i> {error}</motion.div>}
                 </AnimatePresence>
 
                 <motion.div variants={containerVariants} initial="hidden" animate="visible">
                     <div className="row g-4 mb-4">
                         <motion.div className="col-12 col-md-4" variants={cardVariants}>
-                            <motion.div whileHover={{ y: -5 }} className="admin-card h-100 d-flex flex-column justify-content-between">
+                            <motion.div whileHover={{ y: -5 }} className="admin-card h-100 d-flex flex-column justify-content-between text-start">
                                 <div>
                                     <div className="d-flex justify-content-between align-items-start mb-3"><div className="admin-label">Inventario Total</div><div className="admin-icon"><i className="fas fa-box-open" style={{color: '#0a84ff'}}></i></div></div>
                                     <div className="admin-kpi-number">{totalProductos}</div>
@@ -110,7 +112,7 @@ export default function DashboardPage() {
                         </motion.div>
 
                         <motion.div className="col-12 col-md-4" variants={cardVariants}>
-                            <motion.div whileHover={{ y: -5 }} className="admin-card h-100 d-flex flex-column justify-content-between">
+                            <motion.div whileHover={{ y: -5 }} className="admin-card h-100 d-flex flex-column justify-content-between text-start">
                                 <div>
                                     <div className="d-flex justify-content-between align-items-start mb-3"><div className="admin-label">Base de Usuarios</div><div className="admin-icon"><i className="fas fa-users" style={{color: '#5ac8fa'}}></i></div></div>
                                     <div className="admin-kpi-number">{totalUsuarios}</div>
@@ -121,7 +123,7 @@ export default function DashboardPage() {
                         </motion.div>
 
                         <motion.div className="col-12 col-md-4" variants={cardVariants}>
-                            <motion.div whileHover={{ y: -5 }} className={`admin-card h-100 d-flex flex-column justify-content-between ${bajoStockCount > 0 ? 'critical-border' : ''}`}>
+                            <motion.div whileHover={{ y: -5 }} className={`admin-card h-100 d-flex flex-column justify-content-between text-start ${bajoStockCount > 0 ? 'critical-border' : ''}`}>
                                 <div>
                                     <div className="d-flex justify-content-between align-items-start mb-3"><div className={`admin-label ${bajoStockCount > 0 ? 'text-danger' : ''}`}>Alerta de Stock</div><div className={`admin-icon ${bajoStockCount > 0 ? 'critical-icon' : ''}`}><i className="fas fa-exclamation-triangle"></i></div></div>
                                     <div className={`admin-kpi-number ${bajoStockCount > 0 ? 'text-danger' : ''}`}>{bajoStockCount}</div>
@@ -134,7 +136,7 @@ export default function DashboardPage() {
 
                     <div className="row g-4 mb-4">
                         <motion.div className="col-12 col-md-6" variants={cardVariants}>
-                            <motion.div whileHover={{ scale: 1.02 }} className="admin-card p-4 h-100 feature-card-1 border-0">
+                            <motion.div whileHover={{ scale: 1.02 }} className="admin-card p-4 h-100 feature-card-1 border-0 text-start">
                                 <div className="d-flex justify-content-between align-items-start">
                                     <div className="z-2">
                                         <div className="admin-label text-white opacity-75 mb-3">Pedidos Pendientes</div>
@@ -150,7 +152,7 @@ export default function DashboardPage() {
                         </motion.div>
 
                         <motion.div className="col-12 col-md-6" variants={cardVariants}>
-                            <motion.div whileHover={{ scale: 1.02 }} className="admin-card p-4 h-100 feature-card-2 border-0">
+                            <motion.div whileHover={{ scale: 1.02 }} className="admin-card p-4 h-100 feature-card-2 border-0 text-start">
                                 <div className="d-flex justify-content-between align-items-start">
                                     <div className="z-2">
                                         <div className="admin-label text-white opacity-75 mb-3">Ingresos Netos</div>
@@ -165,7 +167,7 @@ export default function DashboardPage() {
 
                     <div className="row g-4 mb-4">
                         <motion.div className="col-lg-7" variants={cardVariants}>
-                            <div className="admin-card h-100 d-flex flex-column">
+                            <div className="admin-card h-100 d-flex flex-column text-start">
                                 <div className="admin-label d-flex justify-content-between align-items-center mb-3">
                                     <span>Actividad Reciente</span><Link to="/admin/pedidos" className="admin-link-accent">VER TODO <i className="fas fa-arrow-right ms-1"></i></Link>
                                 </div>
@@ -173,7 +175,12 @@ export default function DashboardPage() {
                                     <div className="admin-table-wrapper">
                                         <table className="table table-borderless table-dark table-hover admin-table mb-0" style={{ backgroundColor: 'transparent' }}>
                                             <thead style={{ backgroundColor: '#0a0a0a' }}>
-                                                <tr><th className="ps-4" style={{ color: '#86868b', backgroundColor: 'transparent' }}>ID</th><th style={{ color: '#86868b', backgroundColor: 'transparent' }}>Fecha</th><th style={{ color: '#86868b', backgroundColor: 'transparent' }}>Total</th><th className="text-end pe-4" style={{ color: '#86868b', backgroundColor: 'transparent' }}>Estado</th></tr>
+                                                <tr>
+                                                    <th className="ps-4 text-start" style={{ color: '#86868b', backgroundColor: 'transparent' }}>ID</th>
+                                                    <th className="text-start" style={{ color: '#86868b', backgroundColor: 'transparent' }}>Fecha</th>
+                                                    <th className="text-start" style={{ color: '#86868b', backgroundColor: 'transparent' }}>Total</th>
+                                                    <th className="text-end pe-4" style={{ color: '#86868b', backgroundColor: 'transparent' }}>Estado</th>
+                                                </tr>
                                             </thead>
                                             <tbody>
                                                 {ultimosPedidos.length > 0 ? (
@@ -184,9 +191,9 @@ export default function DashboardPage() {
                                                         const orderDate = getOrderDate(p);
                                                         return (
                                                             <tr key={p.id} className="admin-table-row">
-                                                                <td className="ps-4 fw-bold text-white" style={{ backgroundColor: 'transparent', borderBottom: '1px solid #1f1f1f' }}>#{p.id}</td>
-                                                                <td className="text-secondary" style={{ backgroundColor: 'transparent', borderBottom: '1px solid #1f1f1f' }}>{orderDate ? new Date(orderDate).toLocaleDateString("es-CL", {day:'2-digit', month:'short'}) : "—"}</td>
-                                                                <td className="fw-bold text-white" style={{ backgroundColor: 'transparent', borderBottom: '1px solid #1f1f1f' }}>{formatearPrecio(getOrderTotal(p))}</td>
+                                                                <td className="ps-4 fw-bold text-white text-start" style={{ backgroundColor: 'transparent', borderBottom: '1px solid #1f1f1f' }}>#{p.id}</td>
+                                                                <td className="text-secondary text-start" style={{ backgroundColor: 'transparent', borderBottom: '1px solid #1f1f1f' }}>{orderDate ? new Date(orderDate).toLocaleDateString("es-CL", {day:'2-digit', month:'short'}) : "—"}</td>
+                                                                <td className="fw-bold text-white text-start" style={{ backgroundColor: 'transparent', borderBottom: '1px solid #1f1f1f' }}>{formatearPrecio(getOrderTotal(p))}</td>
                                                                 <td className="text-end pe-4" style={{ backgroundColor: 'transparent', borderBottom: '1px solid #1f1f1f' }}>{isDone ? <span className="admin-badge badge-ok">OK</span> : isCanceled ? <span className="admin-badge badge-out">CANCELADO</span> : <span className="admin-badge badge-low">PENDIENTE</span>}</td>
                                                             </tr>
                                                         );
@@ -200,24 +207,26 @@ export default function DashboardPage() {
                         </motion.div>
 
                         <motion.div className="col-lg-5" variants={cardVariants}>
-                            <div className="admin-card h-100 d-flex flex-column">
+                            <div className="admin-card h-100 d-flex flex-column text-start">
                                 <div className="admin-label mb-3"><i className="fas fa-crosshairs me-2 text-primary"></i>Tracker de Pedidos</div>
                                 <div className="card-body p-0">
                                     <div className="admin-label mb-2 mt-2">Búsqueda Directa por ID</div>
-                                    <div className="d-flex gap-2 mb-4">
+                                    
+                                    {/* FLEX-COLUMN EN CELULAR PARA QUE EL BOTÓN NO SE APLASTE */}
+                                    <div className="d-flex flex-column flex-sm-row gap-2 mb-4">
                                         <div className="admin-input-wrapper flex-grow-1">
                                             <i className="fas fa-search input-icon"></i>
                                             <input type="number" className="admin-input w-100" placeholder="Ej: 15..." value={pedidoId} onChange={(e) => setPedidoId(e.target.value)} />
                                         </div>
-                                        <motion.button whileTap={{ scale: 0.95 }} className="admin-btn-solid" onClick={() => fetchPedidoPorId(pedidoId)} disabled={cargandoPedido}>
+                                        <motion.button whileTap={{ scale: 0.95 }} className="admin-btn-solid w-100 w-sm-auto" onClick={() => fetchPedidoPorId(pedidoId)} disabled={cargandoPedido}>
                                             {cargandoPedido ? <i className="fas fa-spinner fa-spin" /> : "Rastrear"}
                                         </motion.button>
                                     </div>
 
                                     <AnimatePresence>
-                                        {errorPedido && <motion.div initial={{opacity:0, height:0}} animate={{opacity:1, height:'auto'}} exit={{opacity:0, height:0}} className="admin-alert error mb-3"><i className="fas fa-exclamation-triangle me-2"></i> {errorPedido}</motion.div>}
+                                        {errorPedido && <motion.div initial={{opacity:0, height:0}} animate={{opacity:1, height:'auto'}} exit={{opacity:0, height:0}} className="admin-alert error mb-3 text-start"><i className="fas fa-exclamation-triangle me-2"></i> {errorPedido}</motion.div>}
                                         {pedidoDetalle && (
-                                            <motion.div initial={{opacity:0, scale: 0.95}} animate={{opacity:1, scale: 1}} exit={{opacity:0}} className="admin-tracker-result">
+                                            <motion.div initial={{opacity:0, scale: 0.95}} animate={{opacity:1, scale: 1}} exit={{opacity:0}} className="admin-tracker-result text-start">
                                                 <div className="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom" style={{ borderColor: '#222' }}>
                                                     <span className="fw-bold text-white fs-6">Orden #{pedidoDetalle.id}</span>
                                                     <span className="fw-bold text-accent fs-6">{formatearPrecio(getOrderTotal(pedidoDetalle))}</span>
@@ -234,7 +243,7 @@ export default function DashboardPage() {
                                                         const itemKey = String(d?.productoId ?? d?.productId ?? d?.id ?? `item-${quantity}`);
                                                         return (
                                                             <div key={itemKey} className="tracker-item-row">
-                                                                <div className="tracker-item-name text-truncate">{productos.find(p => p.id === (d?.productoId ?? d?.productId))?.name || `Prod #${d?.productoId ?? d?.productId}`}<div className="text-secondary mt-1" style={{fontSize: '10px'}}>ID: {d?.productoId ?? d?.productId}</div></div>
+                                                                <div className="tracker-item-name text-truncate text-start">{productos.find(p => p.id === (d?.productoId ?? d?.productId))?.name || `Prod #${d?.productoId ?? d?.productId}`}<div className="text-secondary mt-1" style={{fontSize: '10px'}}>ID: {d?.productoId ?? d?.productId}</div></div>
                                                                 <div className="tracker-item-qty">x{quantity}</div>
                                                                 <div className="tracker-item-price">{formatearPrecio(lineTotal)}</div>
                                                             </div>
@@ -249,7 +258,7 @@ export default function DashboardPage() {
                         </motion.div>
                     </div>
 
-                    <motion.div className="admin-card p-4" variants={cardVariants}>
+                    <motion.div className="admin-card p-4 text-start" variants={cardVariants}>
                         <div className="d-flex justify-content-between align-items-end mb-2">
                             <h6 className="fw-bolder text-white mb-0" style={{ letterSpacing: "-0.02em" }}>Salud del Inventario Global</h6>
                             <span className="admin-label text-success mb-0" style={{ color: '#30d158' }}>{pctOk}% Óptimo</span>

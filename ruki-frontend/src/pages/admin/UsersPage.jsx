@@ -98,7 +98,8 @@ export default function UsersPage() {
             </div>
 
             <div className="container py-4 position-relative">
-                <motion.header className="usr-page-header" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+                {/* CABECERA ALINEADA A LA IZQUIERDA */}
+                <motion.header className="usr-page-header text-start" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
                     <h1 className="usr-title">Gestión de Usuarios</h1>
                     <p className="usr-subtitle">Administra los accesos y la comunidad de <strong>RUKI</strong>.</p>
                 </motion.header>
@@ -154,8 +155,10 @@ export default function UsersPage() {
                 </AnimatePresence>
 
                 <motion.div className="row g-4 align-items-start" variants={containerVariants} initial="hidden" animate="visible">
+                    
+                    {/* TARJETA DE FORMULARIO ALINEADA A LA IZQUIERDA */}
                     <motion.div className="col-lg-4" variants={cardVariants}>
-                        <div className="usr-card">
+                        <div className="usr-card text-start">
                             <div className="usr-card-header d-flex justify-content-between align-items-center">
                                 <div><i className={`fas ${editingId ? 'fa-user-edit text-primary' : 'fa-user-plus'} me-2`}></i>{editingId ? "Editando Usuario" : "Nuevo Usuario"}</div>
                                 {editingId && <span className="usr-badge badge-dark">ID: {editingId}</span>}
@@ -203,8 +206,9 @@ export default function UsersPage() {
                         </div>
                     </motion.div>
 
+                    {/* TARJETA DE TABLA ALINEADA A LA IZQUIERDA */}
                     <motion.div className="col-lg-8" variants={cardVariants}>
-                        <div className="usr-card h-100 d-flex flex-column">
+                        <div className="usr-card h-100 d-flex flex-column text-start">
                             <div className="usr-card-header d-flex justify-content-between align-items-center">
                                 <div><i className="fas fa-address-book me-2 opacity-50"></i> Base de Datos de Usuarios</div>
                                 <span className="usr-badge badge-light-blue">{usuarios.length} REGISTROS</span>
@@ -212,7 +216,14 @@ export default function UsersPage() {
                             <div className="usr-table-container flex-grow-1">
                                 <table className="usr-table">
                                     <thead>
-                                        <tr><th className="ps-4">Usuario</th><th>Contacto</th><th>Registro</th><th>Rol</th><th>Estado</th><th className="text-end pe-4">Acciones</th></tr>
+                                        <tr>
+                                            <th className="ps-4 text-start">Usuario</th>
+                                            <th className="text-start">Contacto</th>
+                                            <th className="text-start">Registro</th>
+                                            <th className="text-start">Rol</th>
+                                            <th className="text-start">Estado</th>
+                                            <th className="text-end pe-4">Acciones</th>
+                                        </tr>
                                     </thead>
                                     <tbody>
                                         <AnimatePresence>
@@ -221,7 +232,7 @@ export default function UsersPage() {
                                                 const isAdmin = roleStr === 'ROLE_ADMIN' || roleStr === 'ADMIN';
                                                 return (
                                                     <motion.tr key={u.id} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, backgroundColor: "#ff3b3020" }} className={editingId === u.id ? 'active-row' : ''}>
-                                                        <td className="ps-4">
+                                                        <td className="ps-4 text-start">
                                                             <div className="d-flex align-items-center gap-3">
                                                                 <div>
                                                                     <div className="usr-item-name" style={{ fontSize: '11px' }}>{u.firstName} {u.lastName}</div>
@@ -229,10 +240,10 @@ export default function UsersPage() {
                                                                 </div>
                                                             </div>
                                                         </td>
-                                                        <td className="usr-text-muted" style={{ fontSize: '11px' }}>{u.email}</td>
-                                                        <td className="usr-text-muted" style={{ fontSize: '11px' }}>{formatearFecha(u.createdAt)}</td>
-                                                        <td><span className={`usr-badge ${isAdmin ? 'badge-dark' : 'badge-neutral'}`}>{isAdmin ? 'ADMINISTRADOR' : 'CLIENTE'}</span></td>
-                                                        <td><span className={`usr-badge ${u.active ? 'badge-active' : 'badge-inactive'}`}>{u.active ? 'ACTIVO' : 'INACTIVO'}</span></td>
+                                                        <td className="usr-text-muted text-start" style={{ fontSize: '11px' }}>{u.email}</td>
+                                                        <td className="usr-text-muted text-start" style={{ fontSize: '11px' }}>{formatearFecha(u.createdAt)}</td>
+                                                        <td className="text-start"><span className={`usr-badge ${isAdmin ? 'badge-dark' : 'badge-neutral'}`}>{isAdmin ? 'ADMINISTRADOR' : 'CLIENTE'}</span></td>
+                                                        <td className="text-start"><span className={`usr-badge ${u.active ? 'badge-active' : 'badge-inactive'}`}>{u.active ? 'ACTIVO' : 'INACTIVO'}</span></td>
                                                         <td className="text-end pe-4">
                                                             <div className="d-flex justify-content-end gap-2">
                                                                 <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="usr-action-btn edit" onClick={() => handleEditar(u)} title="Editar Usuario"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg></motion.button>

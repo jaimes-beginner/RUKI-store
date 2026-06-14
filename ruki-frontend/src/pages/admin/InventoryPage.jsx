@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { crearProducto, obtenerProductosAdminPaginados, desactivarProducto, reactivarProducto, actualizarProducto, obtenerCategoriasActivas } from "@/services/ProductoService"; // <-- Alias
+import { crearProducto, obtenerProductosAdminPaginados, desactivarProducto, reactivarProducto, actualizarProducto, obtenerCategoriasActivas } from "@/services/ProductoService"; 
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from '@/config/SupabaseConfig'; 
 import './InventoryPage.css';
@@ -156,7 +156,8 @@ export default function InventoryPage() {
             </div>
 
             <div className="container py-4">
-                <motion.header className="inv-page-header" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+                {/* CABECERA ALINEADA A LA IZQUIERDA */}
+                <motion.header className="inv-page-header text-start" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
                     <h1 className="inv-title">Inventario Maestro</h1>
                     <p className="inv-subtitle">Gestiona tu catálogo de productos con la precisión de <strong>RUKI</strong>.</p>
                 </motion.header>
@@ -212,8 +213,10 @@ export default function InventoryPage() {
                 </AnimatePresence>
 
                 <motion.div className="row g-4 align-items-start" variants={containerVariants} initial="hidden" animate="visible">
+                    
+                    {/* TARJETA DE FORMULARIO ALINEADA A LA IZQUIERDA */}
                     <motion.div className="col-lg-4" variants={cardVariants}>
-                        <div className="inv-card">
+                        <div className="inv-card text-start">
                             <div className="inv-card-header d-flex justify-content-between align-items-center">
                                 <div><i className={`fas ${editingId ? 'fa-pen-nib text-primary' : 'fa-magic text-white'} me-2`}></i>{editingId ? "Editando Producto" : "Crear Producto"}</div>
                                 {editingId && <span className="inv-badge badge-dark">ID: {editingId}</span>}
@@ -302,8 +305,9 @@ export default function InventoryPage() {
                         </div>
                     </motion.div>
 
+                    {/* TARJETA DE TABLA ALINEADA A LA IZQUIERDA */}
                     <motion.div className="col-lg-8" variants={cardVariants}>
-                        <div className="inv-card h-100 d-flex flex-column">
+                        <div className="inv-card h-100 d-flex flex-column text-start">
                             <div className="inv-card-header d-flex justify-content-between align-items-center">
                                 <div><i className="fas fa-database me-2 opacity-75"></i> Base de Datos de Productos</div>
                                 <span className="inv-badge badge-light-blue">{productos.length} REGISTROS</span>
@@ -312,14 +316,19 @@ export default function InventoryPage() {
                                 <table className="inv-table">
                                     <thead>
                                         <tr>
-                                            <th className="ps-4">Producto</th><th>Categoría</th><th>Precio</th><th>Stock Total</th><th>Estado</th><th className="text-end pe-4">Acciones</th>
+                                            <th className="ps-4 text-start">Producto</th>
+                                            <th className="text-start">Categoría</th>
+                                            <th className="text-start">Precio</th>
+                                            <th className="text-start">Stock Total</th>
+                                            <th className="text-start">Estado</th>
+                                            <th className="text-end pe-4">Acciones</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <AnimatePresence>
                                             {productos.map(p => (
                                                 <motion.tr key={p.id} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, backgroundColor: "#ff3b3020" }} className={editingId === p.id ? 'active-row' : ''}>
-                                                    <td className="ps-4">
+                                                    <td className="ps-4 text-start">
                                                         <div className="d-flex align-items-center gap-3 text-start">
                                                             {p.imageUrls && p.imageUrls.length > 0 ? <img src={p.imageUrls[0]} alt="" className="inv-avatar" /> : <div className="inv-avatar-fallback"><i className="fas fa-camera-retro"></i></div>}
                                                             <div className="d-flex flex-column align-items-start">
@@ -328,16 +337,16 @@ export default function InventoryPage() {
                                                             </div>
                                                         </div>
                                                     </td>
-                                                    <td className="inv-text-muted" style={{ fontSize: '11px' }}>{p.category?.name || "Sin Asignar"}</td>
-                                                    <td>
+                                                    <td className="inv-text-muted text-start" style={{ fontSize: '11px' }}>{p.category?.name || "Sin Asignar"}</td>
+                                                    <td className="text-start">
                                                         {p.sale || p.isSale ? (
                                                             <div><span className="inv-item-price text-danger d-block" >${Number(p.salePrice).toLocaleString('es-CL')}</span><span className="text-decoration-line-through text-secondary small">${Number(p.basePrice).toLocaleString('es-CL')}</span></div>
                                                         ) : <span className="inv-item-price">${Number(p.basePrice).toLocaleString('es-CL')}</span>}
                                                     </td>
-                                                    <td>
+                                                    <td className="text-start">
                                                         {p.stock > 10 ? <span className="inv-status-dot ok">Óptimo ({p.stock})</span> : p.stock > 0 ? <span className="inv-status-dot warning">Bajo ({p.stock})</span> : <span className="inv-status-dot error">Agotado</span>}
                                                     </td>
-                                                    <td><span className={`inv-badge ${p.active ? 'badge-active' : 'badge-inactive'}`}>{p.active ? 'ACTIVO' : 'INACTIVO'}</span></td>
+                                                    <td className="text-start"><span className={`inv-badge ${p.active ? 'badge-active' : 'badge-inactive'}`}>{p.active ? 'ACTIVO' : 'INACTIVO'}</span></td>
                                                     <td className="text-end pe-4">
                                                         <div className="d-flex justify-content-end gap-2">
                                                             <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="inv-action-btn edit" onClick={() => handleEditar(p)} title="Editar"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg></motion.button>

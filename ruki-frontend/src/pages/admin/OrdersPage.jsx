@@ -106,7 +106,8 @@ export default function OrdersPage() {
             </div>
 
             <div className="container py-4 position-relative">
-                <motion.header className="ord-page-header" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+                {/* CABECERA ALINEADA A LA IZQUIERDA */}
+                <motion.header className="ord-page-header text-start" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
                     <h1 className="ord-title">Gestión de Pedidos</h1>
                     <p className="ord-subtitle">Supervisa la logística y despachos de <strong>RUKI</strong>.</p>
                 </motion.header>
@@ -140,8 +141,10 @@ export default function OrdersPage() {
                 </AnimatePresence>
 
                 <motion.div className="row g-4 align-items-start" variants={containerVariants} initial="hidden" animate="visible">
+                    
+                    {/* TARJETA DE DETALLE ALINEADA A LA IZQUIERDA */}
                     <motion.div className="col-lg-4" variants={cardVariants}>
-                        <div className="ord-card">
+                        <div className="ord-card text-start">
                             <div className="ord-card-header d-flex justify-content-between align-items-center">
                                 <div><i className="fas fa-box-open me-2"></i>Detalle del Pedido</div>
                                 {pedidoSeleccionado && <span className="ord-badge badge-dark">#{pedidoSeleccionado.id}</span>}
@@ -172,7 +175,7 @@ export default function OrdersPage() {
                                                     <tbody>
                                                         {(pedidoSeleccionado.items || []).map((item, idx) => (
                                                             <tr key={idx} className="border-bottom-subtle">
-                                                                <td className="ps-0 py-2 fw-semibold text-white" style={{ fontSize: '12px', backgroundColor: 'transparent' }}>
+                                                                <td className="ps-0 py-2 fw-semibold text-white text-start" style={{ fontSize: '12px', backgroundColor: 'transparent' }}>
                                                                     <div className="text-truncate" style={{ maxWidth: '140px' }}>{nombresProductos[item.productId] || `Prod #${item.productId}`}</div>
                                                                     <div className="d-flex align-items-center gap-2 mt-1"><span className="ord-helper-text m-0">ID: {item.productId}</span><span className="ord-item-badge">Talla: {item.size || item.selectedSize || 'Única'}</span></div>
                                                                 </td>
@@ -209,8 +212,9 @@ export default function OrdersPage() {
                         </div>
                     </motion.div>
 
+                    {/* TARJETA DE TABLA ALINEADA A LA IZQUIERDA */}
                     <motion.div className="col-lg-8" variants={cardVariants}>
-                        <div className="ord-card h-100 d-flex flex-column">
+                        <div className="ord-card h-100 d-flex flex-column text-start">
                             <div className="ord-card-header d-flex justify-content-between align-items-center">
                                 <div><i className="fas fa-list-ul me-2"></i> Historial General</div>
                                 <span className="ord-badge badge-light-blue">{pedidos.length} ÓRDENES</span>
@@ -218,16 +222,22 @@ export default function OrdersPage() {
                             <div className="ord-table-container flex-grow-1">
                                 <table className="ord-table">
                                     <thead>
-                                        <tr><th className="ps-4">ID Orden</th><th>Fecha</th><th>Monto</th><th>Estado</th><th className="text-end pe-4">Gestión</th></tr>
+                                        <tr>
+                                            <th className="ps-4 text-start">ID Orden</th>
+                                            <th className="text-start">Fecha</th>
+                                            <th className="text-start">Monto</th>
+                                            <th className="text-start">Estado</th>
+                                            <th className="text-end pe-4">Gestión</th>
+                                        </tr>
                                     </thead>
                                     <tbody>
                                         <AnimatePresence>
                                             {pedidos.map(p => (
                                                 <motion.tr key={p.id} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className={pedidoSeleccionado?.id === p.id ? 'active-row' : ''}>
-                                                    <td className="ps-4"><div className="ord-item-name">#{p.id}</div><div className="ord-item-id">User #{p.userId}</div></td>
-                                                    <td className="ord-text-muted">{formatearFecha(p.createdAt)}</td>
-                                                    <td className="ord-item-price">{formatearPrecio(p.totalAmount)}</td>
-                                                    <td>{renderBadgeEstado(p.status || p.estado)}</td>
+                                                    <td className="ps-4 text-start"><div className="ord-item-name">#{p.id}</div><div className="ord-item-id">User #{p.userId}</div></td>
+                                                    <td className="ord-text-muted text-start">{formatearFecha(p.createdAt)}</td>
+                                                    <td className="ord-item-price text-start">{formatearPrecio(p.totalAmount)}</td>
+                                                    <td className="text-start">{renderBadgeEstado(p.status || p.estado)}</td>
                                                     <td className="text-end pe-4">
                                                         <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="ord-action-btn view" onClick={() => handleVerDetalle(p)} title="Ver detalles"><i className="fas fa-eye"></i></motion.button>
                                                     </td>
