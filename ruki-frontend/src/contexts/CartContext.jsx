@@ -1,89 +1,45 @@
 import { createContext, useContext, useState, useEffect, useMemo, useCallback } from "react";
-import { useAuth } from "./AuthContext"; // IMPORTANTE: Importamos para saber quién está logueado
+import { useAuth } from "./AuthContext"; 
 
 const CartContext = createContext(null);
 
 export function CartProvider({ children }) {
-    /*
-        Obtenemos el usuario actual
-    */
     const { usuario, isAuthenticated } = useAuth();
     
-    /*
-        Generamos una llave de carrito 
-        única basada en el usuario
-    */
     const cartKey = useMemo(() => {
-        if (isAuthenticated && usuario && usuario.id) {
-
-            /*
-                Carrito privado del usuario
-            */
-            return `ruki_cart_user_${usuario.id}`; 
-        }
-
-        /*
-            Carrito público (invitado)
-        */
-        return "ruki_cart_guest"; 
+        return (isAuthenticated && usuario && usuario.id) 
+            ? `ruki_cart_user_${usuario.id}` 
+            : "ruki_cart_guest"; 
     }, [isAuthenticated, usuario]);
 
-    /*
-        Inicializamos el estado del carrito 
-        LEYENDO de la llave correcta
-    */
-    const [cart, setCart] = useState([]);
+    const [cart, setCart] = useState(() => {
+        try {
+            const savedCart = localStorage.getItem(cartKey);
+            return savedCart ? JSON.parse(savedCart) : [];
+        } catch {
+            return [];
+        }
+    });
 
-    /*
-        Cada vez que cambie de usuario (o inicie 
-        sesión), cargamos SU carrito correspondiente
-    */
     useEffect(() => {
         try {
             const savedCart = localStorage.getItem(cartKey);
-            if (savedCart) {
-                setCart(JSON.parse(savedCart));
-            } else {
-
-                /*
-                    Si este usuario no tiene carrito 
-                    guardado, arranca vacío
-                */
-                setCart([]); 
-            }
-        } catch (error) {
-            console.error("Error al leer el carrito local:", error);
+            setCart(savedCart ? JSON.parse(savedCart) : []);
+        } catch {
             setCart([]);
         }
-
-    /*
-        El useEffect se dispara cuando la llave 
-        cambia (cuando alguien hace login/logout)
-    */
     }, [cartKey]); 
 
-    /*
-        Cada vez que el carrito cambie (agrega, quita 
-        items), guardamos en la llave correcta
-    */
-    useEffect(() => {
-        
-        /*
-            Evitamos guardar un array vacío sobreescribiendo 
-            algo por error durante la carga inicial
-        */
-        localStorage.setItem(cartKey, JSON.stringify(cart));
-    }, [cart, cartKey]);
 
     const addToCart = (producto, cantidad = 1) => {
         setCart(prevCart => {
             const size = producto.selectedSize || 'Única';
             const uniqueCartId = `${producto.id}-${size}`;
-            
             const itemExistente = prevCart.find(item => item.uniqueId === uniqueCartId);
 
+            let newCart;
             if (itemExistente) {
-                return prevCart.map(item => 
+                newCart = prevCart.map(item => 
                     item.uniqueId === uniqueCartId 
                         ? { ...item, cantidad: item.cantidad + cantidad }
                         : item
@@ -93,7 +49,7 @@ export function CartProvider({ children }) {
                     ? producto.cartPrice 
                     : (producto.sale ? producto.salePrice : producto.basePrice);
 
-                return [...prevCart, { 
+                newCart = [...prevCart, { 
                     ...producto, 
                     selectedSize: size,
                     uniqueId: uniqueCartId, 
@@ -101,37 +57,49 @@ export function CartProvider({ children }) {
                     precioFinal: Number(precio)
                 }];
             }
+            
+            // GUARDADO INSTANTÁNEO
+            localStorage.setItem(cartKey, JSON.stringify(newCart));
+            return newCart;
         });
     };
 
     const removeFromCart = (uniqueId) => {
-        setCart((prevCart) => prevCart.filter(item => item.uniqueId !== uniqueId));
+        setCart(prevCart => {
+            const newCart = prevCart.filter(item => item.uniqueId !== uniqueId);
+            // GUARDADO INSTANTÁNEO
+            localStorage.setItem(cartKey, JSON.stringify(newCart));
+            return newCart;
+        });
     };
 
     const updateQuantity = (uniqueId, newQuantity) => {
         if (newQuantity < 1) return;
 
-        setCart((prevCart) => 
-            prevCart.map(item => {
+        setCart(prevCart => {
+            const newCart = prevCart.map(item => {
                 if (item.uniqueId === uniqueId) {
                     const variantStock = item.variants?.find(v => v.size === item.selectedSize)?.stock;
                     const maxStock = variantStock !== undefined ? variantStock : item.stock;
-                    
                     const safeQuantity = newQuantity > maxStock ? maxStock : newQuantity;
                     return { ...item, cantidad: safeQuantity };
                 }
                 return item;
-            })
-        );
+            });
+            // GUARDADO INSTANTÁNEO
+            localStorage.setItem(cartKey, JSON.stringify(newCart));
+            return newCart;
+        });
     };
 
-    const clearCart = useCallback(() => {
 
-        /*
-            Simplemente lo vaciamos
-        */
+    const clearCart = useCallback(() => {
         setCart([]); 
-    }, []);
+        localStorage.setItem(cartKey, JSON.stringify([]));  // Sobrescribe con vacío
+        localStorage.removeItem("ruki_cart_guest");         // Limpia basura de invitado por si acaso
+    }, [cartKey]);
+
+
 
     const cartTotals = useMemo(() => {
         const totalesBasicos = cart.reduce(
@@ -161,9 +129,9 @@ export function CartProvider({ children }) {
     const value = {
         cart,
         cartCount: cartTotals.count,
-        cartTotalAmount: cartTotals.totalAmount,    // El cliente paga esto
-        cartSubtotal: cartTotals.subtotal,          // Lo que gana la tienda
-        cartIva: cartTotals.iva,                    // Lo que va para el estado
+        cartTotalAmount: cartTotals.totalAmount,
+        cartSubtotal: cartTotals.subtotal,
+        cartIva: cartTotals.iva,
         addToCart,
         removeFromCart,
         updateQuantity,
