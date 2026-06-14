@@ -67,7 +67,7 @@ export default function OrdersPage() {
                     setDireccionCompleta(`ID Dirección: ${pedido.shippingAddressId} (Fue eliminada o modificada)`);
                 }
             } catch (error) { setDireccionCompleta("Error al obtener la dirección."); }
-        } else { setDireccionCompleta("Dirección no especificada."); }
+        } else { setDireccionCompleta("Entregado en Tienda Física."); }
     };
 
     const handleActualizarEstado = async (e) => { e.preventDefault(); if (!pedidoSeleccionado) return; setShowEstadoModal(true); };
