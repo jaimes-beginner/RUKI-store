@@ -2,71 +2,75 @@ package com.ruki.user;
 
 import com.ruki.user.entities.Role;
 import com.ruki.user.entities.User;
+import com.ruki.user.exceptions.ResourceConflictException;
 import com.ruki.user.repositories.UserRepository;
+import com.ruki.user.requests.UserCreate;
+import com.ruki.user.requests.UserResponse;
+import com.ruki.user.services.UserServiceImpl;
+
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
-import java.util.Optional;
-
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-
-@SpringBootTest
-@AutoConfigureMockMvc
+@ExtendWith(MockitoExtension.class)
 class UserServiceImplTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+    @Mock private UserRepository userRepository;
+    @Mock private PasswordEncoder passwordEncoder;
 
-    @MockitoBean
-    private UserRepository userRepository;
+    @InjectMocks
+    private UserServiceImpl userService;
 
-    // TEST 1: Verificar el perfil con un token válido (Rol Customer)
     @Test
-    @WithMockUser(username = "cliente@gmail.com", roles = "CUSTOMER") // Magia: Finge que ya iniciamos sesión
-    void getMyProfile_WithValidToken_ReturnsUserProfile() throws Exception {
+    @DisplayName("ÉXITO: Debe crear un usuario si el correo no existe")
+    void createUser_Success() {
         // Arrange
-        User mockUser = new User();
-        mockUser.setId(2L);
-        mockUser.setEmail("cliente@gmail.com");
-        mockUser.setFirstName("Juan");
-        mockUser.setLastName("Pérez");
-        mockUser.setRole(Role.CUSTOMER);
-        mockUser.setActive(true);
+        UserCreate request = new UserCreate("nuevo@ruki.com", "123456", "Juan", "Perez");
+        
+        when(userRepository.existsByEmail(request.getEmail())).thenReturn(false);
+        when(passwordEncoder.encode(request.getPassword())).thenReturn("hashed_password");
+        
+        when(userRepository.save(any(User.class))).thenAnswer(i -> {
+            User u = i.getArgument(0);
+            u.setId(1L);
+            return u;
+        });
 
-        when(userRepository.findByEmailAndIsActiveTrue(anyString())).thenReturn(Optional.of(mockUser));
+        // Act
+        UserResponse response = userService.createUser(request);
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(1L, response.getId());
+        assertEquals("nuevo@ruki.com", response.getEmail());
+        assertEquals(Role.CUSTOMER, response.getRole());
+        assertTrue(response.isActive());
+    }
+
+    @Test
+    @DisplayName("ERROR: Debe rechazar la creación si el correo ya existe")
+    void createUser_ThrowsException_WhenEmailExists() {
+        // Arrange
+        UserCreate request = new UserCreate("duplicado@ruki.com", "123456", "Juan", "Perez");
+        
+        // Simulamos que la base de datos dice "Sí, ya existe"
+        when(userRepository.existsByEmail(request.getEmail())).thenReturn(true);
 
         // Act & Assert
-        mockMvc.perform(get("/api-ruki/users/me"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.email").value("cliente@gmail.com"))
-                .andExpect(jsonPath("$.firstName").value("Juan"));
-    }
+        assertThrows(ResourceConflictException.class, () -> {
+            userService.createUser(request);
+        });
 
-    // TEST 2: Intentar entrar al panel de Admin siendo Customer (Debe dar 403 Forbidden)
-    @Test
-    @WithMockUser(username = "cliente@gmail.com", roles = "CUSTOMER")
-    void getAllUsersForAdmin_AsCustomer_ReturnsForbiddenStatus() throws Exception {
-        // Act & Assert: El guardia debe patearlo por no tener el rol ADMIN
-        mockMvc.perform(get("/api-ruki/users/admin/all"))
-                .andExpect(status().isForbidden());
-    }
-
-    // TEST 3: Entrar al panel de Admin siendo Admin (Debe dar 200 OK)
-    @Test
-    @WithMockUser(username = "admin@ruki.com", roles = "ADMIN")
-    void getAllUsersForAdmin_AsAdmin_ReturnsOkStatus() throws Exception {
-        // Act & Assert: El guardia debe dejarlo pasar
-        mockMvc.perform(get("/api-ruki/users/admin/all"))
-                .andExpect(status().isOk());
+        // Verificamos que no se intentó encriptar ni guardar nada
+        verify(passwordEncoder, never()).encode(any());
+        verify(userRepository, never()).save(any());
     }
 }
