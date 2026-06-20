@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -550,8 +551,37 @@ public class OrderServiceImpl implements OrderService {
                 .build();
     }
 
+    // MÉTODO ASINCRONO, TOMA EL ID DE LA ORDEN ABANDONADA Y DEVUELVE EL 
+    // STOCK DE LOS PRODUCTOS A LA BODEGA VIA FEIGN Y LA MARCA COMO CANCELADA
+    @Override
+    @Async
+    @Transactional
+    public void rollbackAbandonedOrder(Long orderId) {
+        Order order = orderRepository.findById(orderId).orElse(null);
+        
+        if (order == null || order.getStatus() != OrderStatus.PENDING) {
+            return; 
+        }
+
+        log.info("CRON JOB | Cancelando pedido abandonado #{}", orderId);
+
+        for (OrderItem item : order.getItems()) {
+            try {
+                productClient.addStock(item.getProductId(), item.getQuantity(), item.getSize());
+                log.debug("CRON JOB | Stock devuelto: {} unidades del producto {} (Talla: {})", 
+                        item.getQuantity(), item.getProductId(), item.getSize());
+            } catch (Exception e) {
+                log.error("CRON JOB | ALERTA: Falló la devolución de stock para el producto {} al cancelar pedido abandonado #{}. Requiere revisión manual.", 
+                        item.getProductId(), orderId, e);
+            }
+        }
+
+        order.setStatus(OrderStatus.CANCELLED);
+        orderRepository.save(order);
+    }
+
     /*
-         Método auxiliar para convertir una entidad Order a un OrderResponse.
+        Método auxiliar para convertir una entidad Order a un OrderResponse.
     */
     private OrderResponse toResponse(Order order) {
         List<OrderResponse.OrderItemResponse> itemResponses = order.getItems().stream()

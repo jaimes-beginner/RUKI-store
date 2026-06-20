@@ -37,4 +37,12 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     */
     boolean existsByIdAndUserId(Long id, Long userId); 
 
+    // CRON JOB OPTIMIZADO, SOLO TRAE LOS IDS DE LAS ÓRDENES ABANDONADAS CON PAGINACIÓN
+    @Query("SELECT o.id FROM Order o WHERE o.status = :status AND o.createdAt < :timeThreshold")
+    Page<Long> findAbandonedOrderIds(
+            @Param("status") OrderStatus status, 
+            @Param("timeThreshold") java.time.LocalDateTime timeThreshold, 
+            Pageable pageable
+    );
+
 }

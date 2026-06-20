@@ -17,5 +17,6 @@ public interface OrderService {
     OrderResponse updateStatusFromPayment(Long orderId, String status);
     OrderResponse createPhysicalOrder(OrderCreate request, Long adminId);
     PageResponse<OrderResponse> getAllOrdersAdminPaged(int page, int size);
+    void rollbackAbandonedOrder(Long orderId);
 
 }
