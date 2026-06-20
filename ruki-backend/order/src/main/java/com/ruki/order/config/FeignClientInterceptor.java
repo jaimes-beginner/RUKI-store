@@ -51,7 +51,7 @@ public class FeignClientInterceptor implements RequestInterceptor {
             
             String systemToken = jwtUtils.generateToken(
                     Jwts.claims(), 
-                    999L, 
+                    99999999L, 
                     "system@ruki.com", 
                     List.of("ROLE_ADMIN")
             );
