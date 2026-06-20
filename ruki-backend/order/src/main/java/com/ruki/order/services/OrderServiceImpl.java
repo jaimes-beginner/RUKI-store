@@ -44,9 +44,9 @@ import java.util.stream.Collectors;
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
-    private final ProductClient productClient; /* Cliente para hablar con el microservicio de productos */
-    private final EmailService emailService;   /* Servicio para enviar correos */
-    private final UserClient userClient;       /* Cliente para hablar con el microservicio de usuarios */
+    private final ProductClient productClient; 
+    private final EmailService emailService;  
+    private final UserClient userClient;      
 
     /*
          Método para crear una orden de compra online.
