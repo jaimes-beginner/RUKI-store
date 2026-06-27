@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { crearProducto, obtenerProductosAdminPaginados, desactivarProducto, reactivarProducto, actualizarProducto, obtenerCategoriasActivas } from "@/services/ProductoService"; 
+import { crearProducto, obtenerProductosAdminPaginados, desactivarProducto, reactivarProducto, actualizarProducto, obtenerCategoriasActivas } from "@/services/ProductoService";
 import { motion, AnimatePresence } from "framer-motion";
-import { supabase } from '@/config/SupabaseConfig'; 
+import { supabase } from '@/config/SupabaseConfig';
 import './InventoryPage.css';
 
 const containerVariants = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.1 } } };
@@ -102,7 +102,7 @@ export default function InventoryPage() {
             await desactivarProducto(productoToDelete.id);
             setMensaje(`Producto #${productoToDelete.id} desactivado del sistema.`);
             cargarDatos();
-        } catch (error) { setMensaje("Error al eliminar: " + error.message); } 
+        } catch (error) { setMensaje("Error al eliminar: " + error.message); }
         finally { setShowDeleteModal(false); setProductoToDelete(null); setTimeout(() => setMensaje(""), 3500); }
     };
 
@@ -113,7 +113,7 @@ export default function InventoryPage() {
             await reactivarProducto(productoToReactivate.id);
             setMensaje(`Producto #${productoToReactivate.id} reactivado con éxito.`);
             cargarDatos();
-        } catch (error) { setMensaje("Error al reactivar: " + error.message); } 
+        } catch (error) { setMensaje("Error al reactivar: " + error.message); }
         finally { setShowReactivateModal(false); setProductoToReactivate(null); setTimeout(() => setMensaje(""), 3500); }
     };
 
@@ -139,7 +139,7 @@ export default function InventoryPage() {
             const { data: { publicUrl } } = supabase.storage.from('productos').getPublicUrl(fileName);
             setFormulario(prev => ({ ...prev, imageUrls: prev.imageUrls ? `${prev.imageUrls}, ${publicUrl}` : publicUrl }));
             setMensaje("Imagen subida con éxito");
-        } catch (error) { setMensaje("Error al subir imagen: " + error.message); } 
+        } catch (error) { setMensaje("Error al subir imagen: " + error.message); }
         finally { setLoading(false); }
     };
 
@@ -213,7 +213,7 @@ export default function InventoryPage() {
                 </AnimatePresence>
 
                 <motion.div className="row g-4 align-items-start" variants={containerVariants} initial="hidden" animate="visible">
-                    
+
                     {/* TARJETA DE FORMULARIO ALINEADA A LA IZQUIERDA */}
                     <motion.div className="col-lg-4" variants={cardVariants}>
                         <div className="inv-card text-start">
@@ -330,10 +330,29 @@ export default function InventoryPage() {
                                                 <motion.tr key={p.id} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, backgroundColor: "#ff3b3020" }} className={editingId === p.id ? 'active-row' : ''}>
                                                     <td className="ps-4 text-start">
                                                         <div className="d-flex align-items-center gap-3 text-start">
-                                                            {p.imageUrls && p.imageUrls.length > 0 ? <img src={p.imageUrls[0]} alt="" className="inv-avatar" /> : <div className="inv-avatar-fallback"><i className="fas fa-camera-retro"></i></div>}
-                                                            <div className="d-flex flex-column align-items-start">
-                                                                <div className="inv-item-name" style={{ fontSize: '11px' }}>{p.name}</div>
-                                                                <div className="inv-item-id">ID: {p.id}{p.variants && p.variants.length > 0 && <span className="inv-item-variants">&nbsp;• Tallas: {p.variants.map(v => v.size).join(', ')}</span>}</div>
+                                                            {p.imageUrls && p.imageUrls.length > 0 ? (
+                                                                <img src={p.imageUrls[0]} alt="" className="inv-avatar" />
+                                                            ) : (
+                                                                <div className="inv-avatar-fallback"><i className="fas fa-camera-retro"></i></div>
+                                                            )}
+
+                                                            <div className="d-flex flex-column align-items-start" style={{ maxWidth: '180px' }}>
+                                                                <div
+                                                                    className="inv-item-name text-truncate w-100"
+                                                                    style={{ fontSize: '11px' }}
+                                                                    title={p.name}
+                                                                >
+                                                                    {p.name}
+                                                                </div>
+
+                                                                <div className="inv-item-id text-truncate w-100">
+                                                                    ID: {p.id}
+                                                                    {p.variants && p.variants.length > 0 && (
+                                                                        <span className="inv-item-variants">
+                                                                            &nbsp;• Tallas: {p.variants.map(v => v.size).join(', ')}
+                                                                        </span>
+                                                                    )}
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </td>

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { registrarUsuario } from "@/services/AuthService";
-import { regiones } from "@/data/Regiones"; 
+import { registrarUsuario } from "@/services/AuthService"; 
 import { motion, AnimatePresence } from "framer-motion";
 import "./RegisterPage.css"; 
 
@@ -10,14 +9,20 @@ const REGEX_CONTRASENA = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
 
 export default function RegisterPage() {
     const navigate = useNavigate();
+    
+    // Estado limpio, solo lo esencial
     const [usuario, setUsuario] = useState({
-        firstName: "", lastName: "", correo: "", contrasena: "", region: "", comuna: "", direccion: "",
+        firstName: "", 
+        lastName: "", 
+        correo: "", 
+        contrasena: ""
     });
+    
     const [errores, setErrores] = useState({});
     const [mensaje, setMensaje] = useState(null);
     const [loading, setLoading] = useState(false);
 
-    const validarCampo = (name, value, formState) => {
+    const validarCampo = (name, value) => {
         let errorMsg = "";
         switch (name) {
             case "firstName": if (!value.trim()) errorMsg = "El nombre es obligatorio."; break;
@@ -30,9 +35,6 @@ export default function RegisterPage() {
                 if (!value.trim()) errorMsg = "La contraseña es obligatoria.";
                 else if (!REGEX_CONTRASENA.test(value)) errorMsg = "Mín. 8 caracteres, mayúscula, minúscula, número y especial.";
                 break;
-            case "direccion": if (!value.trim()) errorMsg = "La dirección es obligatoria."; break;
-            case "region": if (!value) errorMsg = "La región es obligatoria."; break;
-            case "comuna": if (!value) errorMsg = "La comuna es obligatoria."; break;
             default: break;
         }
         return errorMsg;
@@ -40,14 +42,8 @@ export default function RegisterPage() {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        let nuevosValores = { ...usuario, [name]: value };
-        if (name === 'region') nuevosValores.comuna = '';
-        setUsuario(nuevosValores);
-        setErrores(prev => ({
-            ...prev,
-            [name]: validarCampo(name, value, nuevosValores),
-            ...(name === 'region' ? { comuna: validarCampo('comuna', '', nuevosValores) } : {})
-        }));
+        setUsuario(prev => ({ ...prev, [name]: value }));
+        setErrores(prev => ({ ...prev, [name]: validarCampo(name, value) }));
     };
 
     const handleSubmit = async (e) => {
@@ -56,7 +52,7 @@ export default function RegisterPage() {
         let tieneErrores = false;
 
         Object.keys(usuario).forEach((key) => {
-            const error = validarCampo(key, usuario[key], usuario);
+            const error = validarCampo(key, usuario[key]);
             nuevosErrores[key] = error;
             if (error) tieneErrores = true;
         });
@@ -71,13 +67,14 @@ export default function RegisterPage() {
 
         setLoading(true);
         try {
+            // Payload limpio, exactamente lo que pide el backend
             await registrarUsuario({
                 email: usuario.correo,
                 password: usuario.contrasena,
                 firstName: usuario.firstName,
-                lastName: usuario.lastName,
-                address: { region: usuario.region, comuna: usuario.comuna, direccion: usuario.direccion },
+                lastName: usuario.lastName
             });
+            
             setMensaje({ texto: "Usuario creado con éxito. Redirigiendo...", tipo: "success" });
             setTimeout(() => navigate("/login"), 1500); 
         } catch (error) {
@@ -96,7 +93,7 @@ export default function RegisterPage() {
             <div className="container d-flex justify-content-center align-items-center" style={{ minHeight: '85vh', position: 'relative', zIndex: 1 }}>
                 <motion.div 
                     className="ios-register-card-glass w-100" 
-                    style={{ maxWidth: "680px" }}
+                    style={{ maxWidth: "500px" }} // Tarjeta más angosta y elegante
                     initial={{ opacity: 0, y: 30, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
@@ -141,69 +138,48 @@ export default function RegisterPage() {
                             </div>
                         </div>
 
-                        <div className="row g-3 mb-3">
-                            <div className="col-md-6 ios-input-group">
-                                <label>Correo Electrónico *</label>
-                                <div className="ios-input-wrapper">
-                                    <i className="fas fa-envelope input-icon"></i>
-                                    <input type="email" name="correo" placeholder="nombre@gmail.com" value={usuario.correo} onChange={handleChange} className={`ios-input-field ${errores.correo ? "is-invalid" : usuario.correo && !errores.correo ? "is-valid" : ""}`} />
-                                </div>
-                                <AnimatePresence>{errores.correo && <motion.div initial={{opacity:0, y:-5}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-5}} className="input-error-text">{errores.correo}</motion.div>}</AnimatePresence>
-                            </div>
-                            <div className="col-md-6 ios-input-group">
-                                <label>Contraseña *</label>
-                                <div className="ios-input-wrapper">
-                                    <i className="fas fa-lock input-icon"></i>
-                                    <input type="password" name="contrasena" placeholder="••••••••" value={usuario.contrasena} onChange={handleChange} className={`ios-input-field ${errores.contrasena ? "is-invalid" : usuario.contrasena && !errores.contrasena ? "is-valid" : ""}`} />
-                                </div>
-                                <AnimatePresence>{errores.contrasena && <motion.div initial={{opacity:0, y:-5}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-5}} className="input-error-text">{errores.contrasena}</motion.div>}</AnimatePresence>
-                            </div>
-                        </div>
-
                         <div className="ios-input-group mb-3">
-                            <label>Dirección *</label>
+                            <label>Correo Electrónico *</label>
                             <div className="ios-input-wrapper">
-                                <i className="fas fa-map-marker-alt input-icon"></i>
-                                <input type="text" name="direccion" placeholder="Av. Principal 123, Depto 4" value={usuario.direccion} onChange={handleChange} className={`ios-input-field ${errores.direccion ? "is-invalid" : usuario.direccion ? "is-valid" : ""}`} />
+                                <i className="fas fa-envelope input-icon"></i>
+                                <input type="email" name="correo" placeholder="nombre@gmail.com" value={usuario.correo} onChange={handleChange} className={`ios-input-field ${errores.correo ? "is-invalid" : usuario.correo && !errores.correo ? "is-valid" : ""}`} />
                             </div>
-                            <AnimatePresence>{errores.direccion && <motion.div initial={{opacity:0, y:-5}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-5}} className="input-error-text">{errores.direccion}</motion.div>}</AnimatePresence>
+                            <AnimatePresence>{errores.correo && <motion.div initial={{opacity:0, y:-5}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-5}} className="input-error-text">{errores.correo}</motion.div>}</AnimatePresence>
+                        </div>
+                        
+                        <div className="ios-input-group mb-4">
+                            <label>Contraseña *</label>
+                            <div className="ios-input-wrapper">
+                                <i className="fas fa-lock input-icon"></i>
+                                <input type="password" name="contrasena" placeholder="••••••••" value={usuario.contrasena} onChange={handleChange} className={`ios-input-field ${errores.contrasena ? "is-invalid" : usuario.contrasena && !errores.contrasena ? "is-valid" : ""}`} />
+                            </div>
+                            <AnimatePresence>{errores.contrasena && <motion.div initial={{opacity:0, y:-5}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-5}} className="input-error-text">{errores.contrasena}</motion.div>}</AnimatePresence>
                         </div>
 
-                        <div className="row g-3 mb-4">
-                            <div className="col-md-6 ios-input-group">
-                                <label>Región *</label>
-                                <div className="ios-input-wrapper">
-                                    <i className="fas fa-map input-icon"></i>
-                                    <select name="region" value={usuario.region} onChange={handleChange} className={`ios-select-field ${errores.region ? "is-invalid" : usuario.region ? "is-valid" : ""}`}>
-                                        <option value="">Selecciona una región</option>
-                                        {regiones.map((r, idx) => <option key={idx} value={r.nombre}>{r.nombre}</option>)}
-                                    </select>
-                                </div>
-                                <AnimatePresence>{errores.region && <motion.div initial={{opacity:0, y:-5}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-5}} className="input-error-text">{errores.region}</motion.div>}</AnimatePresence>
-                            </div>
-                            <div className="col-md-6 ios-input-group">
-                                <label>Comuna *</label>
-                                <div className="ios-input-wrapper">
-                                    <i className="fas fa-city input-icon"></i>
-                                    <select name="comuna" value={usuario.comuna} onChange={handleChange} disabled={!usuario.region} className={`ios-select-field ${errores.comuna ? "is-invalid" : usuario.comuna ? "is-valid" : ""}`}>
-                                        <option value="">Selecciona una comuna</option>
-                                        {(regiones.find(r => r.nombre === usuario.region)?.comunas || []).map((c, i) => <option key={i} value={c}>{c}</option>)}
-                                    </select>
-                                </div>
-                                <AnimatePresence>{errores.comuna && <motion.div initial={{opacity:0, y:-5}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-5}} className="input-error-text">{errores.comuna}</motion.div>}</AnimatePresence>
-                            </div>
-                        </div>
-
-                        <div className="d-flex flex-column flex-md-row gap-3 pt-2">
-                            <motion.button whileTap={{ scale: 0.96 }} type="button" onClick={() => navigate(-1)} className="ios-btn-back flex-grow-1">Cancelar</motion.button>
-                            <motion.button whileTap={!loading ? { scale: 0.96 } : {}} type="submit" className="ios-btn-register flex-grow-1" disabled={loading}>
+                        <div className="d-flex flex-column gap-3 pt-2">
+                            <motion.button 
+                                whileTap={!loading ? { scale: 0.96 } : {}} 
+                                type="submit" 
+                                className="ios-btn-register w-100" 
+                                disabled={loading}
+                            >
                                 {loading ? <><i className="fas fa-spinner fa-spin me-2"></i>Guardando...</> : "Crear Cuenta"}
+                            </motion.button>
+                            <motion.button 
+                                whileTap={{ scale: 0.96 }}
+                                type="button" 
+                                onClick={() => navigate(-1)} 
+                                className="ios-btn-back w-100"
+                            >
+                                Cancelar
                             </motion.button>
                         </div>
                     </form>
 
                     <div className="register-footer">
-                        <small>¿Ya tienes una cuenta? <Link to="/login" className="register-link">Inicia sesión aquí</Link></small>
+                        <small>
+                            ¿Ya tienes una cuenta? <Link to="/login" className="register-link">Inicia sesión aquí</Link>
+                        </small>
                     </div>
                 </motion.div>
             </div>

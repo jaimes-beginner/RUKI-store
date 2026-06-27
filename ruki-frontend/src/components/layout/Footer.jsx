@@ -5,21 +5,49 @@ import "./Footer.css";
 
 export default function Footer() {
   return (
-    <footer className="ruki-footer-glass">
-      <div className="ruki-footer-top-glass">
-        <motion.a href="/faq" className="ruki-top-item" whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.95 }}>
-          <div className="ruki-icon-wrapper"><i className="fas fa-question text-white fs-4"></i></div>
+    <footer className="ruki-footer-solid">
+      
+      {/* SECCIÓN SUPERIOR */}
+      <div className="ruki-footer-top-solid">
+        <motion.a 
+          href="/faq" 
+          className="ruki-top-item"
+          whileHover={{ scale: 1.05, y: -2 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <div className="ruki-icon-wrapper">
+            <i className="fas fa-question text-white fs-4"></i>
+          </div>
           <span className="ruki-top-label text-center">FAQ</span>
         </motion.a>
-        <motion.a href="https://www.google.com/maps/search/Crossfit/@-33.4946527,-70.7525297,15z/data=!3m1!4b1?entry=ttu&g_ep=EgoyMDI2MDQyOS4wIKXMDSoASAFQAw%3D%3D" className="ruki-top-item" target="_blank" rel="noreferrer" whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.95 }}>
-          <div className="ruki-icon-wrapper"><i className="fas fa-map-marker-alt text-white fs-4"></i></div>
+
+        <motion.a
+          href="https://www.google.com/maps/search/Crossfit/@-33.4946527,-70.7525297,15z/data=!3m1!4b1?entry=ttu&g_ep=EgoyMDI2MDQyOS4wIKXMDSoASAFQAw%3D%3D"
+          className="ruki-top-item"
+          target="_blank"
+          rel="noreferrer"
+          whileHover={{ scale: 1.05, y: -2 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <div className="ruki-icon-wrapper">
+            <i className="fas fa-map-marker-alt text-white fs-4"></i>
+          </div>
           <span className="ruki-top-label text-center">Encuentra tu box</span>
         </motion.a>
       </div>
 
-      <div className="ruki-footer-main-glass">
+      {/* SECCIÓN PRINCIPAL */}
+      <div className="ruki-footer-main-solid">
         <div className="ruki-footer-main-inner flex-column flex-lg-row text-center text-lg-start">
-          <motion.a href="/noticias" className="ruki-footer-card-glass mx-auto mx-lg-0" aria-label="Ir al blog de RUKI" whileHover={{ scale: 1.03, y: -4 }} whileTap={{ scale: 0.97 }}>
+          
+          <motion.a 
+            href="/noticias" 
+            className="ruki-footer-card-solid mx-auto mx-lg-0" 
+            aria-label="Ir al blog de RUKI"
+            whileHover={{ scale: 1.03, y: -4 }}
+            whileTap={{ scale: 0.97 }}
+            transition={{ type: "spring", stiffness: 400, damping: 20 }}
+          >
             <img src="/imagenes/logo.png" alt="RUKI" className="ruki-footer-logo" />
             <div className="text-start">
               <p className="ruki-card-title">Explora aquí</p>
@@ -35,7 +63,9 @@ export default function Footer() {
               <motion.div whileHover={{ x: 6 }}><Link to="/productos">Productos</Link></motion.div>
               <motion.div whileHover={{ x: 6 }}><Link to="/sale">Sale</Link></motion.div>
             </div>
+
             <div className="ruki-footer-divider d-none d-md-block" aria-hidden="true"></div>
+
             <div className="ruki-footer-column text-center text-md-end">
               <h3>AYUDA</h3>
               <motion.div whileHover={{ x: -6 }}><a href="/faq">FAQ</a></motion.div>
@@ -46,7 +76,8 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="ruki-footer-bottom-glass">
+      {/* SECCIÓN INFERIOR */}
+      <div className="ruki-footer-bottom-solid">
         <p>© {new Date().getFullYear()} RUKI S.A RUT: 96.575.290-3. Todos los derechos reservados.</p>
       </div>
     </footer>
