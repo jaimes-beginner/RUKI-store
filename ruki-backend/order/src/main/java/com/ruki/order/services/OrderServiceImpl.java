@@ -323,7 +323,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = true)
     @PreAuthorize("isAuthenticated()")
     public OrderResponse getOrderById(Long orderId, Long currentUserId, boolean isAdmin) {
-        // --- CORRECCIÓN AQUÍ: Obtener la entidad Order directamente del repositorio ---
+
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Pedido no encontrado con ID: " + orderId));
 
