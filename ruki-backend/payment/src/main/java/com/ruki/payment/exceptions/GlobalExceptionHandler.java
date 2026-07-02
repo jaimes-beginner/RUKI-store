@@ -13,10 +13,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
-/*
-    El "guardián de errores" de tu API de pagos, esto
-    Atrapa los problemas y devuelve un mensaje limpio y seguro
-*/
+
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {

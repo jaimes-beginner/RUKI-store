@@ -6,7 +6,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException; 
-import org.springframework.validation.FieldError; 
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -15,7 +14,7 @@ import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
 /*
-    Cuando algo sale mal en cualquier parte de tus controladores o servicios,
+    Cuando algo sale mal en cualquier parte de los controladores o servicios,
     este guardián lo atrapa y se asegura de que el cliente reciba una respuesta
     de error bonita y fácil de entender, en lugar de un mensaje técnico confuso
 */
